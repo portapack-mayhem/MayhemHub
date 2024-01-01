@@ -30,7 +30,7 @@ export default function Home() {
     },
     onData: (data: any) => {
       const decoder = new TextDecoder();
-      console.log(decoder.decode(data), data);
+      console.log(decoder.decode(data));
     },
   });
 

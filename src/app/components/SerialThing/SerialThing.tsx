@@ -306,25 +306,11 @@ export function useWebSerial({
     port.cancelRequested = true;
   };
 
-  //   /**
-  //    *
-  //    * @param {UIntArray} data
-  //    */
-  //   const write = async (data: UIntArray) => {
-  //     const writer = port.writable.getWriter();
-  //     try {
-  //       await writer.write(data);
-  //     } finally {
-  //       writer.releaseLock();
-  //     }
-  //   };
   /**
    *
    * @param {string} message
    */
   const write = async (message: string) => {
-    // if (port === null) return;
-
     const encoder = new TextEncoder();
     const data = encoder.encode(message + "\r\n");
     console.log(message);
