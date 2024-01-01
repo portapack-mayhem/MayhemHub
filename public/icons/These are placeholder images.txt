@@ -1,0 +1,1 @@
+These images are just placeholders to get the PWA up and running
