@@ -7,6 +7,7 @@ import {
   useState,
 } from "react";
 
+
 // RESOURCES:
 // https://web.dev/serial/
 // https://reillyeon.github.io/serial/#onconnect-attribute-0
