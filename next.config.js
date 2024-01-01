@@ -2,7 +2,8 @@
 
 const nextConfig = {
   output: "export",
-  basePath: '/MayhemHub',
+  // basePath: '/MayhemHub',
+  basePath: process.env.NEXT_PUBLIC_BASE_PATH ?? "",
   reactStrictMode: true, // Enable React strict mode for improved error handling
   swcMinify: true, // Enable SWC minification for improved performance
   compiler: {

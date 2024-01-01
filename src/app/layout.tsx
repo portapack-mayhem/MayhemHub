@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Mayhem Hub",
   description: "Web interface for everything HackRF/Portapack",
   generator: "Next.js",
-  manifest: "/manifest.json",
+  manifest: `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/manifest.json`,
   keywords: ["Portapack", "HackRF", "mayhem", "portapack-mayhem"],
   themeColor: [{ media: "(prefers-color-scheme: dark)", color: "#3f3f3f" }],
   authors: [
