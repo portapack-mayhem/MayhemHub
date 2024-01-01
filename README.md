@@ -1,10 +1,17 @@
-# [Live Site - https://portapack-mayhem.github.io/MayhemHub/](https://portapack-mayhem.github.io/MayhemHub/)
+# [Live Site - HackRF.app](https://hackrf.app/)
 
 This is a [Next.js](https://nextjs.org/) TypeScript project. We use [Tailwind](https://tailwindcss.com/) for styling.
+
 We have make this website a PWA, so you can load it even without an internet connection!
 ## Getting Started
 
-First, run the development server:
+First, install the dependencies
+
+```bash
+npm i
+```
+
+Then, run the development server:
 
 ```bash
 npm run dev
