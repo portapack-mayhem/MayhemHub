@@ -10,12 +10,14 @@
   },
   "dependencies": {
     "@ducanh2912/next-pwa": "^10.0.2",
+    "@types/w3c-web-serial": "^1.0.6",
+    "install": "^0.13.0",
     "next": "14.0.4",
+    "npm": "^10.2.5",
     "react": "^18",
     "react-dom": "^18"
   },
   "devDependencies": {
-    "@types/dom-serial": "^1.0.6",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

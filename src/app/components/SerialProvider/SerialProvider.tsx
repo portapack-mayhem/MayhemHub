@@ -7,7 +7,6 @@ import {
   useState,
 } from "react";
 
-
 // RESOURCES:
 // https://web.dev/serial/
 // https://reillyeon.github.io/serial/#onconnect-attribute-0
@@ -86,13 +85,13 @@ const SerialProvider = ({
       const port = portRef.current;
       if (port) {
         console.log("Sending message to port");
-        const writer = port.writable.getWriter();
+        const writer = port.writable?.getWriter();
 
         const encoder = new TextEncoder();
         const data = encoder.encode(message);
-        await writer.write(data);
+        await writer?.write(data);
 
-        writer.releaseLock();
+        writer?.releaseLock();
         return true;
       }
     }
