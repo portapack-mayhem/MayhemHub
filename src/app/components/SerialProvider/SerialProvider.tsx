@@ -126,7 +126,7 @@ const SerialProvider = ({
         // Can identify the vendor and product IDs by plugging in the device and visiting: chrome://device-log/
         // the IDs will be labeled `vid` and `pid`, respectively
         {
-          usbVendorId: 0x1D50,
+          usbVendorId: 0x1d50,
           usbProductId: 0x6018,
         },
       ];
