@@ -19,7 +19,7 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
   if (!canUseSerial) {
     return (
       <div
-        className="absolute inset-0 w-full h-full flex flex-col flex-1 min-h-screen items-center justify-center"
+        className="absolute inset-0 w-full h-full flex flex-col flex-1 min-h-screen items-center justify-center text-black"
       >
         <div className="flex flex-col w-full max-w-lg p-6 bg-white rounded-xl">
           <h1 className="text-xl font-medium -mt-1 mb-2">Error</h1>
