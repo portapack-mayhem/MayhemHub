@@ -1,6 +1,6 @@
-https://portapack-mayhem.github.io/MayhemHub/
+# [Live Site - https://portapack-mayhem.github.io/MayhemHub/](https://portapack-mayhem.github.io/MayhemHub/)
 
-This is a [Next.js](https://nextjs.org/) project. We use [Tailwind](https://tailwindcss.com/) for styling
+This is a [Next.js](https://nextjs.org/) TypeScript project. We use [Tailwind](https://tailwindcss.com/) for styling
 ## Getting Started
 
 First, run the development server:
