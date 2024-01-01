@@ -28,9 +28,8 @@ export default function Home() {
     onDisconnect: (data: any) => {
       console.log("onDisconnect", data);
     },
-    onData: (data: any) => {
-      const decoder = new TextDecoder();
-      console.log(decoder.decode(data));
+    onData: (data: string) => {
+      console.log(data);
     },
   });
 

@@ -90,7 +90,7 @@ export function useWebSerial({
 }: {
   onConnect?: (port: SerialPort) => void;
   onDisconnect?: (port: SerialPort) => void;
-  onData: (data: Uint8Array) => void;
+  onData: (data: string) => void;
 }) {
   if (!navigator.serial) {
     throw new Error("WebSerial is not available");
@@ -273,20 +273,21 @@ export function useWebSerial({
     port.cancelRequested = false;
     const reader = port.readable.getReader();
 
+    //===================
+
+    let decoder = new TextDecoder();
+    let completeString = "";
+
     try {
-      let { value, done }: ReadableStreamReadResult<Uint8Array> = {
-        value: new Uint8Array(),
-        done: false,
-      };
-
       do {
-        ({ value, done } = await reader.read());
-
-        if (done || !value) {
-          break;
-        }
-
-        onData(value);
+        await reader.read().then(({ done, value }) => {
+          completeString += decoder.decode(value);
+          if (done || completeString.endsWith("ch> ")) {
+            onData(completeString);
+            completeString = "";
+            return;
+          }
+        });
       } while (!port.cancelRequested);
     } finally {
       reader.releaseLock();
