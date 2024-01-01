@@ -23,17 +23,16 @@ export default function Home() {
 
   const serial = useWebSerial({
     onConnect: (data: any) => {
-      console.log(data);
+      console.log("onConnect", data);
     },
     onDisconnect: (data: any) => {
-      console.log(data);
+      console.log("onDisconnect", data);
     },
     onData: (data: any) => {
       const decoder = new TextDecoder();
-      console.log(decoder.decode(data));
+      console.log(decoder.decode(data), data);
     },
   });
-  console.log(serial.port);
 
   const selectHackRf = async () => {
     await serial.requestPort(filters);

@@ -326,7 +326,8 @@ export function useWebSerial({
     // if (port === null) return;
 
     const encoder = new TextEncoder();
-    const data = encoder.encode(message);
+    const data = encoder.encode(message + "\r\n");
+    console.log(message);
 
     const writer = port?.writable?.getWriter();
     try {
