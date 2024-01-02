@@ -1,39 +1,8 @@
 import { useEffect, useState } from "react";
 
-// interface SerialPort {
-//   readable: ReadableStream<Uint8Array>;
-//   writable: WritableStream<Uint8Array>;
-//   getSignals(): Promise<Signals>;
-//   setSignals(signals: Signals): Promise<void>;
-//   getInfo(): PortInfo;
-//   open(options: PortOptions): Promise<void>;
-//   close(): Promise<void>;
-//   cancelRequested: boolean;
-// }
-
-// interface PortInfo {
-//   usbVendorId: number;
-//   usbProductId: number;
-// }
-
-// interface PortOptions {
-//   baudRate: BaudRatesType;
-//   bufferSize: number;
-//   dataBits: DataBitsType;
-//   stopBits: StopBitsType;
-//   flowControl: FlowControlType;
-//   parity: ParityType;
-// }
-
-// interface Signals {
-//   break: boolean;
-//   dataTerminalReady: boolean;
-//   requestToSend: boolean;
-//   clearToSend: boolean;
-//   dataCarrierDetect: boolean;
-//   dataSetReady: boolean;
-//   ringIndicator: boolean;
-// }
+interface WebSerialPort extends SerialPort {
+  cancelRequested: boolean;
+}
 
 type BaudRatesType =
   | 1200
@@ -54,7 +23,7 @@ type StopBitsType = 1 | 2;
 
 interface WebSerialContext {
   initialized: boolean;
-  ports: SerialPort[];
+  ports: WebSerialPort[];
 }
 
 const webSerialContext: WebSerialContext = {
@@ -77,8 +46,8 @@ function useInterval(callback: () => void, delay: number) {
 /**
  *
  * @param {{
- *  onConnect?: (SerialPort) => undefined
- *  onDisconnect?: (SerialPort) => undefined
+ *  onConnect?: (WebSerialPort) => undefined
+ *  onDisconnect?: (WebSerialPort) => undefined
  *  onData: (Uint8Array) => undefined
  * }}
  * @returns
@@ -88,16 +57,16 @@ export function useWebSerial({
   onDisconnect,
   onData,
 }: {
-  onConnect?: (port: SerialPort) => void;
-  onDisconnect?: (port: SerialPort) => void;
+  onConnect?: (port: WebSerialPort) => void;
+  onDisconnect?: (port: WebSerialPort) => void;
   onData: (data: string) => void;
 }) {
   if (!navigator.serial) {
     throw new Error("WebSerial is not available");
   }
 
-  const [port, setPort] = useState<SerialPort | undefined>();
-  const [ports, setPorts] = useState<SerialPort[]>(webSerialContext.ports);
+  const [port, setPort] = useState<WebSerialPort | undefined>();
+  const [ports, setPorts] = useState<WebSerialPort[]>(webSerialContext.ports);
   const [isOpen, setIsOpen] = useState(false);
   const [isReading, setIsReading] = useState(false);
   const [baudRate, setBaudRate] = useState<BaudRatesType>(115200);
@@ -182,9 +151,9 @@ export function useWebSerial({
 
     navigator.serial.getPorts().then((ports) => {
       if (ports.length >= 1) {
-        webSerialContext.ports = ports;
-        setPorts(ports);
-        setPort(ports[0]);
+        webSerialContext.ports = ports as WebSerialPort[];
+        setPorts(ports as WebSerialPort[]);
+        setPort(ports[0] as WebSerialPort);
       }
     });
   }, []);
@@ -197,15 +166,15 @@ export function useWebSerial({
     await navigator.serial
       .requestPort({ filters: filters ? [filters] : [] })
       .then((port) => {
-        setPort(port);
+        setPort(port as WebSerialPort);
       });
   };
 
   /**
    *
-   * @param {SerialPort} port
+   * @param {WebSerialPort} port
    */
-  const portInfo = (port: SerialPort) => {
+  const portInfo = (port: WebSerialPort) => {
     const info = port.getInfo();
     if (info.usbVendorId && info.usbProductId) {
       return {

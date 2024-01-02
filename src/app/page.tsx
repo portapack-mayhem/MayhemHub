@@ -23,6 +23,7 @@ export default function Home() {
 
   const serial = useWebSerial({
     onConnect: (data: any) => {
+      // ToDo: Auto connect when its connected (But have a select toggle to be able to turn this off)
       console.log("onConnect", data);
     },
     onDisconnect: (data: any) => {
