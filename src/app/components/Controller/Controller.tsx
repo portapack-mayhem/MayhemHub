@@ -55,6 +55,20 @@ export default function Controller() {
             <div></div>
           </div>
         </div>
+        <div className="flex items-center justify-center gap-4">
+          <button
+            onClick={() => serial.write("button 6")}
+            className="w-16 h-16 bg-slate-400 text-white rounded"
+          >
+            DFU
+          </button>
+          <button
+            onClick={() => serial.write("reboot")}
+            className="w-16 h-16 bg-slate-400 text-white rounded"
+          >
+            Reboot
+          </button>
+        </div>
 
         <button
           className="p-2 bg-slate-400 text-white rounded"
