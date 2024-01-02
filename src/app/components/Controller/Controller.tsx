@@ -26,7 +26,7 @@ export default function Controller() {
 
     // if (!serial.write("screenframeshort")) return false;
 
-    const lines = consoleMessage;
+    const lines = consoleMessage.split("\r\n");
     const ctx = canvasRef.current?.getContext("2d");
 
     if (!ctx) return false;
@@ -37,7 +37,7 @@ export default function Controller() {
       for (let o = 0, x = 0; o < line.length && x < 240; o++, x++) {
         try {
           let by = line.charCodeAt(o) - 32;
-          let r = (by >> 4) << 2;
+          let r = ((by >> 4) & 3) << 6;
           let g = ((by >> 2) & 3) << 6;
           let b = (by & 3) << 6;
 
