@@ -1,11 +1,11 @@
 "use client";
 
+import Controller from "./components/Controller/Controller";
 import dynamic from "next/dynamic";
-import SerialLoader from "./components/SerialLoader/SerialLoader";
 
 export default function Home() {
-  const SerialProvider = dynamic(
-    async () => await import("./components/SerialProvider/SerialProvider"),
+  const SerialLoader = dynamic(
+    async () => await import("./components/SerialLoader/SerialLoader"),
     {
       loading: () => <p>Loading...</p>,
       ssr: false,
@@ -13,14 +13,10 @@ export default function Home() {
   );
 
   return (
-    <SerialProvider>
-      <main className="flex min-h-screen flex-col items-center justify-between p-24">
-        <div>
-          <SerialLoader>
-            <p>Connected to HackRF!</p>
-          </SerialLoader>
-        </div>
-      </main>
-    </SerialProvider>
+    <main className="flex min-h-screen f-full flex-col items-center justify-between p-24">
+      <SerialLoader>
+        <Controller />
+      </SerialLoader>
+    </main>
   );
 }

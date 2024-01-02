@@ -1,71 +1,89 @@
-import { Fragment, PropsWithChildren, useRef } from "react";
-import { useSerial } from "../SerialProvider/SerialProvider";
+import {
+  Fragment,
+  PropsWithChildren,
+  createContext,
+  useContext,
+  useRef,
+  useState,
+} from "react";
+import useWebSerial, {
+  UseWebSerialReturn,
+} from "../SerialProvider/SerialProvider";
 
 interface SerialLoaderProps {}
 
-const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
-  const { canUseSerial, portState, hasTriedAutoconnect, connect } = useSerial();
+export interface SerialContextValue {
+  serial: UseWebSerialReturn;
+  consoleMessage: string;
+}
+export const SerialContext = createContext<SerialContextValue>({
+  serial: {} as UseWebSerialReturn,
+  consoleMessage: "",
+});
 
+// custom hook to use the context
+export const useSerial = () => useContext(SerialContext);
+
+const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
   const pairButtonRef = useRef<HTMLButtonElement>(null);
+  const [consoleMessage, setConsoleMessage] = useState<string>();
+
+  const serial: UseWebSerialReturn = useWebSerial({
+    onConnect: (data: any) => {
+      // ToDo: Auto connect when its connected (But have a select toggle to be able to turn this off)
+      console.log("onConnect", data);
+    },
+    onDisconnect: (data: any) => {
+      console.log("onDisconnect", data);
+    },
+    onData: (data: string) => {
+      console.log(data);
+      setConsoleMessage(data);
+    },
+  });
 
   const onPairButtonClick = async () => {
-    const hasConnected = await connect();
+    // Can identify the vendor and product IDs by plugging in the device and visiting: chrome://device-log/
+    // the IDs will be labeled `vid` and `pid`, respectively
+    const options: SerialPortRequestOptions = {
+      filters: [
+        {
+          usbVendorId: 0x1d50,
+          usbProductId: 0x6018,
+        },
+      ],
+    };
+
+    // const hasConnected = await connect();
+    const hasConnected = await serial.manualConnectToPort(options);
     if (!hasConnected) {
       pairButtonRef.current?.focus();
     }
   };
 
-  // If can't use serial, return error message
-  if (!canUseSerial) {
-    return (
-      <div
-        className="absolute inset-0 w-full h-full flex flex-col flex-1 min-h-screen items-center justify-center text-black"
-      >
-        <div className="flex flex-col w-full max-w-lg p-6 bg-white rounded-xl">
-          <h1 className="text-xl font-medium -mt-1 mb-2">Error</h1>
-          <p className="mb-1">
-            Your browser doesn&apos;t support the{" "}
-            <a
-              className="text-green-900 hocus:underline"
-              href="https://web.dev/serial/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Web Serial API
-            </a>
-            !
-          </p>
-          <p>Please try switching to a supported browser (e.g., Chrome 89).</p>
-        </div>
+  const errorMessage = () => (
+    <div className="absolute inset-0 w-full h-full flex flex-col flex-1 min-h-screen items-center justify-center text-black">
+      <div className="flex flex-col w-full max-w-lg p-6 bg-white rounded-xl">
+        <h1 className="text-xl font-medium -mt-1 mb-2">Error</h1>
+        <p className="mb-1">
+          Your browser doesn&apos;t support the{" "}
+          <a
+            className="text-green-900 hocus:underline"
+            href="https://web.dev/serial/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Web Serial API
+          </a>
+          !
+        </p>
+        <p>Please try switching to a supported browser (e.g., Chrome 89).</p>
       </div>
-    );
-  }
+    </div>
+  );
 
-  // If port is open, show the children!
-  if (portState === "open") {
-    return <Fragment>{children}</Fragment>;
-  }
-
-  // If autoconnect hasn't run its course yet, wait for that...
-  if (!hasTriedAutoconnect) {
-    return null;
-  }
-
-  // If autoconnect fails, then show manual connect button
-
-  let buttonText = "";
-  if (portState === "closed") {
-    buttonText = "Connect device";
-  } else if (portState === "opening") {
-    buttonText = "Connecting...";
-  } else if (portState === "closing") {
-    buttonText = "Disconnecting...";
-  }
-
-  return (
-    <div
-      className="absolute inset-0 w-full h-full flex flex-col flex-1 items-center justify-center text-black"
-    >
+  const connectScreen = () => (
+    <div className="absolute inset-0 w-full h-full flex flex-col flex-1 items-center justify-center text-black">
       <div className="flex flex-col w-full max-w-4xl p-10 bg-white rounded-3xl">
         <h1 className="text-4xl font-semibold mb-5">Get Started</h1>
 
@@ -76,13 +94,41 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
         <button
           className="text-3xl text-white bg-green-800 p-5 pb-6 rounded-xl transition-all ring-green-800 ring-0 ring-opacity-50 hocus:bg-green-900 focus:(outline-none ring-8) disabled:(text-gray-500 cursor-not-allowed)"
           ref={pairButtonRef}
-          disabled={portState === "opening" || portState === "closing"}
+          disabled={
+            serial.portState === "opening" || serial.portState === "closing"
+          }
           onClick={onPairButtonClick}
         >
           {buttonText}
         </button>
       </div>
     </div>
+  );
+  // If can't use serial, return error message
+  if (!serial.canUseSerial) {
+    return errorMessage();
+  }
+
+  // If autoconnect fails, then show manual connect button
+  let buttonText = "";
+  if (serial.portState === "closed") {
+    buttonText = "Connect device";
+  } else if (serial.portState === "opening") {
+    buttonText = "Connecting...";
+  } else if (serial.portState === "closing") {
+    buttonText = "Disconnecting...";
+  }
+
+  return (
+    <SerialContext.Provider
+      value={{ serial, consoleMessage: consoleMessage || "" }}
+    >
+      {serial.portState === "open" ? (
+        <Fragment>{children}</Fragment>
+      ) : (
+        connectScreen()
+      )}
+    </SerialContext.Provider>
   );
 };
 

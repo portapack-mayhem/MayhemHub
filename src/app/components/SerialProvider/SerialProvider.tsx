@@ -1,168 +1,189 @@
-import {
-  createContext,
-  PropsWithChildren,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useEffect, useRef, useState } from "react";
 
+// Needing to do this as the typescript definitions for the Web Serial API are not yet complete
+interface WebSerialPort extends SerialPort {
+  cancelRequested: boolean;
+}
 
-// RESOURCES:
-// https://web.dev/serial/
-// https://reillyeon.github.io/serial/#onconnect-attribute-0
-// https://codelabs.developers.google.com/codelabs/web-serial
+type BaudRatesType =
+  | 1200
+  | 2400
+  | 4800
+  | 9600
+  | 14400
+  | 31250
+  | 38400
+  | 56000
+  | 57600
+  | 76800
+  | 115200;
+
+type DataBitsType = 7 | 8;
+
+type StopBitsType = 1 | 2;
 
 export type PortState = "closed" | "closing" | "open" | "opening";
 
-export type SerialMessage = {
-  value: string;
-  timestamp: number;
+interface WebSerialContext {
+  initialized: boolean;
+  ports: WebSerialPort[];
+}
+
+const webSerialContext: WebSerialContext = {
+  initialized: false,
+  ports: [],
 };
 
-type SerialMessageCallback = (message: SerialMessage) => void;
-
-export interface SerialContextValue {
-  canUseSerial: boolean;
-  hasTriedAutoconnect: boolean;
-  portState: PortState;
-  connect(): Promise<boolean>;
-  disconnect(): void;
-  subscribe(callback: SerialMessageCallback): () => void;
-  sendMessage(message: string): Promise<boolean>;
+/**
+ *
+ * @param {() => void} callback
+ * @param {number} delay
+ */
+function useInterval(callback: () => void, delay: number) {
+  useEffect(() => {
+    const id = setInterval(callback, delay);
+    return () => clearInterval(id);
+  }, [callback, delay]);
 }
-export const SerialContext = createContext<SerialContextValue>({
-  canUseSerial: false,
-  hasTriedAutoconnect: false,
-  connect: () => Promise.resolve(false),
-  disconnect: () => {},
-  portState: "closed",
-  subscribe: () => () => {},
-  sendMessage: (message: string) => Promise.resolve(false),
-});
 
-export const useSerial = () => useContext(SerialContext);
+export interface UseWebSerialReturn {
+  ports: WebSerialPort[];
+  isOpen: boolean;
+  isReading: boolean;
+  canUseSerial: boolean;
+  portState: PortState;
+  hasTriedAutoconnect: boolean;
+  portInfo: (port: WebSerialPort) => {
+    usbVendorId: number;
+    usbProductId: number;
+    usbId: string;
+  } | null;
+  manualConnectToPort: (options?: SerialPortRequestOptions) => Promise<boolean>;
+  openPort: (newPort: WebSerialPort) => Promise<void>;
+  closePort: () => Promise<void>;
+  startReading: () => Promise<void>;
+  stopReading: () => Promise<void>;
+  write: (message: string) => Promise<void>;
+  options: {
+    baudRate: BaudRatesType;
+    bufferSize: number;
+    dataBits: DataBitsType;
+    stopBits: StopBitsType;
+    flowControl: FlowControlType;
+    parity: ParityType;
+    setBaudRate: (baudRate: BaudRatesType) => void;
+    setBufferSize: (bufferSize: number) => void;
+    setDataBits: (dataBits: DataBitsType) => void;
+    setStopBits: (stopBits: StopBitsType) => void;
+    setFlowControl: (flowControl: FlowControlType) => void;
+    setParity: (parity: ParityType) => void;
+  };
+  signals: {
+    break: boolean;
+    dataTerminalReady: boolean;
+    requestToSend: boolean;
+    clearToSend: boolean;
+    dataCarrierDetect: boolean;
+    dataSetReady: boolean;
+    ringIndicator: boolean;
+    setBreak: (value: boolean) => void;
+    setDataTerminalReady: (value: boolean) => void;
+    setRequestToSend: (value: boolean) => void;
+  };
+}
+/**
+ *
+ * @param {{
+ *  onConnect?: (WebSerialPort) => undefined
+ *  onDisconnect?: (WebSerialPort) => undefined
+ *  onData: (Uint8Array) => undefined
+ * }}
+ * @returns
+ */
+const useWebSerial = ({
+  onConnect,
+  onDisconnect,
+  onData,
+}: {
+  onConnect?: (port: WebSerialPort) => void;
+  onDisconnect?: (port: WebSerialPort) => void;
+  onData: (data: string) => void;
+}): UseWebSerialReturn => {
+  if (!navigator.serial) {
+    throw new Error("WebSerial is not available");
+  }
 
-interface SerialProviderProps {}
-const SerialProvider = ({
-  children,
-}: PropsWithChildren<SerialProviderProps>) => {
-  const [canUseSerial] = useState(() => "serial" in navigator);
-
-  const [portState, setPortState] = useState<PortState>("closed");
   const [hasTriedAutoconnect, setHasTriedAutoconnect] = useState(false);
-  const [hasManuallyDisconnected, setHasManuallyDisconnected] = useState(false);
 
-  const portRef = useRef<SerialPort | null>(null);
-  const readerRef = useRef<ReadableStreamDefaultReader | null>(null);
-  const readerClosedPromiseRef = useRef<Promise<void>>(Promise.resolve());
+  const [canUseSerial] = useState(() => "serial" in navigator);
+  const portState = useRef<PortState>("closed");
+  const portRef = useRef<WebSerialPort | null>(null);
+  const [ports, setPorts] = useState<WebSerialPort[]>(webSerialContext.ports);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isReading, setIsReading] = useState(false);
+  const [baudRate, setBaudRate] = useState<BaudRatesType>(115200);
+  const [bufferSize, setBufferSize] = useState(255);
+  const [dataBits, setDataBits] = useState<DataBitsType>(8);
+  const [stopBits, setStopBits] = useState<StopBitsType>(1);
+  const [flowControl, setFlowControl] = useState<FlowControlType>("none");
+  const [parity, setParity] = useState<ParityType>("none");
+  const [dataTerminalReady, setDataTerminalReady] = useState(false);
+  const [requestToSend, setRequestToSend] = useState(false);
+  const [breakSignal, setBreak] = useState(false);
+  const [clearToSend, setClearToSend] = useState(false);
+  const [dataCarrierDetect, setDataCarrierDetect] = useState(false);
+  const [dataSetReady, setDataSetReady] = useState(false);
+  const [ringIndicator, setRingIndicator] = useState(false);
 
-  const currentSubscriberIdRef = useRef<number>(0);
-  const subscribersRef = useRef<Map<number, SerialMessageCallback>>(new Map());
-  /**
-   * Subscribes a callback function to the message event.
-   *
-   * @param callback the callback function to subscribe
-   * @returns an unsubscribe function
-   */
-  const subscribe = (callback: SerialMessageCallback) => {
-    const id = currentSubscriberIdRef.current;
-    subscribersRef.current.set(id, callback);
-    currentSubscriberIdRef.current++;
-
-    return () => {
-      subscribersRef.current.delete(id);
-    };
-  };
-
-  /**
-   * Sends a messge to the port
-   *
-   * @param message string to send
-   * @returns if successfully
-   */
-  const sendMessageToPort = async (message: string) => {
-    if (portState === "open") {
-      const port = portRef.current;
-      if (port) {
-        console.log("Sending message to port");
-        const writer = port.writable.getWriter();
-
-        const encoder = new TextEncoder();
-        const data = encoder.encode(message);
-        await writer.write(data);
-
-        writer.releaseLock();
-        return true;
-      }
-    }
-    return false;
-  };
-
-  /**
-   * Reads from the given port until it's been closed.
-   *
-   * @param port the port to read from
-   */
-  const readUntilClosed = async (port: SerialPort) => {
-    if (port.readable) {
-      const textDecoder = new TextDecoderStream();
-      const readableStreamClosed = port.readable.pipeTo(textDecoder.writable);
-      readerRef.current = textDecoder.readable.getReader();
-
-      try {
-        while (true) {
-          const { value, done } = await readerRef.current.read();
-          if (done) {
-            break;
-          }
-          const timestamp = Date.now();
-          Array.from(subscribersRef.current).forEach(([name, callback]) => {
-            callback({ value, timestamp });
-          });
+  useInterval(() => {
+    const port = portRef.current;
+    if (port?.readable) {
+      port.getSignals().then((signals: any) => {
+        if (signals.clearToSend !== clearToSend) {
+          setClearToSend(signals.clearToSend);
         }
-      } catch (error) {
-        console.error(error);
-      } finally {
-        readerRef.current.releaseLock();
-      }
+        if (signals.dataCarrierDetect !== dataCarrierDetect) {
+          setDataCarrierDetect(signals.dataCarrierDetect);
+        }
+        if (signals.dataSetReady !== dataSetReady) {
+          setDataSetReady(signals.dataSetReady);
+        }
+        if (signals.ringIndicator !== ringIndicator) {
+          setRingIndicator(signals.ringIndicator);
+        }
+      });
+    }
+  }, 100);
 
-      await readableStreamClosed.catch(() => {}); // Ignore the error
+  const _onConnect = () => {
+    const port = portRef.current;
+    if (onConnect && port) {
+      onConnect(port);
+    }
+  };
+
+  const _onDisconnect = () => {
+    const port = portRef.current;
+    if (onDisconnect && port) {
+      portState.current = "closed";
+      onDisconnect(port);
     }
   };
 
   /**
-   * Attempts to open the given port.
+   *
+   * @param {SerialPortRequestOptions} [options]
    */
-  const openPort = async (port: SerialPort) => {
-    try {
-      await port.open({ baudRate: 9600 });
-      portRef.current = port;
-      setPortState("open");
-      setHasManuallyDisconnected(false);
-    } catch (error) {
-      setPortState("closed");
-      console.error("Could not open port");
-    }
-  };
+  const manualConnectToPort = async (options?: SerialPortRequestOptions) => {
+    if (canUseSerial && portState.current === "closed") {
+      portState.current = "opening";
 
-  const manualConnectToPort = async () => {
-    if (canUseSerial && portState === "closed") {
-      setPortState("opening");
-      const filters = [
-        // Can identify the vendor and product IDs by plugging in the device and visiting: chrome://device-log/
-        // the IDs will be labeled `vid` and `pid`, respectively
-        {
-          usbVendorId: 0x1d50,
-          usbProductId: 0x6018,
-        },
-      ];
       try {
-        const port = await navigator.serial.requestPort({ filters });
-        await openPort(port);
+        const port = await navigator.serial.requestPort(options);
+        openPort(port as WebSerialPort);
         return true;
       } catch (error) {
-        setPortState("closed");
+        portState.current = "closed";
         console.error("User did not select port");
       }
     }
@@ -170,111 +191,256 @@ const SerialProvider = ({
   };
 
   const autoConnectToPort = async () => {
-    if (canUseSerial && portState === "closed") {
-      setPortState("opening");
+    if (canUseSerial && portState.current === "closed") {
+      portState.current = "opening";
+      const port = portRef.current;
+
       const availablePorts = await navigator.serial.getPorts();
       if (availablePorts.length) {
         const port = availablePorts[0];
-        await openPort(port);
+        await openPort(port as WebSerialPort);
         return true;
       } else {
-        setPortState("closed");
+        portState.current = "closed";
       }
       setHasTriedAutoconnect(true);
     }
     return false;
   };
 
-  const manualDisconnectFromPort = async () => {
-    if (canUseSerial && portState === "open") {
-      const port = portRef.current;
-      if (port) {
-        setPortState("closing");
-
-        // Cancel any reading from port
-        readerRef.current?.cancel();
-        await readerClosedPromiseRef.current;
-        readerRef.current = null;
-
-        // Close and nullify the port
-        await port.close();
-        portRef.current = null;
-
-        // Update port state
-        setHasManuallyDisconnected(true);
-        setHasTriedAutoconnect(false);
-        setPortState("closed");
-      }
+  /**
+   *
+   * @param {WebSerialPort} port
+   */
+  const portInfo = (port: WebSerialPort) => {
+    const info = port.getInfo();
+    if (info.usbVendorId && info.usbProductId) {
+      return {
+        usbVendorId: info.usbVendorId,
+        usbProductId: info.usbProductId,
+        usbId: `${info.usbVendorId
+          .toString(16)
+          .padStart(4, "0")}:${info.usbProductId
+          .toString(16)
+          .padStart(4, "0")}`,
+      };
     }
+    return null;
+  };
+
+  const openPort = async (newPort: WebSerialPort) => {
+    if (!newPort) {
+      throw new Error("useWebSerial: No port selected");
+    }
+
+    if (newPort.readable) {
+      throw new Error("useWebSerial: Port already opened");
+    }
+
+    try {
+      await newPort.open({
+        baudRate,
+        bufferSize,
+        dataBits,
+        flowControl,
+        parity,
+        stopBits,
+      });
+      portRef.current = newPort;
+      portState.current = "open";
+      setIsOpen(true);
+    } catch (error) {
+      portState.current = "closed";
+      setIsOpen(false);
+      console.error("Could not open port");
+    }
+  };
+
+  const closePort = async () => {
+    const port = portRef.current;
+    if (!port) {
+      throw new Error("useWebSerial: No port selected");
+    }
+
+    if (!port.readable) {
+      throw new Error("useWebSerial: Port not opened");
+    }
+
+    if (port.readable.locked) {
+      throw new Error("useWebSerial: Port is locked (stopReading first)");
+    }
+
+    await port.close();
+
+    setIsOpen(false);
+  };
+
+  const startReading = async () => {
+    const port = portRef.current;
+    if (!port) {
+      throw new Error("no port selected");
+    }
+
+    if (!port.readable) {
+      throw new Error("port not opened");
+    }
+
+    setIsReading(true);
+    port.cancelRequested = false;
+    const reader = port.readable.getReader();
+
+    let decoder = new TextDecoder();
+    let completeString = "";
+
+    try {
+      do {
+        await reader.read().then(({ done, value }) => {
+          completeString += decoder.decode(value);
+          if (done || completeString.endsWith("ch> ")) {
+            onData(completeString);
+            completeString = "";
+            return;
+          }
+        });
+      } while (!port.cancelRequested);
+    } finally {
+      reader.releaseLock();
+    }
+  };
+
+  const stopReading = async () => {
+    const port = portRef.current;
+    if (!port) {
+      throw new Error("no port selected");
+    }
+
+    if (!port.readable) {
+      throw new Error("port not opened");
+    }
+
+    setIsReading(false);
+    port.cancelRequested = true;
   };
 
   /**
-   * Event handler for when the port is disconnected unexpectedly.
+   *
+   * @param {string} message
    */
-  const onPortDisconnect = async () => {
-    // Wait for the reader to finish it's current loop
-    await readerClosedPromiseRef.current;
-    // Update state
-    readerRef.current = null;
-    readerClosedPromiseRef.current = Promise.resolve();
-    portRef.current = null;
-    setHasTriedAutoconnect(false);
-    setPortState("closed");
+  const write = async (message: string) => {
+    const port = portRef.current;
+    const encoder = new TextEncoder();
+    const data = encoder.encode(message + "\r\n");
+    console.log(message);
+
+    const writer = port?.writable?.getWriter();
+    try {
+      await writer?.write(data);
+    } finally {
+      writer?.releaseLock();
+    }
   };
 
-  // Handles attaching the reader and disconnect listener when the port is open
+  useEffect(() => {
+    navigator.serial.addEventListener("connect", _onConnect);
+    navigator.serial.addEventListener("disconnect", _onDisconnect);
+    return () => {
+      navigator.serial.removeEventListener("connect", _onConnect);
+      navigator.serial.removeEventListener("disconnect", _onDisconnect);
+    };
+  });
+
+  useEffect(() => {
+    if (webSerialContext.initialized) {
+      return;
+    }
+
+    webSerialContext.initialized = true;
+
+    navigator.serial.getPorts().then((ports) => {
+      if (ports.length >= 1) {
+        webSerialContext.ports = ports as WebSerialPort[];
+        setPorts(ports as WebSerialPort[]);
+        portRef.current = ports[0] as WebSerialPort;
+      }
+    });
+  }, []);
+
+  useEffect(() => {}, [
+    baudRate,
+    bufferSize,
+    dataBits,
+    stopBits,
+    flowControl,
+    parity,
+  ]);
+
   useEffect(() => {
     const port = portRef.current;
-    if (portState === "open" && port) {
-      // When the port is open, read until closed
-      const aborted = { current: false };
-      readerRef.current?.cancel();
-      readerClosedPromiseRef.current.then(() => {
-        if (!aborted.current) {
-          readerRef.current = null;
-          readerClosedPromiseRef.current = readUntilClosed(port);
-        }
+    if (port && port.readable) {
+      port.setSignals({
+        break: breakSignal,
+        dataTerminalReady,
+        requestToSend,
       });
-
-      // Attach a listener for when the device is disconnected
-      navigator.serial.addEventListener("disconnect", onPortDisconnect);
-
-      return () => {
-        aborted.current = true;
-        navigator.serial.removeEventListener("disconnect", onPortDisconnect);
-      };
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [portState]);
+  }, [portRef, dataTerminalReady, requestToSend, breakSignal]);
 
   // Tries to auto-connect to a port, if possible
   useEffect(() => {
     if (
       canUseSerial &&
-      !hasManuallyDisconnected &&
       !hasTriedAutoconnect &&
-      portState === "closed"
+      portState.current === "closed"
     ) {
       autoConnectToPort();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [canUseSerial, hasManuallyDisconnected, hasTriedAutoconnect, portState]);
+  }, [canUseSerial, hasTriedAutoconnect, portState]);
 
-  return (
-    <SerialContext.Provider
-      value={{
-        canUseSerial,
-        hasTriedAutoconnect,
-        subscribe,
-        portState,
-        connect: manualConnectToPort,
-        disconnect: manualDisconnectFromPort,
-        sendMessage: sendMessageToPort,
-      }}
-    >
-      {children}
-    </SerialContext.Provider>
-  );
+  return {
+    ports,
+    isOpen,
+    isReading,
+    canUseSerial,
+    portState: portState.current,
+    hasTriedAutoconnect,
+    portInfo,
+    manualConnectToPort,
+    openPort,
+    closePort,
+    startReading,
+    stopReading,
+    write,
+    options: {
+      baudRate,
+      bufferSize,
+      dataBits,
+      stopBits,
+      flowControl,
+      parity,
+      setBaudRate,
+      setBufferSize,
+      setDataBits,
+      setStopBits,
+      setFlowControl,
+      setParity,
+    },
+    signals: {
+      break: breakSignal,
+      dataTerminalReady,
+      requestToSend,
+      clearToSend,
+      dataCarrierDetect,
+      dataSetReady,
+      ringIndicator,
+      setBreak,
+      setDataTerminalReady,
+      setRequestToSend,
+    },
+  };
 };
+export default useWebSerial;
 
-export default SerialProvider;
+const getString: () => string = () => {
+  return "Hello, world!";
+};
