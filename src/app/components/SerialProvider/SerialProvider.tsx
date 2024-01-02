@@ -46,6 +46,51 @@ function useInterval(callback: () => void, delay: number) {
   }, [callback, delay]);
 }
 
+export interface UseWebSerialReturn {
+  ports: WebSerialPort[];
+  isOpen: boolean;
+  isReading: boolean;
+  canUseSerial: boolean;
+  portState: PortState;
+  hasTriedAutoconnect: boolean;
+  portInfo: (port: WebSerialPort) => {
+    usbVendorId: number;
+    usbProductId: number;
+    usbId: string;
+  } | null;
+  manualConnectToPort: (options?: SerialPortRequestOptions) => Promise<boolean>;
+  openPort: (newPort: WebSerialPort) => Promise<void>;
+  closePort: () => Promise<void>;
+  startReading: () => Promise<void>;
+  stopReading: () => Promise<void>;
+  write: (message: string) => Promise<void>;
+  options: {
+    baudRate: BaudRatesType;
+    bufferSize: number;
+    dataBits: DataBitsType;
+    stopBits: StopBitsType;
+    flowControl: FlowControlType;
+    parity: ParityType;
+    setBaudRate: (baudRate: BaudRatesType) => void;
+    setBufferSize: (bufferSize: number) => void;
+    setDataBits: (dataBits: DataBitsType) => void;
+    setStopBits: (stopBits: StopBitsType) => void;
+    setFlowControl: (flowControl: FlowControlType) => void;
+    setParity: (parity: ParityType) => void;
+  };
+  signals: {
+    break: boolean;
+    dataTerminalReady: boolean;
+    requestToSend: boolean;
+    clearToSend: boolean;
+    dataCarrierDetect: boolean;
+    dataSetReady: boolean;
+    ringIndicator: boolean;
+    setBreak: (value: boolean) => void;
+    setDataTerminalReady: (value: boolean) => void;
+    setRequestToSend: (value: boolean) => void;
+  };
+}
 /**
  *
  * @param {{
@@ -55,7 +100,7 @@ function useInterval(callback: () => void, delay: number) {
  * }}
  * @returns
  */
-export function useWebSerial({
+const useWebSerial = ({
   onConnect,
   onDisconnect,
   onData,
@@ -63,7 +108,7 @@ export function useWebSerial({
   onConnect?: (port: WebSerialPort) => void;
   onDisconnect?: (port: WebSerialPort) => void;
   onData: (data: string) => void;
-}) {
+}): UseWebSerialReturn => {
   if (!navigator.serial) {
     throw new Error("WebSerial is not available");
   }
@@ -120,6 +165,7 @@ export function useWebSerial({
   const _onDisconnect = () => {
     const port = portRef.current;
     if (onDisconnect && port) {
+      portState.current = "closed";
       onDisconnect(port);
     }
   };
@@ -392,4 +438,9 @@ export function useWebSerial({
       setRequestToSend,
     },
   };
-}
+};
+export default useWebSerial;
+
+const getString: () => string = () => {
+  return "Hello, world!";
+};
