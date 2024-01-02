@@ -54,6 +54,29 @@ export default function Controller() {
     <>
       <div className="flex flex-col items-center justify-center gap-5 p-5 w-full h-full">
         <h1>Connected to HackRF!</h1>
+        {!serial.isReading && "Enable console for buttons to enable"}
+        <button
+          disabled={!serial.isReading}
+          type="submit"
+          className="p-2 bg-red-500 text-white rounded-md disabled:bg-slate-200"
+          onClick={() => {
+            serial.write("screenframeshort");
+          }}
+        >
+          get frame
+        </button>
+        <button
+          disabled={!serial.isReading}
+          type="submit"
+          className="p-2 bg-red-500 text-white rounded-md disabled:bg-slate-200"
+          onClick={() => {
+            sendScreenFrameShort();
+          }}
+        >
+          render frame
+        </button>
+        <canvas ref={canvasRef} width={241} height={321} />
+
         <div className="flex flex-col items-center justify-center">
           <div className="grid grid-rows-3 grid-flow-col gap-4">
             <div></div>
@@ -155,28 +178,6 @@ export default function Controller() {
             />
           </>
         )}
-        {!serial.isReading && "Enable console for buttons to enable"}
-        <button
-          disabled={!serial.isReading}
-          type="submit"
-          className="p-2 bg-red-500 text-white rounded-md disabled:bg-slate-200"
-          onClick={() => {
-            serial.write("screenframeshort");
-          }}
-        >
-          get frame
-        </button>
-        <button
-          disabled={!serial.isReading}
-          type="submit"
-          className="p-2 bg-red-500 text-white rounded-md disabled:bg-slate-200"
-          onClick={() => {
-            sendScreenFrameShort();
-          }}
-        >
-          render frame
-        </button>
-        <canvas ref={canvasRef} width={241} height={321} />
       </div>
     </>
   );
