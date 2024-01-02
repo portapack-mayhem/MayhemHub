@@ -129,7 +129,6 @@ export function useWebSerial({
    * @param {SerialPortRequestOptions} [options]
    */
   const manualConnectToPort = async (options?: SerialPortRequestOptions) => {
-    console.log("manualConnectToPort HIT");
     if (canUseSerial && portState.current === "closed") {
       portState.current = "opening";
 
@@ -146,13 +145,11 @@ export function useWebSerial({
   };
 
   const autoConnectToPort = async () => {
-    console.log("autoConnectToPort HIT");
     if (canUseSerial && portState.current === "closed") {
       portState.current = "opening";
       const port = portRef.current;
 
       const availablePorts = await navigator.serial.getPorts();
-      console.log(port, availablePorts);
       if (availablePorts.length) {
         const port = availablePorts[0];
         await openPort(port as WebSerialPort);
@@ -234,7 +231,6 @@ export function useWebSerial({
 
   const startReading = async () => {
     const port = portRef.current;
-    console.log("startReading", port);
     if (!port) {
       throw new Error("no port selected");
     }
@@ -350,7 +346,6 @@ export function useWebSerial({
       !hasTriedAutoconnect &&
       portState.current === "closed"
     ) {
-      console.log("useEffect", portState);
       autoConnectToPort();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -361,7 +356,7 @@ export function useWebSerial({
     isOpen,
     isReading,
     canUseSerial,
-    portState,
+    portState: portState.current,
     hasTriedAutoconnect,
     portInfo,
     manualConnectToPort,
