@@ -6,6 +6,12 @@ import { useSerial } from "../SerialLoader/SerialLoader";
 export default function Controller() {
   const { serial, consoleMessage } = useSerial();
   const [consoleMessageList, setConsoleMessageList] = useState<string>("");
+  const [command, setCommand] = useState<string>("");
+
+  const sendCommand = () => {
+    serial.write(command);
+    setCommand("");
+  };
 
   useEffect(() => {
     setConsoleMessageList(
@@ -70,26 +76,45 @@ export default function Controller() {
           </button>
         </div>
 
-        <button
-          className="p-2 bg-slate-400 text-white rounded"
-          onClick={() => serial.write("info")}
-        >
-          Send info command
-        </button>
-        {!serial.isReading && (
+        {!serial.isReading ? (
           <button
             className="p-2 bg-orange-300 text-white rounded"
             onClick={() => serial.startReading()}
           >
             Start reading console
           </button>
+        ) : (
+          <>
+            <div className="flex items-center justify-center mt-10 w-[80%] gap-1">
+              <input
+                type="text"
+                value={command}
+                onChange={(e) => setCommand(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    sendCommand();
+                  }
+                }}
+                className="p-2 border-2 border-blue-500 rounded-md text-black w-full"
+              />
+              <button
+                type="submit"
+                className="p-2 bg-blue-500 text-white rounded-md"
+                onClick={() => {
+                  sendCommand();
+                }}
+              >
+                Send
+              </button>
+            </div>
+            <textarea
+              className="w-[80%] h-[350px] p-2 bg-gray-200 rounded text-black"
+              readOnly
+              value={consoleMessageList}
+            />
+          </>
         )}
-
-        <textarea
-          className="w-[80%] h-[350px] p-2 bg-gray-200 rounded text-black"
-          readOnly
-          value={consoleMessageList}
-        />
       </div>
     </>
   );
