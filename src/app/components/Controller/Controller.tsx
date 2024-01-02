@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useSerial } from "../SerialLoader/SerialLoader";
 
 export default function Controller() {
   const { serial, consoleMessage } = useSerial();
   const [consoleMessageList, setConsoleMessageList] = useState<string>("");
   const [command, setCommand] = useState<string>("");
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const sendCommand = () => {
     serial.write(command);
@@ -18,6 +19,36 @@ export default function Controller() {
       (prevConsoleMessageList) => prevConsoleMessageList + consoleMessage
     );
   }, [consoleMessage]);
+
+  const sendScreenFrameShort = async () => {
+    const width = 241;
+    const height = 321;
+
+    // if (!serial.write("screenframeshort")) return false;
+
+    const lines = consoleMessage;
+    const ctx = canvasRef.current?.getContext("2d");
+
+    if (!ctx) return false;
+
+    for (let y = 0; y < lines.length; y++) {
+      let line = lines[y];
+      if (line.startsWith("screenframe")) continue;
+      for (let o = 0, x = 0; o < line.length && x < 240; o++, x++) {
+        try {
+          let by = line.charCodeAt(o) - 32;
+          let r = (by >> 4) << 2;
+          let g = ((by >> 2) & 3) << 6;
+          let b = (by & 3) << 6;
+
+          ctx.fillStyle = `rgb(${r},${g},${b})`;
+          ctx?.fillRect(x, y, 1, 1);
+        } catch (err) {
+          console.error(err);
+        }
+      }
+    }
+  };
 
   return (
     <>
@@ -124,6 +155,25 @@ export default function Controller() {
             />
           </>
         )}
+        <button
+          type="submit"
+          className="p-2 bg-red-500 text-white rounded-md"
+          onClick={() => {
+            serial.write("screenframeshort");
+          }}
+        >
+          get frame
+        </button>
+        <button
+          type="submit"
+          className="p-2 bg-red-500 text-white rounded-md"
+          onClick={() => {
+            sendScreenFrameShort();
+          }}
+        >
+          frame
+        </button>
+        <canvas ref={canvasRef} width={241} height={321} />
       </div>
     </>
   );
