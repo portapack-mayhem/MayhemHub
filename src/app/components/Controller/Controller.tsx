@@ -107,6 +107,15 @@ export default function Controller() {
               >
                 Send
               </button>
+              <button
+                type="submit"
+                className="p-2 bg-red-500 text-white rounded-md"
+                onClick={() => {
+                  setConsoleMessageList("");
+                }}
+              >
+                Clear
+              </button>
             </div>
             <textarea
               className="w-[80%] h-[350px] p-2 bg-gray-200 rounded text-black"
