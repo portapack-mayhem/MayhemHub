@@ -1,13 +1,21 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useSerial } from "../SerialLoader/SerialLoader";
 
 export default function Controller() {
-  const { serial } = useSerial();
+  const { serial, consoleMessage } = useSerial();
+  const [consoleMessageList, setConsoleMessageList] = useState<string>("");
+
+  useEffect(() => {
+    setConsoleMessageList(
+      (prevConsoleMessageList) => prevConsoleMessageList + consoleMessage
+    );
+  }, [consoleMessage]);
 
   return (
     <>
-      <div className="flex flex-col items-center justify-center gap-5 p-5">
+      <div className="flex flex-col items-center justify-center gap-5 p-5 w-full h-full">
         <h1>Connected to HackRF!</h1>
         <div className="flex flex-col items-center justify-center">
           <div className="grid grid-rows-3 grid-flow-col gap-4">
@@ -62,6 +70,12 @@ export default function Controller() {
             Start reading console
           </button>
         )}
+
+        <textarea
+          className="w-[80%] h-[350px] p-2 bg-gray-200 rounded text-black"
+          readOnly
+          value={consoleMessageList}
+        />
       </div>
     </>
   );

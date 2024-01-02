@@ -4,6 +4,7 @@ import {
   createContext,
   useContext,
   useRef,
+  useState,
 } from "react";
 import useWebSerial, {
   UseWebSerialReturn,
@@ -13,18 +14,19 @@ interface SerialLoaderProps {}
 
 export interface SerialContextValue {
   serial: UseWebSerialReturn;
+  consoleMessage: string;
 }
 export const SerialContext = createContext<SerialContextValue>({
   serial: {} as UseWebSerialReturn,
+  consoleMessage: "",
 });
 
 // custom hook to use the context
 export const useSerial = () => useContext(SerialContext);
 
 const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
-  // const { canUseSerial, portState, hasTriedAutoconnect, connect } = useSerial();
-
   const pairButtonRef = useRef<HTMLButtonElement>(null);
+  const [consoleMessage, setConsoleMessage] = useState<string>();
 
   const serial: UseWebSerialReturn = useWebSerial({
     onConnect: (data: any) => {
@@ -36,6 +38,7 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
     },
     onData: (data: string) => {
       console.log(data);
+      setConsoleMessage(data);
     },
   });
 
@@ -117,11 +120,11 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
   }
 
   return (
-    <SerialContext.Provider value={{ serial }}>
+    <SerialContext.Provider
+      value={{ serial, consoleMessage: consoleMessage || "" }}
+    >
       {serial.portState === "open" ? (
-        <SerialContext.Provider value={{ serial }}>
-          <Fragment>{children}</Fragment>
-        </SerialContext.Provider>
+        <Fragment>{children}</Fragment>
       ) : (
         connectScreen()
       )}
