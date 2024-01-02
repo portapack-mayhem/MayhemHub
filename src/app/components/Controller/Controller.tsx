@@ -155,9 +155,11 @@ export default function Controller() {
             />
           </>
         )}
+        {!serial.isReading && "Enable console for buttons to enable"}
         <button
+          disabled={!serial.isReading}
           type="submit"
-          className="p-2 bg-red-500 text-white rounded-md"
+          className="p-2 bg-red-500 text-white rounded-md disabled:bg-slate-200"
           onClick={() => {
             serial.write("screenframeshort");
           }}
@@ -165,13 +167,14 @@ export default function Controller() {
           get frame
         </button>
         <button
+          disabled={!serial.isReading}
           type="submit"
-          className="p-2 bg-red-500 text-white rounded-md"
+          className="p-2 bg-red-500 text-white rounded-md disabled:bg-slate-200"
           onClick={() => {
             sendScreenFrameShort();
           }}
         >
-          frame
+          render frame
         </button>
         <canvas ref={canvasRef} width={241} height={321} />
       </div>
