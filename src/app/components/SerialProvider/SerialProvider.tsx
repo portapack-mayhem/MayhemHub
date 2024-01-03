@@ -39,12 +39,12 @@ const webSerialContext: WebSerialContext = {
  * @param {() => void} callback
  * @param {number} delay
  */
-function useInterval(callback: () => void, delay: number) {
+const useInterval = (callback: () => void, delay: number) => {
   useEffect(() => {
     const id = setInterval(callback, delay);
     return () => clearInterval(id);
   }, [callback, delay]);
-}
+};
 
 export interface UseWebSerialReturn {
   ports: WebSerialPort[];

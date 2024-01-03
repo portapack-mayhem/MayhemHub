@@ -1,9 +1,9 @@
 "use client";
 
-import Controller from "./components/Controller/Controller";
 import dynamic from "next/dynamic";
+import Controller from "./components/Controller/Controller";
 
-export default function Home() {
+const Home = () => {
   const SerialLoader = dynamic(
     async () => await import("./components/SerialLoader/SerialLoader"),
     {
@@ -13,10 +13,11 @@ export default function Home() {
   );
 
   return (
-    <main className="flex min-h-screen f-full flex-col items-center justify-between p-1">
+    <main className="flex h-full min-h-screen flex-col items-center justify-between p-1">
       <SerialLoader>
         <Controller />
       </SerialLoader>
     </main>
   );
-}
+};
+export default Home;

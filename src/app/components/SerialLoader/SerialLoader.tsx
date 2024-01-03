@@ -62,13 +62,13 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
   };
 
   const errorMessage = () => (
-    <div className="absolute inset-0 w-full h-full flex flex-col flex-1 min-h-screen items-center justify-center text-black">
-      <div className="flex flex-col w-full max-w-lg p-6 bg-white rounded-xl">
-        <h1 className="text-xl font-medium -mt-1 mb-2">Error</h1>
+    <div className="absolute inset-0 flex h-full min-h-screen w-full flex-1 flex-col items-center justify-center text-black">
+      <div className="flex w-full max-w-lg flex-col rounded-xl bg-white p-6">
+        <h1 className="-mt-1 mb-2 text-xl font-medium">Error</h1>
         <p className="mb-1">
           Your browser doesn&apos;t support the{" "}
           <a
-            className="text-green-900 hocus:underline"
+            className="hocus:underline text-green-900"
             href="https://web.dev/serial/"
             target="_blank"
             rel="noopener noreferrer"
@@ -83,16 +83,16 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
   );
 
   const connectScreen = () => (
-    <div className="absolute inset-0 w-full h-full flex flex-col flex-1 items-center justify-center text-black">
-      <div className="flex flex-col w-full max-w-4xl p-10 bg-white rounded-3xl">
-        <h1 className="text-4xl font-semibold mb-5">Get Started</h1>
+    <div className="absolute inset-0 flex h-full w-full flex-1 flex-col items-center justify-center text-black">
+      <div className="flex w-full max-w-4xl flex-col rounded-3xl bg-white p-10">
+        <h1 className="mb-5 text-4xl font-semibold">Get Started</h1>
 
-        <p className="text-3xl mb-10 leading-snug">
+        <p className="mb-10 text-3xl leading-snug">
           Connect your HackRF via USB to get started.
         </p>
 
         <button
-          className="text-3xl text-white bg-green-800 p-5 pb-6 rounded-xl transition-all ring-green-800 ring-0 ring-opacity-50 hocus:bg-green-900 focus:(outline-none ring-8) disabled:(text-gray-500 cursor-not-allowed)"
+          className="rounded-xl bg-green-800 p-5 pb-6 text-3xl text-white ring-0 ring-green-800/50 transition-all focus:bg-green-900 focus:outline-none focus:ring-8 disabled:cursor-not-allowed disabled:text-gray-500"
           ref={pairButtonRef}
           disabled={
             serial.portState === "opening" || serial.portState === "closing"

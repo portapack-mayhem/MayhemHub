@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useSerial } from "../SerialLoader/SerialLoader";
 import ToggleSwitch from "../ToggleSwitch/ToggleSwitch";
 
-export default function Controller() {
+const Controller = () => {
   const { serial, consoleMessage } = useSerial();
   const [consoleMessageList, setConsoleMessageList] = useState<string>("");
   const [command, setCommand] = useState<string>("");
@@ -56,8 +56,6 @@ export default function Controller() {
     const height = 321;
     if (!consoleMessage.includes("screenframe")) return;
 
-    // if (!serial.write("screenframeshort")) return false;
-
     const lines = consoleMessage.split("\r\n");
     const ctx = canvasRef.current?.getContext("2d");
 
@@ -98,19 +96,22 @@ export default function Controller() {
 
   return (
     <>
-      <div className="flex flex-col items-center justify-center gap-5 p-5 w-full h-full">
+      <div className="flex h-full w-full flex-col items-center justify-center gap-5 p-5">
         <h1>Connected to HackRF!</h1>
         {!serial.isReading && "Enable console for buttons to enable"}
         <div
           id="ControllerSection"
-          className="flex flex-col items-center justify-center gap-5 p-5 w-full h-full"
+          className="flex h-full w-full flex-col items-center justify-center gap-5 p-5"
           onWheel={handleScroll}
         >
           <div>
             <p>Live Screen</p>
             <ToggleSwitch
               isToggle={autoUpdateFrame}
-              toggleSwitch={() => setAutoUpdateFrame(!autoUpdateFrame)}
+              toggleSwitch={() => {
+                if (!autoUpdateFrame) write("screenframeshort", false);
+                setAutoUpdateFrame(!autoUpdateFrame);
+              }}
             />
           </div>
           <canvas
@@ -122,48 +123,48 @@ export default function Controller() {
           />
 
           <div className="flex flex-col items-center justify-center">
-            <div className="grid grid-rows-3 grid-flow-col gap-4">
+            <div className="grid grid-flow-col grid-rows-3 gap-4">
               <div></div>
               <button
                 onClick={() => write("button 2", autoUpdateFrame)}
-                className="w-16 h-16 bg-green-500 text-white rounded"
+                className="h-16 w-16 rounded bg-green-500 text-white"
               >
                 Left
               </button>
               <button
                 onClick={() => write("button 7", autoUpdateFrame)}
-                className="w-12 h-12 bg-blue-400 text-white rounded self-end justify-self-start"
+                className="h-12 w-12 self-end justify-self-start rounded bg-blue-400 text-white"
               >
                 ←
               </button>
               <button
                 onClick={() => write("button 4", autoUpdateFrame)}
-                className="w-16 h-16 bg-green-500 text-white rounded"
+                className="h-16 w-16 rounded bg-green-500 text-white"
               >
                 Up
               </button>
               <button
                 onClick={() => write("button 5", autoUpdateFrame)}
-                className="w-16 h-16 bg-blue-500 text-white rounded"
+                className="h-16 w-16 rounded bg-blue-500 text-white"
               >
                 OK
               </button>
               <button
                 onClick={() => write("button 3", autoUpdateFrame)}
-                className="w-16 h-16 bg-green-500 text-white rounded"
+                className="h-16 w-16 rounded bg-green-500 text-white"
               >
                 Down
               </button>
               <div></div>
               <button
                 onClick={() => write("button 1", autoUpdateFrame)}
-                className="w-16 h-16 bg-green-500 text-white rounded"
+                className="h-16 w-16 rounded bg-green-500 text-white"
               >
                 Right
               </button>
               <button
                 onClick={() => write("button 8", autoUpdateFrame)}
-                className="w-12 h-12 bg-blue-400 text-white rounded self-end justify-self-end"
+                className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white"
               >
                 →
               </button>
@@ -172,13 +173,13 @@ export default function Controller() {
           <div className="flex items-center justify-center gap-4">
             <button
               onClick={() => write("button 6", autoUpdateFrame)}
-              className="w-16 h-16 bg-slate-400 text-white rounded"
+              className="h-16 w-16 rounded bg-slate-400 text-white"
             >
               DFU
             </button>
             <button
               onClick={() => write("reboot", autoUpdateFrame)}
-              className="w-16 h-16 bg-slate-400 text-white rounded"
+              className="h-16 w-16 rounded bg-slate-400 text-white"
             >
               Reboot
             </button>
@@ -187,14 +188,14 @@ export default function Controller() {
 
         {!serial.isReading ? (
           <button
-            className="p-2 bg-orange-300 text-white rounded"
+            className="rounded bg-orange-300 p-2 text-white"
             onClick={() => serial.startReading()}
           >
             Start reading console
           </button>
         ) : (
           <>
-            <div className="flex items-center justify-center mt-10 w-[80%] gap-1">
+            <div className="mt-10 flex w-[80%] items-center justify-center gap-1">
               <input
                 type="text"
                 value={command}
@@ -205,11 +206,11 @@ export default function Controller() {
                     sendCommand();
                   }
                 }}
-                className="p-2 border-2 border-blue-500 rounded-md text-black w-full"
+                className="w-full rounded-md border-2 border-blue-500 p-2 text-black"
               />
               <button
                 type="submit"
-                className="p-2 bg-blue-500 text-white rounded-md"
+                className="rounded-md bg-blue-500 p-2 text-white"
                 onClick={() => {
                   sendCommand();
                 }}
@@ -218,7 +219,7 @@ export default function Controller() {
               </button>
               <button
                 type="submit"
-                className="p-2 bg-red-500 text-white rounded-md"
+                className="rounded-md bg-red-500 p-2 text-white"
                 onClick={() => {
                   setConsoleMessageList("");
                 }}
@@ -227,7 +228,7 @@ export default function Controller() {
               </button>
             </div>
             <textarea
-              className="w-[80%] h-[350px] p-2 bg-gray-200 rounded text-black"
+              className="h-[350px] w-[80%] rounded bg-gray-200 p-2 text-black"
               readOnly
               value={consoleMessageList}
             />
@@ -236,4 +237,6 @@ export default function Controller() {
       </div>
     </>
   );
-}
+};
+
+export default Controller;
