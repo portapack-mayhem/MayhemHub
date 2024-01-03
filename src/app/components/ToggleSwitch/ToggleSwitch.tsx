@@ -20,11 +20,11 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
         />
         <div
           className={`h-6 w-10 rounded-full bg-gray-400 shadow-inner ${
-            isToggle ? " bg-green-400" : " bg-gray-400"
+            isToggle ? "bg-green-400" : "bg-gray-400"
           }`}
         ></div>
         <div
-          className={`absolute inset-y-0 left-0 h-6 w-6 rounded-full bg-white shadow${
+          className={`absolute inset-y-0 left-0 h-6 w-6 rounded-full bg-white shadow ${
             isToggle ? "translate-x-full" : ""
           }`}
         ></div>
