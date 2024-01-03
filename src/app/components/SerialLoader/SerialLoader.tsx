@@ -66,18 +66,21 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
       <div className="flex w-full max-w-lg flex-col rounded-xl bg-white p-6">
         <h1 className="-mt-1 mb-2 text-xl font-medium">Error</h1>
         <p className="mb-1">
-          Your browser doesn&apos;t support the{" "}
+          Looks like your browser doesn&apos;t support the{" "}
           <a
             className="hocus:underline text-green-900"
-            href="https://web.dev/serial/"
+            href="https://caniuse.com/web-serial"
             target="_blank"
             rel="noopener noreferrer"
           >
             Web Serial API
           </a>
-          !
+          😔
         </p>
-        <p>Please try switching to a supported browser (e.g., Chrome 89).</p>
+        <p>
+          Please try switching to a supported browser (e.g., Chrome, Edge,
+          Opera...).
+        </p>
       </div>
     </div>
   );

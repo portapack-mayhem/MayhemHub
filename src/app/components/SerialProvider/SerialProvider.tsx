@@ -109,10 +109,6 @@ const useWebSerial = ({
   onDisconnect?: (port: WebSerialPort) => void;
   onData: (data: string) => void;
 }): UseWebSerialReturn => {
-  if (!navigator.serial) {
-    throw new Error("WebSerial is not available");
-  }
-
   const [hasTriedAutoconnect, setHasTriedAutoconnect] = useState(false);
 
   const [canUseSerial] = useState(() => "serial" in navigator);
@@ -280,6 +276,7 @@ const useWebSerial = ({
 
   const startReading = async () => {
     const port = portRef.current;
+
     if (!port) {
       throw new Error("no port selected");
     }
@@ -344,16 +341,18 @@ const useWebSerial = ({
   };
 
   useEffect(() => {
-    navigator.serial.addEventListener("connect", _onConnect);
-    navigator.serial.addEventListener("disconnect", _onDisconnect);
-    return () => {
-      navigator.serial.removeEventListener("connect", _onConnect);
-      navigator.serial.removeEventListener("disconnect", _onDisconnect);
-    };
+    if (canUseSerial) {
+      navigator.serial.addEventListener("connect", _onConnect);
+      navigator.serial.addEventListener("disconnect", _onDisconnect);
+      return () => {
+        navigator.serial.removeEventListener("connect", _onConnect);
+        navigator.serial.removeEventListener("disconnect", _onDisconnect);
+      };
+    }
   });
 
   useEffect(() => {
-    if (webSerialContext.initialized) {
+    if (webSerialContext.initialized || !canUseSerial) {
       return;
     }
 
