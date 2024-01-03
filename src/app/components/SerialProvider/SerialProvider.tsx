@@ -330,7 +330,7 @@ const useWebSerial = ({
     const port = portRef.current;
     const encoder = new TextEncoder();
     const data = encoder.encode(message + "\r\n");
-    console.log(message);
+    // console.log(message);
 
     const writer = port?.writable?.getWriter();
     try {
