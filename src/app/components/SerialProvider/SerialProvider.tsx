@@ -193,7 +193,6 @@ const useWebSerial = ({
   const autoConnectToPort = async () => {
     if (canUseSerial && portState.current === "closed") {
       portState.current = "opening";
-      const port = portRef.current;
 
       const availablePorts = await navigator.serial.getPorts();
       if (availablePorts.length) {
@@ -234,7 +233,11 @@ const useWebSerial = ({
     }
 
     if (newPort.readable) {
-      throw new Error("useWebSerial: Port already opened");
+      console.log("Port already opened, reconnecting...");
+      portRef.current = newPort;
+      portState.current = "open";
+      setIsOpen(true);
+      return;
     }
 
     try {
