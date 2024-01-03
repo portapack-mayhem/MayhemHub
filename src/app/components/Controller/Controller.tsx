@@ -2,27 +2,54 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useSerial } from "../SerialLoader/SerialLoader";
+import ToggleSwitch from "../ToggleSwitch/ToggleSwitch";
 
 export default function Controller() {
   const { serial, consoleMessage } = useSerial();
   const [consoleMessageList, setConsoleMessageList] = useState<string>("");
   const [command, setCommand] = useState<string>("");
+  const [autoUpdateFrame, setAutoUpdateFrame] = useState<boolean>(true);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
+  const delay = (ms: number) =>
+    new Promise((resolve) => setTimeout(resolve, ms));
+
+  const write = async (command: string, updateFrame: boolean) => {
+    await serial.write(command).then(async (data) => {
+      if (updateFrame) {
+        await delay(50);
+        serial.write("screenframeshort");
+      }
+    });
+  };
+
   const sendCommand = () => {
-    serial.write(command);
+    write(command, false);
     setCommand("");
   };
 
   useEffect(() => {
+    if (consoleMessage.includes("screenframe")) renderFrame();
+
     setConsoleMessageList(
       (prevConsoleMessageList) => prevConsoleMessageList + consoleMessage
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [consoleMessage]);
 
-  const sendScreenFrameShort = async () => {
+  useEffect(() => {
+    if (serial.isOpen && !serial.isReading) {
+      console.log(serial);
+      console.log("OPEN");
+      serial.startReading();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serial.isOpen]);
+
+  const renderFrame = () => {
     const width = 241;
     const height = 321;
+    if (!consoleMessage.includes("screenframe")) return;
 
     // if (!serial.write("screenframeshort")) return false;
 
@@ -50,6 +77,8 @@ export default function Controller() {
     }
   };
 
+  //   setInterval(sendScreenFrameShort, 500);
+
   return (
     <>
       <div className="flex flex-col items-center justify-center gap-5 p-5 w-full h-full">
@@ -60,54 +89,57 @@ export default function Controller() {
           type="submit"
           className="p-2 bg-red-500 text-white rounded-md disabled:bg-slate-200"
           onClick={() => {
-            serial.write("screenframeshort");
+            write("screenframeshort", false);
           }}
         >
           get frame
         </button>
-        <button
-          disabled={!serial.isReading}
-          type="submit"
-          className="p-2 bg-red-500 text-white rounded-md disabled:bg-slate-200"
-          onClick={() => {
-            sendScreenFrameShort();
-          }}
-        >
-          render frame
-        </button>
-        <canvas ref={canvasRef} width={241} height={321} />
+        <div>
+          <p>Live screen</p>
+          <ToggleSwitch
+            isToggle={autoUpdateFrame}
+            toggleSwitch={() => setAutoUpdateFrame(!autoUpdateFrame)}
+          />
+        </div>
+        <canvas
+          ref={canvasRef}
+          width={241}
+          height={321}
+          className="cursor-pointer shadow-glow shadow-neutral-500"
+          onClick={() => write("screenframeshort", false)}
+        />
 
         <div className="flex flex-col items-center justify-center">
           <div className="grid grid-rows-3 grid-flow-col gap-4">
             <div></div>
             <button
-              onClick={() => serial.write("button 2")}
+              onClick={() => write("button 2", autoUpdateFrame)}
               className="w-16 h-16 bg-green-500 text-white rounded"
             >
               Left
             </button>
             <div></div>
             <button
-              onClick={() => serial.write("button 4")}
+              onClick={() => write("button 4", autoUpdateFrame)}
               className="w-16 h-16 bg-green-500 text-white rounded"
             >
               Up
             </button>
             <button
-              onClick={() => serial.write("button 5")}
+              onClick={() => write("button 5", autoUpdateFrame)}
               className="w-16 h-16 bg-blue-500 text-white rounded"
             >
               OK
             </button>
             <button
-              onClick={() => serial.write("button 3")}
+              onClick={() => write("button 3", autoUpdateFrame)}
               className="w-16 h-16 bg-green-500 text-white rounded"
             >
               Down
             </button>
             <div></div>
             <button
-              onClick={() => serial.write("button 1")}
+              onClick={() => write("button 1", autoUpdateFrame)}
               className="w-16 h-16 bg-green-500 text-white rounded"
             >
               Right
@@ -117,13 +149,13 @@ export default function Controller() {
         </div>
         <div className="flex items-center justify-center gap-4">
           <button
-            onClick={() => serial.write("button 6")}
+            onClick={() => write("button 6", autoUpdateFrame)}
             className="w-16 h-16 bg-slate-400 text-white rounded"
           >
             DFU
           </button>
           <button
-            onClick={() => serial.write("reboot")}
+            onClick={() => write("reboot", autoUpdateFrame)}
             className="w-16 h-16 bg-slate-400 text-white rounded"
           >
             Reboot
