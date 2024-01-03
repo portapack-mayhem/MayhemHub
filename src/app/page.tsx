@@ -13,7 +13,7 @@ export default function Home() {
   );
 
   return (
-    <main className="flex min-h-screen f-full flex-col items-center justify-between p-24">
+    <main className="flex min-h-screen f-full flex-col items-center justify-between p-1">
       <SerialLoader>
         <Controller />
       </SerialLoader>
