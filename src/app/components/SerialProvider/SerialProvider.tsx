@@ -155,6 +155,7 @@ const useWebSerial = ({
     const port = portRef.current;
     if (onConnect && port) {
       onConnect(port);
+      autoConnectToPort();
     }
   };
 

@@ -123,7 +123,12 @@ const Controller = () => {
             width={241}
             height={321}
             className="cursor-pointer shadow-glow shadow-neutral-500"
-            onClick={() => write("screenframeshort", false)}
+            onClick={() => {
+              if (!loadingFrame) {
+                setLoadingFrame(true);
+                write("screenframeshort", false);
+              }
+            }}
           />
           <HotkeyButton
             disabled={loadingFrame}
