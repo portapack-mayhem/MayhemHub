@@ -11,6 +11,8 @@ export default function Controller() {
   const [autoUpdateFrame, setAutoUpdateFrame] = useState<boolean>(true);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
+  const started = useRef<boolean>(false);
+
   const delay = (ms: number) =>
     new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -38,13 +40,13 @@ export default function Controller() {
   }, [consoleMessage]);
 
   useEffect(() => {
-    if (serial.isOpen && !serial.isReading) {
-      console.log(serial);
-      console.log("OPEN");
+    if (serial.isOpen && !serial.isReading && !started.current) {
+      started.current = true;
       serial.startReading();
+      write("screenframeshort", false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [serial.isOpen]);
+  }, [serial]);
 
   const renderFrame = () => {
     const width = 241;
@@ -84,18 +86,8 @@ export default function Controller() {
       <div className="flex flex-col items-center justify-center gap-5 p-5 w-full h-full">
         <h1>Connected to HackRF!</h1>
         {!serial.isReading && "Enable console for buttons to enable"}
-        <button
-          disabled={!serial.isReading}
-          type="submit"
-          className="p-2 bg-red-500 text-white rounded-md disabled:bg-slate-200"
-          onClick={() => {
-            write("screenframeshort", false);
-          }}
-        >
-          get frame
-        </button>
         <div>
-          <p>Live screen</p>
+          <p>Live Screen</p>
           <ToggleSwitch
             isToggle={autoUpdateFrame}
             toggleSwitch={() => setAutoUpdateFrame(!autoUpdateFrame)}
