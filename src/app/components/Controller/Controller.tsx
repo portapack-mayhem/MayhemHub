@@ -108,33 +108,47 @@ const Controller = () => {
           className="flex h-full w-full flex-col items-center justify-center gap-5 p-5"
           onWheel={handleScroll}
         >
-          <div>
+          <div className="flex flex-col items-center justify-center">
             <p>Live Screen</p>
-            <ToggleSwitch
-              isToggle={autoUpdateFrame}
-              toggleSwitch={() => {
-                if (!autoUpdateFrame) write("screenframeshort", false);
-                setAutoUpdateFrame(!autoUpdateFrame);
-              }}
-            />
+            <div className="flex flex-row items-center justify-center gap-5">
+              <ToggleSwitch
+                isToggle={autoUpdateFrame}
+                toggleSwitch={() => {
+                  if (!autoUpdateFrame) write("screenframeshort", false);
+                  setAutoUpdateFrame(!autoUpdateFrame);
+                }}
+              />
+              <HotkeyButton
+                label="🔄"
+                disabled={loadingFrame}
+                onClickFunction={() => {
+                  if (!loadingFrame) {
+                    setLoadingFrame(true);
+                    write("screenframeshort", false);
+                  }
+                }}
+                className="h-6 w-6 bg-blue-500"
+                shortcutKeys={"R"}
+              />
+            </div>
           </div>
           <canvas
             ref={canvasRef}
             width={241}
             height={321}
-            className="cursor-pointer shadow-glow shadow-neutral-500"
-            onClick={() => {
-              if (!loadingFrame) {
-                setLoadingFrame(true);
-                write("screenframeshort", false);
-              }
+            className={`${
+              !loadingFrame && "cursor-pointer"
+            } shadow-glow shadow-neutral-500`}
+            onMouseDown={(
+              event: React.MouseEvent<HTMLCanvasElement, MouseEvent>
+            ) => {
+              if (!canvasRef.current) return;
+              const bounds = canvasRef.current.getBoundingClientRect();
+              const x = event.clientX - bounds.left;
+              const y = event.clientY - bounds.top;
+
+              write(`touch ${x} ${y}`, autoUpdateFrame);
             }}
-          />
-          <HotkeyButton
-            disabled={loadingFrame}
-            hidden={true}
-            onClickFunction={() => write("screenframeshort", false)}
-            shortcutKeys={"R"}
           />
 
           <div className="flex flex-col items-center justify-center">
@@ -152,7 +166,7 @@ const Controller = () => {
                 onClick={() => write("button 7", autoUpdateFrame)}
                 className="h-12 w-12 self-end justify-self-start rounded bg-blue-400 text-white disabled:opacity-50"
               >
-                ←
+                ↪️
               </button>
               <HotkeyButton
                 label="Up"
@@ -188,7 +202,7 @@ const Controller = () => {
                 onClick={() => write("button 8", autoUpdateFrame)}
                 className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
               >
-                →
+                ↩️
               </button>
             </div>
           </div>
