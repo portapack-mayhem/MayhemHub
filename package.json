@@ -16,7 +16,8 @@
     "next": "14.0.4",
     "npm": "^10.2.5",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-hotkeys-hook": "^4.4.1"
   },
   "devDependencies": {
     "@types/node": "^20",

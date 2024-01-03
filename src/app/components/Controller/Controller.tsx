@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import HotkeyButton from "../HotkeyButton/HotkeyButton";
 import { useSerial } from "../SerialLoader/SerialLoader";
 import ToggleSwitch from "../ToggleSwitch/ToggleSwitch";
 
@@ -124,17 +125,23 @@ const Controller = () => {
             className="cursor-pointer shadow-glow shadow-neutral-500"
             onClick={() => write("screenframeshort", false)}
           />
+          <HotkeyButton
+            disabled={loadingFrame}
+            hidden={true}
+            onClickFunction={() => write("screenframeshort", false)}
+            shortcutKeys={"R"}
+          />
 
           <div className="flex flex-col items-center justify-center">
             <div className="grid grid-flow-col grid-rows-3 gap-4">
               <div></div>
-              <button
+              <HotkeyButton
+                label="Left"
                 disabled={loadingFrame}
-                onClick={() => write("button 2", autoUpdateFrame)}
-                className="h-16 w-16 rounded bg-green-500 text-white disabled:opacity-50"
-              >
-                Left
-              </button>
+                onClickFunction={() => write("button 2", autoUpdateFrame)}
+                className="h-16 w-16 bg-green-500"
+                shortcutKeys={"ArrowLeft"}
+              />
               <button
                 disabled={loadingFrame}
                 onClick={() => write("button 7", autoUpdateFrame)}
@@ -142,35 +149,35 @@ const Controller = () => {
               >
                 ←
               </button>
-              <button
+              <HotkeyButton
+                label="Up"
                 disabled={loadingFrame}
-                onClick={() => write("button 4", autoUpdateFrame)}
-                className="h-16 w-16 rounded bg-green-500 text-white disabled:opacity-50"
-              >
-                Up
-              </button>
-              <button
+                onClickFunction={() => write("button 4", autoUpdateFrame)}
+                className="h-16 w-16 bg-green-500"
+                shortcutKeys={"ArrowUp"}
+              />
+              <HotkeyButton
+                label="Ok"
                 disabled={loadingFrame}
-                onClick={() => write("button 5", autoUpdateFrame)}
-                className="h-16 w-16 rounded bg-blue-500 text-white disabled:opacity-50"
-              >
-                OK
-              </button>
-              <button
+                onClickFunction={() => write("button 5", autoUpdateFrame)}
+                className="h-16 w-16 bg-blue-500"
+                shortcutKeys={"Enter"}
+              />
+              <HotkeyButton
+                label="Down"
                 disabled={loadingFrame}
-                onClick={() => write("button 3", autoUpdateFrame)}
-                className="h-16 w-16 rounded bg-green-500 text-white disabled:opacity-50"
-              >
-                Down
-              </button>
+                onClickFunction={() => write("button 3", autoUpdateFrame)}
+                className="h-16 w-16 bg-green-500"
+                shortcutKeys={"ArrowDown"}
+              />
               <div></div>
-              <button
+              <HotkeyButton
+                label="Right"
                 disabled={loadingFrame}
-                onClick={() => write("button 1", autoUpdateFrame)}
-                className="h-16 w-16 rounded bg-green-500 text-white disabled:opacity-50"
-              >
-                Right
-              </button>
+                onClickFunction={() => write("button 1", autoUpdateFrame)}
+                className="h-16 w-16 bg-green-500"
+                shortcutKeys={"ArrowRight"}
+              />
               <button
                 disabled={loadingFrame}
                 onClick={() => write("button 8", autoUpdateFrame)}
@@ -181,13 +188,13 @@ const Controller = () => {
             </div>
           </div>
           <div className="flex items-center justify-center gap-4">
-            <button
+            <HotkeyButton
+              label="DFU"
               disabled={loadingFrame}
-              onClick={() => write("button 6", autoUpdateFrame)}
-              className="h-16 w-16 rounded bg-slate-400 text-white disabled:opacity-50"
-            >
-              DFU
-            </button>
+              onClickFunction={() => write("button 6", autoUpdateFrame)}
+              className="h-16 w-16 bg-slate-400"
+              shortcutKeys={"D"}
+            />
             <button
               disabled={loadingFrame}
               onClick={() => write("reboot", autoUpdateFrame)}
