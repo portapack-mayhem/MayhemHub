@@ -133,12 +133,17 @@ const Controller = () => {
             </div>
           </div>
           <canvas
+            tabIndex={0}
             ref={canvasRef}
             width={241}
             height={321}
             className={`${
               !loadingFrame && "cursor-pointer"
             } shadow-glow shadow-neutral-500`}
+            onKeyDown={(e) => {
+              e.preventDefault();
+              write(`keyboard ${e.keyCode.toString(16)}`, autoUpdateFrame);
+            }}
             onMouseDown={(
               event: React.MouseEvent<HTMLCanvasElement, MouseEvent>
             ) => {
