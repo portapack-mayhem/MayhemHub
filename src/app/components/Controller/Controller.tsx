@@ -9,6 +9,7 @@ const Controller = () => {
   const [consoleMessageList, setConsoleMessageList] = useState<string>("");
   const [command, setCommand] = useState<string>("");
   const [autoUpdateFrame, setAutoUpdateFrame] = useState<boolean>(true);
+  const [loadingFrame, setLoadingFrame] = useState<boolean>(true);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const started = useRef<boolean>(false);
@@ -21,6 +22,7 @@ const Controller = () => {
       if (updateFrame) {
         await delay(50);
         serial.write("screenframeshort");
+        setLoadingFrame(true);
       }
     });
   };
@@ -34,6 +36,7 @@ const Controller = () => {
     // We dont add this to the console as its not needed. This may change in the future
     if (consoleMessage.includes("screenframe")) {
       renderFrame();
+      setLoadingFrame(false);
     } else {
       setConsoleMessageList(
         (prevConsoleMessageList) => prevConsoleMessageList + consoleMessage
@@ -126,45 +129,52 @@ const Controller = () => {
             <div className="grid grid-flow-col grid-rows-3 gap-4">
               <div></div>
               <button
+                disabled={loadingFrame}
                 onClick={() => write("button 2", autoUpdateFrame)}
-                className="h-16 w-16 rounded bg-green-500 text-white"
+                className="h-16 w-16 rounded bg-green-500 text-white disabled:opacity-50"
               >
                 Left
               </button>
               <button
+                disabled={loadingFrame}
                 onClick={() => write("button 7", autoUpdateFrame)}
-                className="h-12 w-12 self-end justify-self-start rounded bg-blue-400 text-white"
+                className="h-12 w-12 self-end justify-self-start rounded bg-blue-400 text-white disabled:opacity-50"
               >
                 ←
               </button>
               <button
+                disabled={loadingFrame}
                 onClick={() => write("button 4", autoUpdateFrame)}
-                className="h-16 w-16 rounded bg-green-500 text-white"
+                className="h-16 w-16 rounded bg-green-500 text-white disabled:opacity-50"
               >
                 Up
               </button>
               <button
+                disabled={loadingFrame}
                 onClick={() => write("button 5", autoUpdateFrame)}
-                className="h-16 w-16 rounded bg-blue-500 text-white"
+                className="h-16 w-16 rounded bg-blue-500 text-white disabled:opacity-50"
               >
                 OK
               </button>
               <button
+                disabled={loadingFrame}
                 onClick={() => write("button 3", autoUpdateFrame)}
-                className="h-16 w-16 rounded bg-green-500 text-white"
+                className="h-16 w-16 rounded bg-green-500 text-white disabled:opacity-50"
               >
                 Down
               </button>
               <div></div>
               <button
+                disabled={loadingFrame}
                 onClick={() => write("button 1", autoUpdateFrame)}
-                className="h-16 w-16 rounded bg-green-500 text-white"
+                className="h-16 w-16 rounded bg-green-500 text-white disabled:opacity-50"
               >
                 Right
               </button>
               <button
+                disabled={loadingFrame}
                 onClick={() => write("button 8", autoUpdateFrame)}
-                className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white"
+                className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
               >
                 →
               </button>
@@ -172,14 +182,16 @@ const Controller = () => {
           </div>
           <div className="flex items-center justify-center gap-4">
             <button
+              disabled={loadingFrame}
               onClick={() => write("button 6", autoUpdateFrame)}
-              className="h-16 w-16 rounded bg-slate-400 text-white"
+              className="h-16 w-16 rounded bg-slate-400 text-white disabled:opacity-50"
             >
               DFU
             </button>
             <button
+              disabled={loadingFrame}
               onClick={() => write("reboot", autoUpdateFrame)}
-              className="h-16 w-16 rounded bg-slate-400 text-white"
+              className="h-16 w-16 rounded bg-slate-400 text-white disabled:opacity-50"
             >
               Reboot
             </button>
@@ -188,7 +200,7 @@ const Controller = () => {
 
         {!serial.isReading ? (
           <button
-            className="rounded bg-orange-300 p-2 text-white"
+            className="rounded bg-orange-300 p-2 text-white disabled:opacity-50"
             onClick={() => serial.startReading()}
           >
             Start reading console
