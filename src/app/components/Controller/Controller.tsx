@@ -114,6 +114,58 @@ const Controller = () => {
     }
   };
 
+  const downloadFile = (path: string = "PLAYLIST.TXT") => {
+    write("close", false);
+    write(`filesize ${path}`, false);
+    // let lines = await readStringsAsync(PROMPT);
+    // if (lines[lines.length - 1] !== "ok") {
+    //   throw new Error("Error downloading (size) file");
+    // }
+    // let size = parseInt(lines[lines.length - 2]);
+    // writeSerial("open " + src);
+    // lines = await readStringsAsync(PROMPT);
+    // if (
+    //   lines[lines.length - 1] !== "ok" &&
+    //   lines[lines.length - 1] !== "file already open"
+    // ) {
+    //   throw new Error("Error downloading (open) file");
+    // }
+    // writeSerial("seek 0");
+    // lines = await readStringsAsync(PROMPT);
+    // if (lines[lines.length - 1] !== "ok") {
+    //   throw new Error("Error downloading (seek) file");
+    // }
+
+    // let dFile = fs.open(dst, "w");
+    // let rem = size;
+    // let chunk = 62 * 15;
+    // while (rem > 0) {
+    //   if (rem < chunk) {
+    //     chunk = rem;
+    //   }
+    //   writeSerial("read " + chunk.toString());
+    //   lines = await readStringsAsync(PROMPT);
+    //   lines = lines.slice(1);
+    //   let o = lines[lines.length - 1];
+
+    //   if (o !== "ok") {
+    //     write("close", false)
+    //     await dFile.close();
+    //     throw new Error("Error downloading (data) file");
+    //   }
+
+    //   //parse and save!
+    //   for (let i = 0; i < lines.length - 1; i++) {
+    //     let bArr = parseHexToByte(lines[i].toUpperCase());
+    //     rem -= bArr.length;
+    //     await dFile.write(bArr);
+    //   }
+    //   onProgress(Math.round(((size - rem) / size) * 100));
+    // }
+    // await dFile.close();
+    // write("close", false)
+  };
+
   const handleScroll = (e: React.WheelEvent) => {
     // Disabled for the moment
     // e.preventDefault();
@@ -278,6 +330,12 @@ const Controller = () => {
         ) : (
           <>
             <div className="mt-10 flex w-[80%] items-center justify-center gap-1">
+              <button
+                onClick={() => downloadFile()}
+                className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
+              >
+                Test
+              </button>
               <input
                 type="text"
                 value={command}
