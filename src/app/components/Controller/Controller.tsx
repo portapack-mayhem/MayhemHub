@@ -82,6 +82,8 @@ const Controller = () => {
 
   const setDeviceTime = () => {
     const currentDateTime: Date = new Date();
+    // Add 3 seconds to the current time to account for the time it takes to send the command
+    currentDateTime.setSeconds(currentDateTime.getSeconds() + 3);
     const year: number = currentDateTime.getFullYear();
     let month: string | number = currentDateTime.getMonth() + 1; // JavaScript months are 0-11
     let day: string | number = currentDateTime.getDate();
