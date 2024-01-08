@@ -15,17 +15,12 @@ const Controller = () => {
 
   const started = useRef<boolean>(false);
 
-  const delay = (ms: number) =>
-    new Promise((resolve) => setTimeout(resolve, ms));
-
   const write = async (command: string, updateFrame: boolean) => {
-    await serial.write(command).then(async (data) => {
-      if (updateFrame) {
-        await delay(50);
-        serial.write("screenframeshort");
-        setLoadingFrame(true);
-      }
-    });
+    serial.queueWrite(command);
+    if (updateFrame) {
+      serial.queueWrite("screenframeshort");
+      setLoadingFrame(true);
+    }
   };
 
   const sendCommand = () => {
@@ -50,6 +45,7 @@ const Controller = () => {
     if (serial.isOpen && !serial.isReading && !started.current) {
       started.current = true;
       serial.startReading();
+      write(setDeviceTime(), false);
       write("screenframeshort", false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -84,6 +80,33 @@ const Controller = () => {
     }
   };
 
+  const setDeviceTime = () => {
+    const currentDateTime: Date = new Date();
+    const year: number = currentDateTime.getFullYear();
+    let month: string | number = currentDateTime.getMonth() + 1; // JavaScript months are 0-11
+    let day: string | number = currentDateTime.getDate();
+    let hours: string | number = currentDateTime.getHours();
+    let minutes: string | number = currentDateTime.getMinutes();
+    let seconds: string | number = currentDateTime.getSeconds();
+
+    // Making sure we have two digit representation
+    month = month < 10 ? "0" + month : month;
+    day = day < 10 ? "0" + day : day;
+    hours = hours < 10 ? "0" + hours : hours;
+    minutes = minutes < 10 ? "0" + minutes : minutes;
+    seconds = seconds < 10 ? "0" + seconds : seconds;
+
+    return `rtcset ${year} ${month} ${day} ${hours} ${minutes} ${seconds}`;
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    const char = String.fromCharCode(e.keyCode);
+    if (/[a-zA-Z0-9]/.test(char)) {
+      e.preventDefault();
+      write(`keyboard ${e.key.charCodeAt(0).toString(16)}`, autoUpdateFrame);
+    }
+  };
+
   const handleScroll = (e: React.WheelEvent) => {
     // Disabled for the moment
     // e.preventDefault();
@@ -105,8 +128,12 @@ const Controller = () => {
         {!serial.isReading && "Enable console for buttons to enable"}
         <div
           id="ControllerSection"
-          className="flex h-full w-full flex-col items-center justify-center gap-5 p-5"
+          className="flex h-full w-full flex-col items-center justify-center gap-5 p-5 outline-none focus:ring-0"
           onWheel={handleScroll}
+          tabIndex={0}
+          onKeyDown={(e) => {
+            handleKeyDown(e);
+          }}
         >
           <div className="flex flex-col items-center justify-center">
             <p>Live Screen</p>
@@ -128,17 +155,21 @@ const Controller = () => {
                   }
                 }}
                 className="h-6 w-6 bg-blue-500"
-                shortcutKeys={"R"}
+                shortcutKeys={"mod+R"}
               />
             </div>
           </div>
           <canvas
+            tabIndex={0}
             ref={canvasRef}
             width={241}
             height={321}
             className={`${
               !loadingFrame && "cursor-pointer"
-            } shadow-glow shadow-neutral-500`}
+            } shadow-glow shadow-neutral-500 outline-none focus:ring-0`}
+            onKeyDown={(e) => {
+              handleKeyDown(e);
+            }}
             onMouseDown={(
               event: React.MouseEvent<HTMLCanvasElement, MouseEvent>
             ) => {
@@ -212,7 +243,7 @@ const Controller = () => {
               disabled={loadingFrame}
               onClickFunction={() => write("button 6", autoUpdateFrame)}
               className="h-16 w-16 bg-slate-400"
-              shortcutKeys={"D"}
+              shortcutKeys={"mod+D"}
             />
             <button
               disabled={loadingFrame}
