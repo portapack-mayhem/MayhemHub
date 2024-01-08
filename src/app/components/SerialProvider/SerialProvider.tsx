@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 // Needing to do this as the typescript definitions for the Web Serial API are not yet complete
 interface WebSerialPort extends SerialPort {
@@ -63,7 +63,8 @@ export interface UseWebSerialReturn {
   closePort: () => Promise<void>;
   startReading: () => Promise<void>;
   stopReading: () => Promise<void>;
-  write: (message: string) => Promise<void>;
+  write: () => Promise<void>;
+  queueWrite: (message: string) => void;
   options: {
     baudRate: BaudRatesType;
     bufferSize: number;
@@ -130,6 +131,8 @@ const useWebSerial = ({
   const [dataCarrierDetect, setDataCarrierDetect] = useState(false);
   const [dataSetReady, setDataSetReady] = useState(false);
   const [ringIndicator, setRingIndicator] = useState(false);
+
+  const [messageQueue, setMessageQueue] = useState<Array<string>>([]);
 
   useInterval(() => {
     const port = portRef.current;
@@ -327,18 +330,35 @@ const useWebSerial = ({
    *
    * @param {string} message
    */
-  const write = async (message: string) => {
+  const write = useCallback(async () => {
+    if (messageQueue.length === 0) {
+      return;
+    }
+
     const port = portRef.current;
     const encoder = new TextEncoder();
+    const message = messageQueue[0]; // Fetch the oldest message (the first one in the array)
     const data = encoder.encode(message + "\r\n");
-    // console.log(message);
 
     const writer = port?.writable?.getWriter();
-    try {
-      await writer?.write(data);
-    } finally {
-      writer?.releaseLock();
+    if (writer) {
+      try {
+        await writer.write(data);
+        setMessageQueue((prevQueue) => prevQueue.slice(1)); // Remove the message we just wrote from the queue
+      } finally {
+        writer.releaseLock();
+      }
     }
+  }, [messageQueue]);
+
+  useEffect(() => {
+    if (messageQueue.length > 0) {
+      write();
+    }
+  }, [messageQueue, write]); // This effect will run every time `messageQueue` changes
+
+  const queueWrite = (message: string) => {
+    setMessageQueue((prevQueue) => [...prevQueue, message]); // Add the new message to the end of the queue
   };
 
   useEffect(() => {
@@ -414,6 +434,7 @@ const useWebSerial = ({
     startReading,
     stopReading,
     write,
+    queueWrite,
     options: {
       baudRate,
       bufferSize,
