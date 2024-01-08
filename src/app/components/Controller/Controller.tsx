@@ -169,6 +169,47 @@ const Controller = () => {
     write("close", false);
   };
 
+  const hexToBytes = (hex: string) => {
+    let bytes = new Uint8Array(Math.ceil(hex.length / 2));
+    for (let i = 0; i < bytes.length; i++)
+      bytes[i] = parseInt(hex.substr(i * 2, 2), 16);
+    return bytes;
+  };
+
+  const downloadFileToComputer = (
+    hex: string = "",
+    fileName: string = "output.txt"
+  ) => {
+    // Convert hex to bytes
+    let bytes = hexToBytes(
+      "23234652455120202020202046494C45090909092053414D504C4520524154450A3331353030303030302C53414D504C45532F5465736C61436861726765506F72745F55532E4331362C3530303030300A3433333932303030302C53414D504C45532F5465736C61436861726765506F72745F45555F41552E4331362C3530303030300A"
+    );
+
+    // Create a blob from byte array
+    let blob = new Blob([bytes]);
+
+    // Create URL for blob
+    let url = URL.createObjectURL(blob);
+
+    // Create a link for download and hide it
+    let a = document.createElement("a");
+    a.style.display = "none";
+    a.href = url;
+    a.download = fileName; // Filename
+
+    // Append the link to body
+    document.body.appendChild(a);
+
+    // Trigger download
+    a.click();
+
+    // Remove the link from body
+    document.body.removeChild(a);
+
+    // Release the URL
+    URL.revokeObjectURL(url);
+  };
+
   const handleScroll = (e: React.WheelEvent) => {
     // Disabled for the moment
     // e.preventDefault();
@@ -338,6 +379,12 @@ const Controller = () => {
                 className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
               >
                 Test
+              </button>
+              <button
+                onClick={() => downloadFileToComputer()}
+                className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
+              >
+                Test2
               </button>
               <input
                 type="text"
