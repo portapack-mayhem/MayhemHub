@@ -122,7 +122,8 @@ const Controller = () => {
     //   throw new Error("Error downloading (size) file");
     // }
     // let size = parseInt(lines[lines.length - 2]);
-    // writeSerial("open " + src);
+    let size = 132;
+    write(`open ${path}`, false);
     // lines = await readStringsAsync(PROMPT);
     // if (
     //   lines[lines.length - 1] !== "ok" &&
@@ -131,39 +132,41 @@ const Controller = () => {
     //   throw new Error("Error downloading (open) file");
     // }
     // writeSerial("seek 0");
+    write(`seek 0`, false);
     // lines = await readStringsAsync(PROMPT);
     // if (lines[lines.length - 1] !== "ok") {
     //   throw new Error("Error downloading (seek) file");
     // }
 
     // let dFile = fs.open(dst, "w");
-    // let rem = size;
-    // let chunk = 62 * 15;
+    let rem = size;
+    let chunk = 62 * 15;
+    write(`read ${chunk.toString()}`, false);
     // while (rem > 0) {
     //   if (rem < chunk) {
     //     chunk = rem;
     //   }
-    //   writeSerial("read " + chunk.toString());
-    //   lines = await readStringsAsync(PROMPT);
-    //   lines = lines.slice(1);
-    //   let o = lines[lines.length - 1];
+    //   write(`read ${chunk.toString()}`, false);
+    //   //   lines = await readStringsAsync(PROMPT);
+    //   //   lines = lines.slice(1);
+    //   //   let o = lines[lines.length - 1];
 
-    //   if (o !== "ok") {
-    //     write("close", false)
-    //     await dFile.close();
-    //     throw new Error("Error downloading (data) file");
-    //   }
+    //   //   if (o !== "ok") {
+    //   //     write("close", false)
+    //   //     await dFile.close();
+    //   //     throw new Error("Error downloading (data) file");
+    //   //   }
 
-    //   //parse and save!
-    //   for (let i = 0; i < lines.length - 1; i++) {
-    //     let bArr = parseHexToByte(lines[i].toUpperCase());
-    //     rem -= bArr.length;
-    //     await dFile.write(bArr);
-    //   }
-    //   onProgress(Math.round(((size - rem) / size) * 100));
+    //   //   //parse and save!
+    //   //   for (let i = 0; i < lines.length - 1; i++) {
+    //   //     let bArr = parseHexToByte(lines[i].toUpperCase());
+    //   //     rem -= bArr.length;
+    //   //     await dFile.write(bArr);
+    //   //   }
+    //   //   onProgress(Math.round(((size - rem) / size) * 100));
     // }
     // await dFile.close();
-    // write("close", false)
+    write("close", false);
   };
 
   const handleScroll = (e: React.WheelEvent) => {
