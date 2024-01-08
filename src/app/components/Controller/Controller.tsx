@@ -50,7 +50,9 @@ const Controller = () => {
     if (serial.isOpen && !serial.isReading && !started.current) {
       started.current = true;
       serial.startReading();
-      write("screenframeshort", false);
+      write(setDeviceTime(), false);
+      void delay(500);
+      // write("screenframeshort", false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serial]);
@@ -82,6 +84,25 @@ const Controller = () => {
         }
       }
     }
+  };
+
+  const setDeviceTime = () => {
+    const currentDateTime: Date = new Date();
+    const year: number = currentDateTime.getFullYear();
+    let month: string | number = currentDateTime.getMonth() + 1; // JavaScript months are 0-11
+    let day: string | number = currentDateTime.getDate();
+    let hours: string | number = currentDateTime.getHours();
+    let minutes: string | number = currentDateTime.getMinutes();
+    let seconds: string | number = currentDateTime.getSeconds();
+
+    // Making sure we have two digit representation
+    month = month < 10 ? "0" + month : month;
+    day = day < 10 ? "0" + day : day;
+    hours = hours < 10 ? "0" + hours : hours;
+    minutes = minutes < 10 ? "0" + minutes : minutes;
+    seconds = seconds < 10 ? "0" + seconds : seconds;
+
+    return `rtcset ${year} ${month} ${day} ${hours} ${minutes} ${seconds}`;
   };
 
   const handleScroll = (e: React.WheelEvent) => {
@@ -172,6 +193,13 @@ const Controller = () => {
                 className="h-12 w-12 self-end justify-self-start rounded bg-blue-400 text-white disabled:opacity-50"
               >
                 ↪️
+              </button>
+              <button
+                disabled={loadingFrame}
+                onClick={() => console.log(setDeviceTime())}
+                className="h-12 w-12 self-end justify-self-start rounded bg-blue-400 text-white disabled:opacity-50"
+              >
+                test
               </button>
               <HotkeyButton
                 label="Up"
