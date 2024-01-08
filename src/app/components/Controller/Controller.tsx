@@ -135,126 +135,136 @@ const Controller = () => {
         {!serial.isReading && "Enable console for buttons to enable"}
         <div
           id="ControllerSection"
-          className="flex h-full w-full flex-col items-center justify-center gap-5 p-5 outline-none focus:ring-0"
+          className="flex h-full w-full flex-col items-center justify-center gap-5 p-5 outline-none focus:ring-0 md:flex-row md:items-end"
           onWheel={handleScroll}
           tabIndex={0}
           onKeyDown={(e) => {
             handleKeyDown(e);
           }}
         >
-          <div className="flex flex-col items-center justify-center">
-            <p>Live Screen</p>
-            <div className="flex flex-row items-center justify-center gap-5">
-              <ToggleSwitch
-                isToggle={autoUpdateFrame}
-                toggleSwitch={() => {
-                  if (!autoUpdateFrame) write("screenframeshort", false);
-                  setAutoUpdateFrame(!autoUpdateFrame);
-                }}
-              />
-              <HotkeyButton
-                label="🔄"
-                disabled={loadingFrame}
-                onClickFunction={() => {
-                  if (!loadingFrame) {
-                    setLoadingFrame(true);
-                    write("screenframeshort", false);
-                  }
-                }}
-                className="h-6 w-6 bg-blue-500"
-                shortcutKeys={"mod+R"}
-              />
+          <div
+            className="flex flex-col items-center justify-center gap-5"
+            id="screenGroup"
+          >
+            <div className="flex flex-col items-center justify-center">
+              <p>Live Screen</p>
+              <div className="flex flex-row items-center justify-center gap-5">
+                <ToggleSwitch
+                  isToggle={autoUpdateFrame}
+                  toggleSwitch={() => {
+                    if (!autoUpdateFrame) write("screenframeshort", false);
+                    setAutoUpdateFrame(!autoUpdateFrame);
+                  }}
+                />
+                <HotkeyButton
+                  label="🔄"
+                  disabled={loadingFrame}
+                  onClickFunction={() => {
+                    if (!loadingFrame) {
+                      setLoadingFrame(true);
+                      write("screenframeshort", false);
+                    }
+                  }}
+                  className="h-6 w-6 bg-blue-500"
+                  shortcutKeys={"mod+R"}
+                />
+              </div>
             </div>
-          </div>
-          <canvas
-            ref={canvasRef}
-            width={241}
-            height={321}
-            className={`${
-              !loadingFrame && "cursor-pointer"
-            } shadow-glow shadow-neutral-500 outline-none focus:ring-0`}
-            onMouseDown={(
-              event: React.MouseEvent<HTMLCanvasElement, MouseEvent>
-            ) => {
-              if (!canvasRef.current) return;
-              const bounds = canvasRef.current.getBoundingClientRect();
-              const x = event.clientX - bounds.left;
-              const y = event.clientY - bounds.top;
+            <canvas
+              ref={canvasRef}
+              width={241}
+              height={321}
+              className={`${
+                !loadingFrame && "cursor-pointer"
+              } shadow-glow shadow-neutral-500 outline-none focus:ring-0`}
+              onMouseDown={(
+                event: React.MouseEvent<HTMLCanvasElement, MouseEvent>
+              ) => {
+                if (!canvasRef.current) return;
+                const bounds = canvasRef.current.getBoundingClientRect();
+                const x = event.clientX - bounds.left;
+                const y = event.clientY - bounds.top;
 
-              write(`touch ${x} ${y}`, autoUpdateFrame);
-            }}
-          />
-
-          <div className="flex flex-col items-center justify-center">
-            <div className="grid grid-flow-col grid-rows-3 gap-4">
-              <div></div>
-              <HotkeyButton
-                label="Left"
-                disabled={loadingFrame}
-                onClickFunction={() => write("button 2", autoUpdateFrame)}
-                className="h-16 w-16 bg-green-500"
-                shortcutKeys={"ArrowLeft"}
-              />
-              <button
-                disabled={loadingFrame}
-                onClick={() => write("button 7", autoUpdateFrame)}
-                className="h-12 w-12 self-end justify-self-start rounded bg-blue-400 text-white disabled:opacity-50"
-              >
-                ↪️
-              </button>
-              <HotkeyButton
-                label="Up"
-                disabled={loadingFrame}
-                onClickFunction={() => write("button 4", autoUpdateFrame)}
-                className="h-16 w-16 bg-green-500"
-                shortcutKeys={"ArrowUp"}
-              />
-              <HotkeyButton
-                label="Ok"
-                disabled={loadingFrame}
-                onClickFunction={() => write("button 5", autoUpdateFrame)}
-                className="h-16 w-16 bg-blue-500"
-                shortcutKeys={"Enter"}
-              />
-              <HotkeyButton
-                label="Down"
-                disabled={loadingFrame}
-                onClickFunction={() => write("button 3", autoUpdateFrame)}
-                className="h-16 w-16 bg-green-500"
-                shortcutKeys={"ArrowDown"}
-              />
-              <div></div>
-              <HotkeyButton
-                label="Right"
-                disabled={loadingFrame}
-                onClickFunction={() => write("button 1", autoUpdateFrame)}
-                className="h-16 w-16 bg-green-500"
-                shortcutKeys={"ArrowRight"}
-              />
-              <button
-                disabled={loadingFrame}
-                onClick={() => write("button 8", autoUpdateFrame)}
-                className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
-              >
-                ↩️
-              </button>
-            </div>
-          </div>
-          <div className="flex items-center justify-center gap-4">
-            <HotkeyButton
-              label="DFU"
-              disabled={loadingFrame}
-              onClickFunction={() => write("button 6", autoUpdateFrame)}
-              className="h-16 w-16 bg-slate-400"
-              shortcutKeys={"mod+D"}
+                write(`touch ${x} ${y}`, autoUpdateFrame);
+              }}
             />
-            <button
-              disabled={loadingFrame}
-              onClick={() => write("reboot", autoUpdateFrame)}
-              className="h-16 w-16 rounded bg-slate-400 text-white disabled:opacity-50"
-            >
-              Reboot
-            </button>
+          </div>
+
+          <div
+            className="flex flex-col items-center justify-center gap-5"
+            id="controlGroup"
+          >
+            <div className="flex flex-col items-center justify-center">
+              <div className="grid grid-flow-col grid-rows-3 gap-4">
+                <div></div>
+                <HotkeyButton
+                  label="Left"
+                  disabled={loadingFrame}
+                  onClickFunction={() => write("button 2", autoUpdateFrame)}
+                  className="h-16 w-16 bg-green-500"
+                  shortcutKeys={"ArrowLeft"}
+                />
+                <button
+                  disabled={loadingFrame}
+                  onClick={() => write("button 7", autoUpdateFrame)}
+                  className="h-12 w-12 self-end justify-self-start rounded bg-blue-400 text-white disabled:opacity-50"
+                >
+                  ↪️
+                </button>
+                <HotkeyButton
+                  label="Up"
+                  disabled={loadingFrame}
+                  onClickFunction={() => write("button 4", autoUpdateFrame)}
+                  className="h-16 w-16 bg-green-500"
+                  shortcutKeys={"ArrowUp"}
+                />
+                <HotkeyButton
+                  label="Ok"
+                  disabled={loadingFrame}
+                  onClickFunction={() => write("button 5", autoUpdateFrame)}
+                  className="h-16 w-16 bg-blue-500"
+                  shortcutKeys={"Enter"}
+                />
+                <HotkeyButton
+                  label="Down"
+                  disabled={loadingFrame}
+                  onClickFunction={() => write("button 3", autoUpdateFrame)}
+                  className="h-16 w-16 bg-green-500"
+                  shortcutKeys={"ArrowDown"}
+                />
+                <div></div>
+                <HotkeyButton
+                  label="Right"
+                  disabled={loadingFrame}
+                  onClickFunction={() => write("button 1", autoUpdateFrame)}
+                  className="h-16 w-16 bg-green-500"
+                  shortcutKeys={"ArrowRight"}
+                />
+                <button
+                  disabled={loadingFrame}
+                  onClick={() => write("button 8", autoUpdateFrame)}
+                  className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
+                >
+                  ↩️
+                </button>
+              </div>
+            </div>
+            <div className="flex items-center justify-center gap-4">
+              <HotkeyButton
+                label="DFU"
+                disabled={loadingFrame}
+                onClickFunction={() => write("button 6", autoUpdateFrame)}
+                className="h-16 w-16 bg-slate-400"
+                shortcutKeys={"mod+D"}
+              />
+              <button
+                disabled={loadingFrame}
+                onClick={() => write("reboot", autoUpdateFrame)}
+                className="h-16 w-16 rounded bg-slate-400 text-white disabled:opacity-50"
+              >
+                Reboot
+              </button>
+            </div>
           </div>
         </div>
 
