@@ -100,10 +100,12 @@ const Controller = () => {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    const char = String.fromCharCode(e.keyCode);
-    if (/[a-zA-Z0-9]/.test(char)) {
+    if (/[a-zA-Z0-9]/.test(e.key) || e.key === "Backspace" || e.key === " ") {
       e.preventDefault();
-      write(`keyboard ${e.key.charCodeAt(0).toString(16)}`, autoUpdateFrame);
+      let key_code = e.key.length === 1 ? e.key.charCodeAt(0) : e.keyCode;
+      const keyHex = key_code.toString(16).padStart(2, "0").toUpperCase();
+      console.log("KEY PRESSED", e.key, keyHex);
+      write(`keyboard ${keyHex}`, autoUpdateFrame);
     }
   };
 
@@ -160,16 +162,12 @@ const Controller = () => {
             </div>
           </div>
           <canvas
-            tabIndex={0}
             ref={canvasRef}
             width={241}
             height={321}
             className={`${
               !loadingFrame && "cursor-pointer"
             } shadow-glow shadow-neutral-500 outline-none focus:ring-0`}
-            onKeyDown={(e) => {
-              handleKeyDown(e);
-            }}
             onMouseDown={(
               event: React.MouseEvent<HTMLCanvasElement, MouseEvent>
             ) => {
