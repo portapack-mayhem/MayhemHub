@@ -102,7 +102,10 @@ const Controller = () => {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (/[a-zA-Z0-9]/.test(e.key) || e.key === "Backspace" || e.key === " ") {
+    if (
+      (e.key.length === 1 && /[a-zA-Z0-9 ]/.test(e.key)) ||
+      e.key === "Backspace"
+    ) {
       e.preventDefault();
       let key_code = e.key.length === 1 ? e.key.charCodeAt(0) : e.keyCode;
       const keyHex = key_code.toString(16).padStart(2, "0").toUpperCase();
