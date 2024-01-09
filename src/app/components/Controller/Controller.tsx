@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import HotkeyButton from "../HotkeyButton/HotkeyButton";
 import { useSerial } from "../SerialLoader/SerialLoader";
 import { DataPacket } from "../SerialProvider/SerialProvider";
@@ -126,6 +126,26 @@ const Controller = () => {
     }
   };
 
+  const uploadFile = async (filePath: string, bytes: Uint8Array) => {
+    await write("fclose", false);
+    await write(`fopen ${filePath}`, false);
+
+    await write(`fseek 0`, false);
+
+    let blob = new Blob([bytes]);
+
+    const hexChunks = (await blob.text()).match(/.{1,64}/g);
+    if (!hexChunks) return;
+    console.log(hexChunks);
+    await write(`fwb ${bytes.length}`, false, true);
+
+    hexChunks.forEach(async (chunk: string) => {
+      await write(`${chunk}`, false, true);
+    });
+
+    await write("fclose", false);
+  };
+
   const downloadFile = async (filePath: string) => {
     await write("fclose", false);
     let sizeResponse = await write(`filesize ${filePath}`, false, true);
@@ -171,8 +191,14 @@ const Controller = () => {
     return bytes;
   };
 
+  const bytesToHex = (bytes: Uint8Array) => {
+    return bytes
+      .map((byte: any) => byte.toString(16).padStart(2, "0"))
+      .join("");
+  };
+
   const downloadFileFromBytes = (
-    bytes: Uint8Array,
+    bytes: Uint8Array | string,
     fileName: string = "output.txt"
   ) => {
     let blob = new Blob([bytes]);
@@ -185,6 +211,30 @@ const Controller = () => {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  };
+
+  const onFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const fileList = event.target.files;
+    if (!fileList) return;
+
+    let file = fileList[0];
+    let reader = new FileReader();
+
+    reader.onloadend = () => {
+      const arrayBuffer = reader.result;
+      if (arrayBuffer instanceof ArrayBuffer) {
+        let bytes = new Uint8Array(arrayBuffer);
+        uploadFile(file.name, bytes);
+      }
+    };
+
+    reader.onerror = () => {
+      console.error("A problem occurred while reading the file.");
+    };
+
+    if (file) {
+      reader.readAsArrayBuffer(file);
+    }
   };
 
   const handleScroll = (e: React.WheelEvent) => {
@@ -357,6 +407,14 @@ const Controller = () => {
               >
                 Test
               </button> */}
+              <button
+                // onClick={() => downloadFile("PLAYLIST.TXT")}
+                onClick={() => downloadFile("/APPS/pacman.ppma")}
+                className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
+              >
+                Test
+              </button>
+              <input type="file" onChange={onFileChange} />
               <input
                 type="text"
                 value={command}

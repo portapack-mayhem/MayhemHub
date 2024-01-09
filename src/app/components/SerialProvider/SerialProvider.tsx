@@ -311,7 +311,11 @@ const useWebSerial = ({
       do {
         await reader.read().then(({ done, value }) => {
           completeString += decoder.decode(value);
-          if (done || completeString.endsWith("ch> ")) {
+          if (
+            done ||
+            completeString.endsWith("ch> ") ||
+            completeString.endsWith(" bytes") // This is to handle fwb as it ends with "send x bytes"
+          ) {
             onData(completeString);
 
             let lastCommandIndex = commandResponseMap.current.find(
@@ -358,7 +362,7 @@ const useWebSerial = ({
     const port = portRef.current;
     const encoder = new TextEncoder();
     const message = messageQueue[0]; // Fetch the oldest message (the first one in the array)
-    const data = encoder.encode(message + "\r\n");
+    const data = encoder.encode(message + "\r");
 
     const writer = port?.writable?.getWriter();
     if (writer) {
