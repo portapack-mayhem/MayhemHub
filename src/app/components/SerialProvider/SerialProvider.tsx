@@ -374,6 +374,7 @@ const useWebSerial = ({
         await writer.write(data);
 
         // WIP diy flushing
+        // ToDo: Fix this message flush stuff here
         message = "\r";
         toFlush += message;
         if (message === "\r") {
