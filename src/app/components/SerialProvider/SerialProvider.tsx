@@ -128,7 +128,7 @@ const useWebSerial = ({
   const [isReading, setIsReading] = useState<boolean>(false);
   const isIncomingMessage = useRef<boolean>(false);
   const [baudRate, setBaudRate] = useState<BaudRatesType>(115200);
-  const [bufferSize, setBufferSize] = useState(255);
+  const [bufferSize, setBufferSize] = useState(30);
   const [dataBits, setDataBits] = useState<DataBitsType>(8);
   const [stopBits, setStopBits] = useState<StopBitsType>(1);
   const [flowControl, setFlowControl] = useState<FlowControlType>("none");
@@ -364,13 +364,24 @@ const useWebSerial = ({
 
     const port = portRef.current;
     const encoder = new TextEncoder();
-    const message = messageQueue[0]; // Fetch the oldest message (the first one in the array)
-    const data = encoder.encode(message + "\r");
+    let toFlush = "";
+    let message = messageQueue[0]; // Fetch the oldest message (the first one in the array)
+    const data = encoder.encode(message);
 
     const writer = port?.writable?.getWriter();
     if (writer) {
       try {
         await writer.write(data);
+
+        // WIP diy flushing
+        message = "\r";
+        toFlush += message;
+        if (message === "\r") {
+          writer.write(encoder.encode(toFlush + "\r"));
+          writer.releaseLock();
+          toFlush = "";
+        }
+
         setMessageQueue((prevQueue) => prevQueue.slice(1)); // Remove the message we just wrote from the queue
       } finally {
         writer.releaseLock();
@@ -385,6 +396,11 @@ const useWebSerial = ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messageQueue, write, isIncomingMessage.current]); // This effect will run every time `messageQueue` changes
+
+  useEffect(() => {
+    console.log("isIncomingMessage: ", isIncomingMessage.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isIncomingMessage.current]); // This effect will run every time `messageQueue` changes
 
   const queueWrite = (message: string) => {
     const id = commandCounter.current++;
