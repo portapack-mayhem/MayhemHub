@@ -19,15 +19,20 @@ const Controller = () => {
   const write = async (
     command: string,
     updateFrame: boolean,
-    awaitResponse: boolean = false
+    awaitResponse: boolean = true
   ) => {
-    let data: DataPacket | undefined = undefined;
+    let data: DataPacket = {
+      id: 0,
+      command: "",
+      response: null,
+    };
     if (awaitResponse) data = await serial.queueWriteAndResponse(command);
     else serial.queueWrite(command);
     if (updateFrame) {
       serial.queueWrite("screenframeshort");
       setLoadingFrame(true);
     }
+
     return data;
   };
 
@@ -117,64 +122,46 @@ const Controller = () => {
       e.preventDefault();
       let key_code = e.key.length === 1 ? e.key.charCodeAt(0) : e.keyCode;
       const keyHex = key_code.toString(16).padStart(2, "0").toUpperCase();
-      console.log("KEY PRESSED", e.key, keyHex);
       write(`keyboard ${keyHex}`, autoUpdateFrame);
     }
   };
 
-  const downloadFile = (path: string = "PLAYLIST.TXT") => {
-    write("close", false);
-    write(`filesize ${path}`, false);
-    // let lines = await readStringsAsync(PROMPT);
-    // if (lines[lines.length - 1] !== "ok") {
-    //   throw new Error("Error downloading (size) file");
-    // }
-    // let size = parseInt(lines[lines.length - 2]);
-    let size = 132;
-    write(`open ${path}`, false);
-    // lines = await readStringsAsync(PROMPT);
-    // if (
-    //   lines[lines.length - 1] !== "ok" &&
-    //   lines[lines.length - 1] !== "file already open"
-    // ) {
-    //   throw new Error("Error downloading (open) file");
-    // }
-    // writeSerial("seek 0");
-    write(`seek 0`, false);
-    // lines = await readStringsAsync(PROMPT);
-    // if (lines[lines.length - 1] !== "ok") {
-    //   throw new Error("Error downloading (seek) file");
-    // }
+  const downloadFile = async (filePath: string = "test.txt") => {
+    await write("fclose", false);
+    let sizeResponse = await write(`filesize ${filePath}`, false, true);
+    if (!sizeResponse.response) {
+      console.error("Error downloading (size) file");
+    }
+    let size = parseInt(sizeResponse.response?.split("\r\n")[1] || "0");
+    await write(`fopen ${filePath}`, false);
 
-    // let dFile = fs.open(dst, "w");
+    await write(`fseek 0`, false);
+
     let rem = size;
     let chunk = 62 * 15;
-    write(`read ${chunk.toString()}`, false);
-    // while (rem > 0) {
-    //   if (rem < chunk) {
-    //     chunk = rem;
-    //   }
-    //   write(`read ${chunk.toString()}`, false);
-    //   //   lines = await readStringsAsync(PROMPT);
-    //   //   lines = lines.slice(1);
-    //   //   let o = lines[lines.length - 1];
 
-    //   //   if (o !== "ok") {
-    //   //     write("close", false)
-    //   //     await dFile.close();
-    //   //     throw new Error("Error downloading (data) file");
-    //   //   }
+    let dataObject: Uint8Array = new Uint8Array();
 
-    //   //   //parse and save!
-    //   //   for (let i = 0; i < lines.length - 1; i++) {
-    //   //     let bArr = parseHexToByte(lines[i].toUpperCase());
-    //   //     rem -= bArr.length;
-    //   //     await dFile.write(bArr);
-    //   //   }
-    //   //   onProgress(Math.round(((size - rem) / size) * 100));
-    // }
-    // await dFile.close();
-    write("close", false);
+    while (rem > 0) {
+      if (rem < chunk) {
+        chunk = rem;
+      }
+      let lines =
+        (await write(`fread ${chunk.toString()}`, false, true)).response
+          ?.split("\r\n")
+          .slice(1)
+          .slice(0, -2)
+          .join("") || "";
+
+      let bArr = hexToBytes(lines);
+      rem -= bArr.length;
+      dataObject = new Uint8Array([...dataObject, ...Array.from(bArr)]);
+    }
+    downloadFileFromBytes(
+      dataObject,
+      filePath.substring(filePath.lastIndexOf("/") + 1)
+    );
+    await write("fclose", false);
   };
 
   const hexToBytes = (hex: string) => {
@@ -184,37 +171,19 @@ const Controller = () => {
     return bytes;
   };
 
-  const downloadFileToComputer = (
-    hex: string = "",
+  const downloadFileFromBytes = (
+    bytes: Uint8Array,
     fileName: string = "output.txt"
   ) => {
-    // Convert hex to bytes
-    let bytes = hexToBytes(
-      "23234652455120202020202046494C45090909092053414D504C4520524154450A3331353030303030302C53414D504C45532F5465736C61436861726765506F72745F55532E4331362C3530303030300A3433333932303030302C53414D504C45532F5465736C61436861726765506F72745F45555F41552E4331362C3530303030300A"
-    );
-
-    // Create a blob from byte array
     let blob = new Blob([bytes]);
-
-    // Create URL for blob
     let url = URL.createObjectURL(blob);
-
-    // Create a link for download and hide it
     let a = document.createElement("a");
     a.style.display = "none";
     a.href = url;
     a.download = fileName; // Filename
-
-    // Append the link to body
     document.body.appendChild(a);
-
-    // Trigger download
     a.click();
-
-    // Remove the link from body
     document.body.removeChild(a);
-
-    // Release the URL
     URL.revokeObjectURL(url);
   };
 
@@ -387,12 +356,6 @@ const Controller = () => {
                 className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
               >
                 Test
-              </button>
-              <button
-                onClick={() => downloadFileToComputer()}
-                className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
-              >
-                Test2
               </button>
               <input
                 type="text"
