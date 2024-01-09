@@ -125,7 +125,8 @@ const useWebSerial = ({
   const portRef = useRef<WebSerialPort | null>(null);
   const [ports, setPorts] = useState<WebSerialPort[]>(webSerialContext.ports);
   const [isOpen, setIsOpen] = useState(false);
-  const [isReading, setIsReading] = useState(false);
+  const [isReading, setIsReading] = useState<boolean>(false);
+  const isIncomingMessage = useRef<boolean>(false);
   const [baudRate, setBaudRate] = useState<BaudRatesType>(115200);
   const [bufferSize, setBufferSize] = useState(255);
   const [dataBits, setDataBits] = useState<DataBitsType>(8);
@@ -310,11 +311,18 @@ const useWebSerial = ({
       let lastProcessedCommand = 0;
       do {
         await reader.read().then(({ done, value }) => {
+          isIncomingMessage.current = true;
           completeString += decoder.decode(value);
+          // console.log(
+          //   "completeString true thing: ",
+          //   completeString,
+          //   completeString.length,
+          //   value
+          // );
           if (
             done ||
             completeString.endsWith("ch> ") ||
-            completeString.endsWith(" bytes") // This is to handle fwb as it ends with "send x bytes"
+            completeString.endsWith(" bytes\r\n") // This is to handle fwb as it ends with "send x bytes"
           ) {
             onData(completeString);
 
@@ -327,6 +335,12 @@ const useWebSerial = ({
               lastProcessedCommand = lastProcessedCommand + 1;
             }
             completeString = "";
+            isIncomingMessage.current = false;
+            // console.log(
+            //   "completeString false thing: ",
+            //   completeString,
+            //   completeString.length
+            // );
             return;
           }
         });
@@ -355,7 +369,7 @@ const useWebSerial = ({
    * @param {string} message
    */
   const write = useCallback(async () => {
-    if (messageQueue.length === 0) {
+    if (messageQueue.length === 0 || isIncomingMessage.current) {
       return;
     }
 
@@ -374,13 +388,13 @@ const useWebSerial = ({
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messageQueue]);
+  }, [messageQueue, isIncomingMessage.current]);
 
   useEffect(() => {
     if (messageQueue.length > 0) {
       write();
     }
-  }, [messageQueue, write]); // This effect will run every time `messageQueue` changes
+  }, [messageQueue, write, isIncomingMessage.current]); // This effect will run every time `messageQueue` changes
 
   const queueWrite = (message: string) => {
     const id = commandCounter.current++;
@@ -456,6 +470,10 @@ const useWebSerial = ({
     flowControl,
     parity,
   ]);
+
+  useEffect(() => {
+    console.log("isIncomingMessage: ", isIncomingMessage.current);
+  }, [isIncomingMessage.current]);
 
   useEffect(() => {
     const port = portRef.current;
