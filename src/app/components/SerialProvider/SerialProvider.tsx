@@ -313,6 +313,9 @@ const useWebSerial = ({
         await reader.read().then(({ done, value }) => {
           isIncomingMessage.current = true;
           completeString += decoder.decode(value);
+          if (done) {
+            console.log("DONE WAS HIT WHAT THE FUCK!!!!");
+          }
           if (
             done ||
             completeString.endsWith("ch> ") ||
@@ -366,7 +369,7 @@ const useWebSerial = ({
     const encoder = new TextEncoder();
     let toFlush = "";
     let message = messageQueue[0]; // Fetch the oldest message (the first one in the array)
-    const data = encoder.encode(message);
+    const data = encoder.encode(message + "\r");
 
     const writer = port?.writable?.getWriter();
     if (writer) {
@@ -375,13 +378,14 @@ const useWebSerial = ({
 
         // WIP diy flushing
         // ToDo: Fix this message flush stuff here
-        message = "\r";
-        toFlush += message;
-        if (message === "\r") {
-          writer.write(encoder.encode(toFlush + "\r"));
-          writer.releaseLock();
-          toFlush = "";
-        }
+        // message = "\r";
+        // toFlush += message;
+        // if (message === "\r") {
+        //   writer.write(encoder.encode(toFlush + "\r"));
+        //   writer.releaseLock();
+        //   toFlush = "";
+        // }
+        writer.releaseLock();
 
         setMessageQueue((prevQueue) => prevQueue.slice(1)); // Remove the message we just wrote from the queue
       } finally {
