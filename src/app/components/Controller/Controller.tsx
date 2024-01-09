@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import HotkeyButton from "../HotkeyButton/HotkeyButton";
 import { useSerial } from "../SerialLoader/SerialLoader";
+import { DataPacket } from "../SerialProvider/SerialProvider";
 import ToggleSwitch from "../ToggleSwitch/ToggleSwitch";
 
 const Controller = () => {
@@ -15,16 +16,23 @@ const Controller = () => {
 
   const started = useRef<boolean>(false);
 
-  const write = async (command: string, updateFrame: boolean) => {
-    serial.queueWrite(command);
+  const write = async (
+    command: string,
+    updateFrame: boolean,
+    awaitResponse: boolean = false
+  ) => {
+    let data: DataPacket | undefined = undefined;
+    if (awaitResponse) data = await serial.queueWriteAndResponse(command);
+    else serial.queueWrite(command);
     if (updateFrame) {
       serial.queueWrite("screenframeshort");
       setLoadingFrame(true);
     }
+    return data;
   };
 
-  const sendCommand = () => {
-    write(command, false);
+  const sendCommand = async () => {
+    await write(command, false);
     setCommand("");
   };
 
