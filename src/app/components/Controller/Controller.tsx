@@ -134,7 +134,7 @@ const Controller = () => {
 
     let blob = new Blob([bytes]);
 
-    const hexChunks = (await blob.text()).match(/.{1,64}/g);
+    const hexChunks = (await blob.text()).match(/.{1,30}/g);
     if (!hexChunks) return;
     console.log(hexChunks);
     await write(`fwb ${bytes.length}`, false, true);
