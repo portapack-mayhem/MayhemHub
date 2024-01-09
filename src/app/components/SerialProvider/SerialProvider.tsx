@@ -125,9 +125,10 @@ const useWebSerial = ({
   const portRef = useRef<WebSerialPort | null>(null);
   const [ports, setPorts] = useState<WebSerialPort[]>(webSerialContext.ports);
   const [isOpen, setIsOpen] = useState(false);
-  const [isReading, setIsReading] = useState(false);
+  const [isReading, setIsReading] = useState<boolean>(false);
+  const isIncomingMessage = useRef<boolean>(false);
   const [baudRate, setBaudRate] = useState<BaudRatesType>(115200);
-  const [bufferSize, setBufferSize] = useState(255);
+  const [bufferSize, setBufferSize] = useState(30);
   const [dataBits, setDataBits] = useState<DataBitsType>(8);
   const [stopBits, setStopBits] = useState<StopBitsType>(1);
   const [flowControl, setFlowControl] = useState<FlowControlType>("none");
@@ -310,8 +311,16 @@ const useWebSerial = ({
       let lastProcessedCommand = 0;
       do {
         await reader.read().then(({ done, value }) => {
+          isIncomingMessage.current = true;
           completeString += decoder.decode(value);
-          if (done || completeString.endsWith("ch> ")) {
+          if (done) {
+            console.log("DONE WAS HIT WHAT THE FUCK!!!!");
+          }
+          if (
+            done ||
+            completeString.endsWith("ch> ") ||
+            completeString.endsWith(" bytes\r\n") // This is to handle fwb as it ends with "send x bytes"
+          ) {
             onData(completeString);
 
             let lastCommandIndex = commandResponseMap.current.find(
@@ -323,6 +332,7 @@ const useWebSerial = ({
               lastProcessedCommand = lastProcessedCommand + 1;
             }
             completeString = "";
+            isIncomingMessage.current = false;
             return;
           }
         });
@@ -351,32 +361,51 @@ const useWebSerial = ({
    * @param {string} message
    */
   const write = useCallback(async () => {
-    if (messageQueue.length === 0) {
+    if (messageQueue.length === 0 || isIncomingMessage.current) {
       return;
     }
 
     const port = portRef.current;
     const encoder = new TextEncoder();
-    const message = messageQueue[0]; // Fetch the oldest message (the first one in the array)
-    const data = encoder.encode(message + "\r\n");
+    let toFlush = "";
+    let message = messageQueue[0]; // Fetch the oldest message (the first one in the array)
+    const data = encoder.encode(message + "\r");
 
     const writer = port?.writable?.getWriter();
     if (writer) {
       try {
         await writer.write(data);
+
+        // WIP diy flushing
+        // ToDo: Fix this message flush stuff here
+        // message = "\r";
+        // toFlush += message;
+        // if (message === "\r") {
+        //   writer.write(encoder.encode(toFlush + "\r"));
+        //   writer.releaseLock();
+        //   toFlush = "";
+        // }
+        writer.releaseLock();
+
         setMessageQueue((prevQueue) => prevQueue.slice(1)); // Remove the message we just wrote from the queue
       } finally {
         writer.releaseLock();
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messageQueue]);
+  }, [messageQueue, isIncomingMessage.current]);
 
   useEffect(() => {
     if (messageQueue.length > 0) {
       write();
     }
-  }, [messageQueue, write]); // This effect will run every time `messageQueue` changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messageQueue, write, isIncomingMessage.current]); // This effect will run every time `messageQueue` changes
+
+  useEffect(() => {
+    console.log("isIncomingMessage: ", isIncomingMessage.current);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isIncomingMessage.current]); // This effect will run every time `messageQueue` changes
 
   const queueWrite = (message: string) => {
     const id = commandCounter.current++;
@@ -442,6 +471,7 @@ const useWebSerial = ({
         portRef.current = ports[0] as WebSerialPort;
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {}, [
