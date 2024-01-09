@@ -19,15 +19,20 @@ const Controller = () => {
   const write = async (
     command: string,
     updateFrame: boolean,
-    awaitResponse: boolean = false
+    awaitResponse: boolean = true
   ) => {
-    let data: DataPacket | undefined = undefined;
+    let data: DataPacket = {
+      id: 0,
+      command: "",
+      response: null,
+    };
     if (awaitResponse) data = await serial.queueWriteAndResponse(command);
     else serial.queueWrite(command);
     if (updateFrame) {
       serial.queueWrite("screenframeshort");
       setLoadingFrame(true);
     }
+
     return data;
   };
 
@@ -117,9 +122,69 @@ const Controller = () => {
       e.preventDefault();
       let key_code = e.key.length === 1 ? e.key.charCodeAt(0) : e.keyCode;
       const keyHex = key_code.toString(16).padStart(2, "0").toUpperCase();
-      console.log("KEY PRESSED", e.key, keyHex);
       write(`keyboard ${keyHex}`, autoUpdateFrame);
     }
+  };
+
+  const downloadFile = async (filePath: string) => {
+    await write("fclose", false);
+    let sizeResponse = await write(`filesize ${filePath}`, false, true);
+    if (!sizeResponse.response) {
+      console.error("Error downloading (size) file");
+    }
+    let size = parseInt(sizeResponse.response?.split("\r\n")[1] || "0");
+    await write(`fopen ${filePath}`, false);
+
+    await write(`fseek 0`, false);
+
+    let rem = size;
+    let chunk = 62 * 15;
+
+    let dataObject: Uint8Array = new Uint8Array();
+
+    while (rem > 0) {
+      if (rem < chunk) {
+        chunk = rem;
+      }
+      let lines =
+        (await write(`fread ${chunk.toString()}`, false, true)).response
+          ?.split("\r\n")
+          .slice(1)
+          .slice(0, -2)
+          .join("") || "";
+
+      let bArr = hexToBytes(lines);
+      rem -= bArr.length;
+      dataObject = new Uint8Array([...dataObject, ...Array.from(bArr)]);
+    }
+    downloadFileFromBytes(
+      dataObject,
+      filePath.substring(filePath.lastIndexOf("/") + 1)
+    );
+    await write("fclose", false);
+  };
+
+  const hexToBytes = (hex: string) => {
+    let bytes = new Uint8Array(Math.ceil(hex.length / 2));
+    for (let i = 0; i < bytes.length; i++)
+      bytes[i] = parseInt(hex.substr(i * 2, 2), 16);
+    return bytes;
+  };
+
+  const downloadFileFromBytes = (
+    bytes: Uint8Array,
+    fileName: string = "output.txt"
+  ) => {
+    let blob = new Blob([bytes]);
+    let url = URL.createObjectURL(blob);
+    let a = document.createElement("a");
+    a.style.display = "none";
+    a.href = url;
+    a.download = fileName; // Filename
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   const handleScroll = (e: React.WheelEvent) => {
@@ -286,6 +351,12 @@ const Controller = () => {
         ) : (
           <>
             <div className="mt-10 flex w-[80%] items-center justify-center gap-1">
+              {/* <button
+                onClick={() => downloadFile("test.txt")}
+                className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
+              >
+                Test
+              </button> */}
               <input
                 type="text"
                 value={command}
