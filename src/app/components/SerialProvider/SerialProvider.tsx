@@ -34,6 +34,12 @@ const webSerialContext: WebSerialContext = {
   ports: [],
 };
 
+export interface DataPacket {
+  id: number;
+  command: string;
+  response: string | null;
+}
+
 /**
  *
  * @param {() => void} callback
@@ -64,7 +70,9 @@ export interface UseWebSerialReturn {
   startReading: () => Promise<void>;
   stopReading: () => Promise<void>;
   write: () => Promise<void>;
-  queueWrite: (message: string) => void;
+  queueWrite: (message: string) => number;
+  queueWriteAndResponse: (message: string) => Promise<DataPacket>;
+  commandResponseMap: DataPacket[];
   options: {
     baudRate: BaudRatesType;
     bufferSize: number;
@@ -133,6 +141,8 @@ const useWebSerial = ({
   const [ringIndicator, setRingIndicator] = useState(false);
 
   const [messageQueue, setMessageQueue] = useState<Array<string>>([]);
+  const commandResponseMap = useRef<DataPacket[]>([]);
+  const commandCounter = useRef(0);
 
   useInterval(() => {
     const port = portRef.current;
@@ -297,11 +307,21 @@ const useWebSerial = ({
     let completeString = "";
 
     try {
+      let lastProcessedCommand = 0;
       do {
         await reader.read().then(({ done, value }) => {
           completeString += decoder.decode(value);
           if (done || completeString.endsWith("ch> ")) {
             onData(completeString);
+
+            let lastCommandIndex = commandResponseMap.current.find(
+              (item) => item.id === lastProcessedCommand
+            );
+
+            if (lastCommandIndex) {
+              lastCommandIndex.response = completeString;
+              lastProcessedCommand = lastProcessedCommand + 1;
+            }
             completeString = "";
             return;
           }
@@ -349,6 +369,7 @@ const useWebSerial = ({
         writer.releaseLock();
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messageQueue]);
 
   useEffect(() => {
@@ -358,7 +379,42 @@ const useWebSerial = ({
   }, [messageQueue, write]); // This effect will run every time `messageQueue` changes
 
   const queueWrite = (message: string) => {
+    const id = commandCounter.current++;
+    commandResponseMap.current = [
+      ...commandResponseMap.current,
+      {
+        id: id,
+        command: message,
+        response: null,
+      },
+    ];
     setMessageQueue((prevQueue) => [...prevQueue, message]); // Add the new message to the end of the queue
+
+    return id;
+  };
+
+  const queueWriteAndResponse = async (message: string) => {
+    const id = commandCounter.current++;
+    commandResponseMap.current = [
+      ...commandResponseMap.current,
+      {
+        id: id,
+        command: message,
+        response: null,
+      },
+    ];
+    setMessageQueue((prevQueue) => [...prevQueue, message]); // Add the new message to the end of the queue
+
+    let commandResponse;
+    while (
+      !(commandResponse = commandResponseMap.current.find(
+        (item) => item.id === id && item.response !== null
+      ))
+    ) {
+      await new Promise((r) => setTimeout(r, 50));
+    }
+
+    return commandResponse;
   };
 
   useEffect(() => {
@@ -427,6 +483,7 @@ const useWebSerial = ({
     canUseSerial,
     portState: portState.current,
     hasTriedAutoconnect,
+    commandResponseMap: commandResponseMap.current,
     portInfo,
     manualConnectToPort,
     openPort,
@@ -435,6 +492,7 @@ const useWebSerial = ({
     stopReading,
     write,
     queueWrite,
+    queueWriteAndResponse,
     options: {
       baudRate,
       bufferSize,
