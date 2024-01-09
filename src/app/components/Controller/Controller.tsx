@@ -126,7 +126,7 @@ const Controller = () => {
     }
   };
 
-  const downloadFile = async (filePath: string = "test.txt") => {
+  const downloadFile = async (filePath: string) => {
     await write("fclose", false);
     let sizeResponse = await write(`filesize ${filePath}`, false, true);
     if (!sizeResponse.response) {
@@ -351,12 +351,12 @@ const Controller = () => {
         ) : (
           <>
             <div className="mt-10 flex w-[80%] items-center justify-center gap-1">
-              <button
-                onClick={() => downloadFile()}
+              {/* <button
+                onClick={() => downloadFile("test.txt")}
                 className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
               >
                 Test
-              </button>
+              </button> */}
               <input
                 type="text"
                 value={command}
