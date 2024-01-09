@@ -32,7 +32,7 @@ const Controller = () => {
   };
 
   const sendCommand = async () => {
-    console.log(await write(command, false));
+    await write(command, false);
     setCommand("");
   };
 
