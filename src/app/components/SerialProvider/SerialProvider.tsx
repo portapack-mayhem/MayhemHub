@@ -373,13 +373,27 @@ const useWebSerial = ({
     const encoder = new TextEncoder();
     let toFlush = "";
     let message = messageQueue[0]; // Fetch the oldest message (the first one in the array)
-    const data = encoder.encode(message + "\r");
+    // const data = encoder.encode(message + "\r");
+    const data = message;
 
     const writer = port?.writable?.getWriter();
     if (writer) {
       try {
+        const submessages = data.match(/.{1,500}/gs) || [];
+
+        console.log(submessages, submessages.length);
+
+        for (const sm of submessages) {
+          if (sm.length <= 0) continue;
+          await delay(20);
+          const smcoded = await encoder.encode(sm + "\r");
+          await writer.write(smcoded);
+          console.log("subpart sent: ", sm);
+        }
+        console.log("Chunk sent!");
+
         // await delay(50);
-        await writer.write(data);
+        // await writer.write(data);
         // WIP diy flushing
         // ToDo: Fix this message flush stuff here
         // message = "\r";
@@ -389,7 +403,7 @@ const useWebSerial = ({
         //   writer.releaseLock();
         //   toFlush = "";
         // }
-        writer.releaseLock();
+        // writer.releaseLock();
 
         // const chunkSize = 300;
         // for (let i = 0; i < data.length; i += chunkSize) {
