@@ -379,13 +379,13 @@ const useWebSerial = ({
     const writer = port?.writable?.getWriter();
     if (writer) {
       try {
-        const submessages = data.match(/.{1,500}/gs) || [];
+        const submessages = data.match(/.{1,30}/gs) || [];
 
         console.log(submessages, submessages.length);
 
         for (const sm of submessages) {
           if (sm.length <= 0) continue;
-          await delay(20);
+          await delay(200);
           const smcoded = await encoder.encode(sm + "\r");
           await writer.write(smcoded);
           console.log("subpart sent: ", sm);

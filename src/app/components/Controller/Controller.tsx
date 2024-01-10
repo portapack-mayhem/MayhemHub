@@ -142,8 +142,13 @@ const Controller = () => {
       const chunk = arrayBuffer.slice(i, i + chunkSize);
       byteChunks.push(new Uint8Array(chunk));
 
+      const stuff = String.fromCharCode.apply(
+        null,
+        Array.from(new Uint8Array(chunk))
+      );
+
       await write(`fwb ${chunk.byteLength}`, false, true);
-      await write(`${new Uint8Array(chunk)}`, false, true);
+      await write(`${stuff}`, false, true);
     }
     console.log("FILE DONE");
 
