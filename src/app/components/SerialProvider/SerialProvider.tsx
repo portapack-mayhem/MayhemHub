@@ -375,7 +375,6 @@ const useWebSerial = ({
     if (writer) {
       try {
         await writer.write(data);
-
         // WIP diy flushing
         // ToDo: Fix this message flush stuff here
         // message = "\r";
@@ -402,10 +401,10 @@ const useWebSerial = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messageQueue, write, isIncomingMessage.current]); // This effect will run every time `messageQueue` changes
 
-  useEffect(() => {
-    console.log("isIncomingMessage: ", isIncomingMessage.current);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isIncomingMessage.current]); // This effect will run every time `messageQueue` changes
+  // useEffect(() => {
+  //   console.log("isIncomingMessage: ", isIncomingMessage.current);
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [isIncomingMessage.current]); // This effect will run every time `messageQueue` changes
 
   const queueWrite = (message: string) => {
     const id = commandCounter.current++;

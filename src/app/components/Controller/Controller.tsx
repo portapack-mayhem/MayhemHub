@@ -134,36 +134,15 @@ const Controller = () => {
 
     let blob = new Blob([bytes]);
 
-    const hexChunks = (await blob.text()).match(/.{1,9000}/g);
+    const hexChunks = (await blob.text()).match(/.{1,9000}/gs);
     if (!hexChunks) return;
     console.log(hexChunks.length, hexChunks[0].length, hexChunks);
-    // await write(`fwb ${bytes.length + hexChunks.length - 1}`, false, true);
-    // await write(`fwb 9000`, false, true);
 
-    // while (rem > 0) {
-    //   if (rem < chunk) {
-    //     chunk = rem;
-    //   }
-    //   await write(`fwb ${chunk}`, false, true);
-
-    //   await write(`${chunk}`, false, true);
-
-    //   rem -= chunk;
-    // }
-
-    hexChunks.forEach(async (chunk: string) => {
+    for (const chunk of hexChunks) {
       console.log(chunk.length);
-      await write(
-        `fwb ${chunk.length < 9000 ? chunk.length + 2 : chunk.length}`,
-        false,
-        true
-      );
+      await write(`fwb ${chunk.length}`, false, true);
       await write(`${chunk}`, false, true);
-    });
-
-    // hexChunks.forEach(async (chunk: string) => {
-    //   await write(`${chunk}`, false, true);
-    // });
+    }
 
     await write("fclose", false);
   };
