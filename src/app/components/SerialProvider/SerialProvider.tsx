@@ -356,6 +356,10 @@ const useWebSerial = ({
     port.cancelRequested = true;
   };
 
+  const delay = (ms: number) => {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  };
+
   /**
    *
    * @param {string} message
@@ -374,6 +378,7 @@ const useWebSerial = ({
     const writer = port?.writable?.getWriter();
     if (writer) {
       try {
+        // await delay(50);
         await writer.write(data);
         // WIP diy flushing
         // ToDo: Fix this message flush stuff here
@@ -385,6 +390,22 @@ const useWebSerial = ({
         //   toFlush = "";
         // }
         writer.releaseLock();
+
+        // const chunkSize = 300;
+        // for (let i = 0; i < data.length; i += chunkSize) {
+        //   // const writer = port?.writable?.getWriter();
+        //   // if (!writer) return;
+        //   // int remainingBytes = Math.Min(chunkSize, data.Length - i);
+        //   let remainingBytes = Math.min(chunkSize, data.length - i);
+        //   await delay(50);
+        //   // _serialPort.BaseStream.Write(data, i, remainingBytes);
+        //   let chunk = data.slice(i, i + remainingBytes);
+        //   await writer.write(chunk);
+        //   // _serialPort.BaseStream.Flush();
+        //   // writer.releaseLock();
+        //   // writer.releaseLock();
+        // }
+        // writer.releaseLock();
 
         setMessageQueue((prevQueue) => prevQueue.slice(1)); // Remove the message we just wrote from the queue
       } finally {
