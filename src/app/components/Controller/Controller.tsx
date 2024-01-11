@@ -277,7 +277,7 @@ const Controller = () => {
 
   const flashLatestFirmware = async () => {
     const fileBlob = await downloadFileFromUrl(
-      "https://hackrf.app/api/fetch_firmware"
+      "https://hackrf.app/api/fetch_nightly_firmware"
     );
 
     await uploadFile(
@@ -285,8 +285,9 @@ const Controller = () => {
       new Uint8Array(await fileBlob.arrayBuffer())
     );
 
-    write("flash /FIRMWARE/JOEL.ppfw.tar", false, false);
-    console.log("DONE firmwaer update!");
+    await write("flash /FIRMWARE/JOEL.ppfw.tar", false, true);
+    console.log("DONE firmware update!");
+    alert("Firmware update complete! Please wait for your device to reboot.");
   };
 
   const handleScroll = (e: React.WheelEvent) => {
@@ -451,66 +452,70 @@ const Controller = () => {
             Start reading console
           </button>
         ) : (
-          <>
-            <div className="mt-10 flex w-[80%] items-center justify-center gap-1">
-              {/* <button
+          <div className="mt-10 flex w-[80%] flex-row items-center justify-center gap-5">
+            <div className="flex gap-1 self-start">
+              <button
+                // onClick={() => downloadFile("PLAYLIST.TXT")}
+                onClick={() => flashLatestFirmware()}
+                className="self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
+              >
+                Update Firmware to latest nightly
+              </button>
+            </div>
+            <div className="flex w-full flex-col items-center justify-center gap-1">
+              <div className="flex w-full flex-row items-center justify-center gap-1">
+                {/* <button
                 onClick={() => downloadFile("test.txt")}
                 className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
               >
                 Test
               </button> */}
-              <button
+                {/* <button
                 // onClick={() => downloadFile("PLAYLIST.TXT")}
                 onClick={() => downloadFile("/APPS/pacman.ppma")}
                 className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
               >
                 Download
-              </button>
-              <button
-                // onClick={() => downloadFile("PLAYLIST.TXT")}
-                onClick={() => flashLatestFirmware()}
-                className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
-              >
-                FW
-              </button>
-              {/* <input type="file" onChange={onFileChange} /> */}
-              <input
-                type="text"
-                value={command}
-                onChange={(e) => setCommand(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
+              </button> */}
+                {/* <input type="file" onChange={onFileChange} /> */}
+                <input
+                  type="text"
+                  value={command}
+                  onChange={(e) => setCommand(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      sendCommand();
+                    }
+                  }}
+                  className="w-full rounded-md border-2 border-blue-500 p-2 text-black"
+                />
+                <button
+                  type="submit"
+                  className="rounded-md bg-blue-500 p-2 text-white"
+                  onClick={() => {
                     sendCommand();
-                  }
-                }}
-                className="w-full rounded-md border-2 border-blue-500 p-2 text-black"
+                  }}
+                >
+                  Send
+                </button>
+                <button
+                  type="submit"
+                  className="rounded-md bg-red-500 p-2 text-white"
+                  onClick={() => {
+                    setConsoleMessageList("");
+                  }}
+                >
+                  Clear
+                </button>
+              </div>
+              <textarea
+                className="h-[350px] w-full rounded bg-gray-200 p-2 text-black"
+                readOnly
+                value={consoleMessageList}
               />
-              <button
-                type="submit"
-                className="rounded-md bg-blue-500 p-2 text-white"
-                onClick={() => {
-                  sendCommand();
-                }}
-              >
-                Send
-              </button>
-              <button
-                type="submit"
-                className="rounded-md bg-red-500 p-2 text-white"
-                onClick={() => {
-                  setConsoleMessageList("");
-                }}
-              >
-                Clear
-              </button>
             </div>
-            <textarea
-              className="h-[350px] w-[80%] rounded bg-gray-200 p-2 text-black"
-              readOnly
-              value={consoleMessageList}
-            />
-          </>
+          </div>
         )}
       </div>
     </>
