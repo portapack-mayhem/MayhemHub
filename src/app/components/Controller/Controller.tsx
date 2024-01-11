@@ -1,21 +1,21 @@
-"use client";
+"use client"
 
-import React, { ChangeEvent, useEffect, useRef, useState } from "react";
-import HotkeyButton from "../HotkeyButton/HotkeyButton";
-import { useSerial } from "../SerialLoader/SerialLoader";
-import { DataPacket } from "../SerialProvider/SerialProvider";
-import ToggleSwitch from "../ToggleSwitch/ToggleSwitch";
+import React, { ChangeEvent, useEffect, useRef, useState } from "react"
+import HotkeyButton from "../HotkeyButton/HotkeyButton"
+import { useSerial } from "../SerialLoader/SerialLoader"
+import { DataPacket } from "../SerialProvider/SerialProvider"
+import ToggleSwitch from "../ToggleSwitch/ToggleSwitch"
 
 const Controller = () => {
-  const { serial, consoleMessage } = useSerial();
-  const [consoleMessageList, setConsoleMessageList] = useState<string>("");
-  const [updateStatus, setUpdateStatus] = useState<string>("");
-  const [command, setCommand] = useState<string>("");
-  const [autoUpdateFrame, setAutoUpdateFrame] = useState<boolean>(true);
-  const [loadingFrame, setLoadingFrame] = useState<boolean>(true);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const { serial, consoleMessage } = useSerial()
+  const [consoleMessageList, setConsoleMessageList] = useState<string>("")
+  const [updateStatus, setUpdateStatus] = useState<string>("")
+  const [command, setCommand] = useState<string>("")
+  const [autoUpdateFrame, setAutoUpdateFrame] = useState<boolean>(true)
+  const [loadingFrame, setLoadingFrame] = useState<boolean>(true)
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
-  const started = useRef<boolean>(false);
+  const started = useRef<boolean>(false)
 
   const write = async (
     command: string,
@@ -26,137 +26,137 @@ const Controller = () => {
       id: 0,
       command: "",
       response: null,
-    };
-    if (awaitResponse) data = await serial.queueWriteAndResponse(command);
-    else serial.queueWrite(command);
+    }
+    if (awaitResponse) data = await serial.queueWriteAndResponse(command)
+    else serial.queueWrite(command)
     if (updateFrame) {
-      serial.queueWrite("screenframeshort");
-      setLoadingFrame(true);
+      serial.queueWrite("screenframeshort")
+      setLoadingFrame(true)
     }
 
-    return data;
-  };
+    return data
+  }
 
   const sendCommand = async () => {
-    await write(command, false);
-    setCommand("");
-  };
+    await write(command, false)
+    setCommand("")
+  }
 
   useEffect(() => {
     // We dont add this to the console as its not needed. This may change in the future
     if (consoleMessage.includes("screenframe")) {
-      renderFrame();
-      setLoadingFrame(false);
+      renderFrame()
+      setLoadingFrame(false)
     } else {
       setConsoleMessageList(
         (prevConsoleMessageList) => prevConsoleMessageList + consoleMessage
-      );
+      )
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [consoleMessage]);
+  }, [consoleMessage])
 
   useEffect(() => {
     if (serial.isOpen && !serial.isReading && !started.current) {
-      started.current = true;
-      serial.startReading();
-      write(setDeviceTime(), false);
-      write("screenframeshort", false);
+      started.current = true
+      serial.startReading()
+      write(setDeviceTime(), false)
+      write("screenframeshort", false)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [serial]);
+  }, [serial])
 
   const renderFrame = () => {
-    const width = 241;
-    const height = 321;
-    if (!consoleMessage.includes("screenframe")) return;
+    const width = 241
+    const height = 321
+    if (!consoleMessage.includes("screenframe")) return
 
-    const lines = consoleMessage.split("\r\n");
-    const ctx = canvasRef.current?.getContext("2d");
+    const lines = consoleMessage.split("\r\n")
+    const ctx = canvasRef.current?.getContext("2d")
 
-    if (!ctx) return false;
+    if (!ctx) return false
 
     for (let y = 0; y < lines.length; y++) {
-      let line = lines[y];
-      if (line.startsWith("screenframe")) continue;
+      let line = lines[y]
+      if (line.startsWith("screenframe")) continue
       for (let o = 0, x = 0; o < line.length && x < 240; o++, x++) {
         try {
-          let by = line.charCodeAt(o) - 32;
-          let r = ((by >> 4) & 3) << 6;
-          let g = ((by >> 2) & 3) << 6;
-          let b = (by & 3) << 6;
+          let by = line.charCodeAt(o) - 32
+          let r = ((by >> 4) & 3) << 6
+          let g = ((by >> 2) & 3) << 6
+          let b = (by & 3) << 6
 
-          ctx.fillStyle = `rgb(${r},${g},${b})`;
-          ctx?.fillRect(x, y, 1, 1);
+          ctx.fillStyle = `rgb(${r},${g},${b})`
+          ctx?.fillRect(x, y, 1, 1)
         } catch (err) {
-          console.error(err);
+          console.error(err)
         }
       }
     }
-  };
+  }
 
   const setDeviceTime = () => {
-    const currentDateTime: Date = new Date();
+    const currentDateTime: Date = new Date()
     // Add 3 seconds to the current time to account for the time it takes to send the command
-    currentDateTime.setSeconds(currentDateTime.getSeconds() + 3);
-    const year: number = currentDateTime.getFullYear();
-    let month: string | number = currentDateTime.getMonth() + 1; // JavaScript months are 0-11
-    let day: string | number = currentDateTime.getDate();
-    let hours: string | number = currentDateTime.getHours();
-    let minutes: string | number = currentDateTime.getMinutes();
-    let seconds: string | number = currentDateTime.getSeconds();
+    currentDateTime.setSeconds(currentDateTime.getSeconds() + 3)
+    const year: number = currentDateTime.getFullYear()
+    let month: string | number = currentDateTime.getMonth() + 1 // JavaScript months are 0-11
+    let day: string | number = currentDateTime.getDate()
+    let hours: string | number = currentDateTime.getHours()
+    let minutes: string | number = currentDateTime.getMinutes()
+    let seconds: string | number = currentDateTime.getSeconds()
 
     // Making sure we have two digit representation
-    month = month < 10 ? "0" + month : month;
-    day = day < 10 ? "0" + day : day;
-    hours = hours < 10 ? "0" + hours : hours;
-    minutes = minutes < 10 ? "0" + minutes : minutes;
-    seconds = seconds < 10 ? "0" + seconds : seconds;
+    month = month < 10 ? "0" + month : month
+    day = day < 10 ? "0" + day : day
+    hours = hours < 10 ? "0" + hours : hours
+    minutes = minutes < 10 ? "0" + minutes : minutes
+    seconds = seconds < 10 ? "0" + seconds : seconds
 
-    return `rtcset ${year} ${month} ${day} ${hours} ${minutes} ${seconds}`;
-  };
+    return `rtcset ${year} ${month} ${day} ${hours} ${minutes} ${seconds}`
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (
       (e.key.length === 1 && /[a-zA-Z0-9 ]/.test(e.key)) ||
       e.key === "Backspace"
     ) {
-      e.preventDefault();
-      let key_code = e.key.length === 1 ? e.key.charCodeAt(0) : e.keyCode;
-      const keyHex = key_code.toString(16).padStart(2, "0").toUpperCase();
-      write(`keyboard ${keyHex}`, autoUpdateFrame);
+      e.preventDefault()
+      let key_code = e.key.length === 1 ? e.key.charCodeAt(0) : e.keyCode
+      const keyHex = key_code.toString(16).padStart(2, "0").toUpperCase()
+      write(`keyboard ${keyHex}`, autoUpdateFrame)
     }
-  };
+  }
 
   const uploadFile = async (filePath: string, bytes: Uint8Array) => {
-    await write("fclose", false);
-    await write(`fopen ${filePath}`, false);
+    await write("fclose", false)
+    await write(`fopen ${filePath}`, false)
 
-    await write(`fseek 0`, false);
+    await write(`fseek 0`, false)
 
-    let blob = new Blob([bytes]);
-    const arrayBuffer = await blob.arrayBuffer();
+    let blob = new Blob([bytes])
+    const arrayBuffer = await blob.arrayBuffer()
 
-    const chunkSize = 9000;
+    const chunkSize = 9000
 
-    console.log("Total length: ", arrayBuffer.byteLength);
+    console.log("Total length: ", arrayBuffer.byteLength)
 
-    let startTime = Date.now();
-    let totalTime = 0;
+    let startTime = Date.now()
+    let totalTime = 0
 
     for (let i = 0; i < arrayBuffer.byteLength; i += chunkSize) {
-      const chunk = arrayBuffer.slice(i, i + chunkSize);
+      const chunk = arrayBuffer.slice(i, i + chunkSize)
 
-      await write(`fwb ${chunk.byteLength}`, false, true);
-      await serial.queueWriteAndResponseBinary(new Uint8Array(chunk));
+      await write(`fwb ${chunk.byteLength}`, false, true)
+      await serial.queueWriteAndResponseBinary(new Uint8Array(chunk))
 
       // calculate elapsed time and average time per chunk
-      let elapsed = Date.now() - startTime;
-      totalTime += elapsed;
-      let avgTimePerChunk = totalTime / (i / chunkSize + 1);
+      let elapsed = Date.now() - startTime
+      totalTime += elapsed
+      let avgTimePerChunk = totalTime / (i / chunkSize + 1)
 
       // estimate remaining time in seconds
-      let remainingChunks = (arrayBuffer.byteLength - i) / chunkSize;
-      let estRemainingTime = (remainingChunks * avgTimePerChunk) / 1000;
+      let remainingChunks = (arrayBuffer.byteLength - i) / chunkSize
+      let estRemainingTime = (remainingChunks * avgTimePerChunk) / 1000
 
       console.log(
         "Chunk done",
@@ -164,158 +164,153 @@ const Controller = () => {
         arrayBuffer.byteLength,
         ((i / arrayBuffer.byteLength) * 100).toFixed(2) + "%",
         "Estimated time remaining: " + estRemainingTime.toFixed(0) + " seconds"
-      );
+      )
       setUpdateStatus(
         `${((i / arrayBuffer.byteLength) * 100).toFixed(
           2
         )}% Estimated time remaining: ${estRemainingTime.toFixed(0)} seconds`
-      );
+      )
 
       // reset start time for next iteration
-      startTime = Date.now();
+      startTime = Date.now()
     }
-    console.log("FILE DONE");
+    console.log("FILE DONE")
 
-    await write("fclose", false);
-  };
+    await write("fclose", false)
+  }
 
   const downloadFile = async (filePath: string) => {
-    await write("fclose", false);
-    let sizeResponse = await write(`filesize ${filePath}`, false, true);
+    await write("fclose", false)
+    let sizeResponse = await write(`filesize ${filePath}`, false, true)
     if (!sizeResponse.response) {
-      console.error("Error downloading (size) file");
+      console.error("Error downloading (size) file")
     }
-    let size = parseInt(sizeResponse.response?.split("\r\n")[1] || "0");
-    await write(`fopen ${filePath}`, false);
+    let size = parseInt(sizeResponse.response?.split("\r\n")[1] || "0")
+    await write(`fopen ${filePath}`, false)
 
-    await write(`fseek 0`, false);
+    await write(`fseek 0`, false)
 
-    let rem = size;
-    let chunk = 62 * 15;
+    let rem = size
+    let chunk = 62 * 15
 
-    let dataObject: Uint8Array = new Uint8Array();
+    let dataObject: Uint8Array = new Uint8Array()
 
     while (rem > 0) {
       if (rem < chunk) {
-        chunk = rem;
+        chunk = rem
       }
       let lines =
         (await write(`fread ${chunk.toString()}`, false, true)).response
           ?.split("\r\n")
           .slice(1)
           .slice(0, -2)
-          .join("") || "";
+          .join("") || ""
 
-      let bArr = hexToBytes(lines);
-      rem -= bArr.length;
-      dataObject = new Uint8Array([...dataObject, ...Array.from(bArr)]);
+      let bArr = hexToBytes(lines)
+      rem -= bArr.length
+      dataObject = new Uint8Array([...dataObject, ...Array.from(bArr)])
     }
     downloadFileFromBytes(
       dataObject,
       filePath.substring(filePath.lastIndexOf("/") + 1)
-    );
-    await write("fclose", false);
-  };
+    )
+    await write("fclose", false)
+  }
 
   const hexToBytes = (hex: string) => {
-    let bytes = new Uint8Array(Math.ceil(hex.length / 2));
+    let bytes = new Uint8Array(Math.ceil(hex.length / 2))
     for (let i = 0; i < bytes.length; i++)
-      bytes[i] = parseInt(hex.substr(i * 2, 2), 16);
-    return bytes;
-  };
+      bytes[i] = parseInt(hex.substr(i * 2, 2), 16)
+    return bytes
+  }
 
   const bytesToHex = (bytes: Uint8Array) => {
-    return bytes
-      .map((byte: any) => byte.toString(16).padStart(2, "0"))
-      .join("");
-  };
+    return bytes.map((byte: any) => byte.toString(16).padStart(2, "0")).join("")
+  }
 
   const downloadFileFromBytes = (
     bytes: Uint8Array | string,
     fileName: string = "output.txt"
   ) => {
-    let blob = new Blob([bytes]);
-    let url = URL.createObjectURL(blob);
-    let a = document.createElement("a");
-    a.style.display = "none";
-    a.href = url;
-    a.download = fileName; // Filename
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
+    let blob = new Blob([bytes])
+    let url = URL.createObjectURL(blob)
+    let a = document.createElement("a")
+    a.style.display = "none"
+    a.href = url
+    a.download = fileName // Filename
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
 
   const onFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const fileList = event.target.files;
-    if (!fileList) return;
+    const fileList = event.target.files
+    if (!fileList) return
 
-    let file = fileList[0];
-    let reader = new FileReader();
+    let file = fileList[0]
+    let reader = new FileReader()
 
     reader.onloadend = () => {
-      const arrayBuffer = reader.result;
+      const arrayBuffer = reader.result
       if (arrayBuffer instanceof ArrayBuffer) {
-        let bytes = new Uint8Array(arrayBuffer);
-        uploadFile(file.name, bytes);
+        let bytes = new Uint8Array(arrayBuffer)
+        uploadFile(file.name, bytes)
       }
-    };
+    }
 
     reader.onerror = () => {
-      console.error("A problem occurred while reading the file.");
-    };
+      console.error("A problem occurred while reading the file.")
+    }
 
     if (file) {
-      reader.readAsArrayBuffer(file);
+      reader.readAsArrayBuffer(file)
     }
-  };
+  }
 
   interface DownloadedFile {
-    blob: Blob;
-    filename: string;
+    blob: Blob
+    filename: string
   }
 
   const downloadFileFromUrl = async (url: string): Promise<DownloadedFile> => {
-    const response = await fetch(url);
+    const response = await fetch(url)
 
     if (!response.ok) {
-      throw new Error("Network response was not ok");
+      throw new Error("Network response was not ok")
     }
 
-    console.log(response.headers);
+    console.log(response.headers)
 
-    const contentDispositionHeader = response.headers.get(
-      "Content-Disposition"
-    );
-    console.log(contentDispositionHeader);
-    const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-    let matches = contentDispositionHeader?.match(filenameRegex);
+    const contentDispositionHeader = response.headers.get("Content-Disposition")
+    console.log(contentDispositionHeader)
+    const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
+    let matches = contentDispositionHeader?.match(filenameRegex)
     let filename =
-      matches && matches[1] ? matches[1].replace(/['"]/g, "") : "unknown.fail";
+      matches && matches[1] ? matches[1].replace(/['"]/g, "") : "unknown.fail"
 
-    const blob = await response.blob();
-    console.log(blob);
+    const blob = await response.blob()
+    console.log(blob)
 
-    return { blob, filename };
-  };
+    return { blob, filename }
+  }
 
   const flashLatestFirmware = async () => {
     const fileBlob = await downloadFileFromUrl(
-      // "https://hackrf.app/api/fetch_nightly_firmware"
-      "http://localhost:8788/api/fetch_nightly_firmware"
-    );
+      "https://hackrf.app/api/fetch_nightly_firmware"
+    )
 
-    console.log("Downloading firmware update...", fileBlob.filename);
+    console.log("Downloading firmware update...", fileBlob.filename)
 
     await uploadFile(
       `/FIRMWARE/${fileBlob.filename}`,
       new Uint8Array(await fileBlob.blob.arrayBuffer())
-    );
+    )
 
-    // await write(`flash /FIRMWARE/${fileBlob.filename}`, false, true);
-    // console.log("DONE firmware update!");
-    // alert("Firmware update complete! Please wait for your device to reboot.");
-  };
+    await write(`flash /FIRMWARE/${fileBlob.filename}`, false, true)
+    console.log("DONE firmware update!")
+    alert("Firmware update complete! Please wait for your device to reboot.")
+  }
 
   const handleScroll = (e: React.WheelEvent) => {
     // Disabled for the moment
@@ -329,7 +324,7 @@ const Controller = () => {
     //   // Add your scroll down Logic here
     //   write("button 8", false)
     // }
-  };
+  }
 
   return (
     <>
@@ -342,7 +337,7 @@ const Controller = () => {
           onWheel={handleScroll}
           tabIndex={0}
           onKeyDown={(e) => {
-            handleKeyDown(e);
+            handleKeyDown(e)
           }}
         >
           <div
@@ -355,8 +350,8 @@ const Controller = () => {
                 <ToggleSwitch
                   isToggle={autoUpdateFrame}
                   toggleSwitch={() => {
-                    if (!autoUpdateFrame) write("screenframeshort", false);
-                    setAutoUpdateFrame(!autoUpdateFrame);
+                    if (!autoUpdateFrame) write("screenframeshort", false)
+                    setAutoUpdateFrame(!autoUpdateFrame)
                   }}
                 />
                 <HotkeyButton
@@ -364,8 +359,8 @@ const Controller = () => {
                   disabled={loadingFrame}
                   onClickFunction={() => {
                     if (!loadingFrame) {
-                      setLoadingFrame(true);
-                      write("screenframeshort", false);
+                      setLoadingFrame(true)
+                      write("screenframeshort", false)
                     }
                   }}
                   className="h-6 w-6 bg-blue-500"
@@ -383,12 +378,12 @@ const Controller = () => {
               onMouseDown={(
                 event: React.MouseEvent<HTMLCanvasElement, MouseEvent>
               ) => {
-                if (!canvasRef.current) return;
-                const bounds = canvasRef.current.getBoundingClientRect();
-                const x = event.clientX - bounds.left;
-                const y = event.clientY - bounds.top;
+                if (!canvasRef.current) return
+                const bounds = canvasRef.current.getBoundingClientRect()
+                const x = event.clientX - bounds.left
+                const y = event.clientY - bounds.top
 
-                write(`touch ${x} ${y}`, autoUpdateFrame);
+                write(`touch ${x} ${y}`, autoUpdateFrame)
               }}
             />
           </div>
@@ -516,8 +511,8 @@ const Controller = () => {
                   onChange={(e) => setCommand(e.target.value)}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
-                      e.preventDefault();
-                      sendCommand();
+                      e.preventDefault()
+                      sendCommand()
                     }
                   }}
                   className="w-full rounded-md border-2 border-blue-500 p-2 text-black"
@@ -526,7 +521,7 @@ const Controller = () => {
                   type="submit"
                   className="rounded-md bg-blue-500 p-2 text-white"
                   onClick={() => {
-                    sendCommand();
+                    sendCommand()
                   }}
                 >
                   Send
@@ -535,7 +530,7 @@ const Controller = () => {
                   type="submit"
                   className="rounded-md bg-red-500 p-2 text-white"
                   onClick={() => {
-                    setConsoleMessageList("");
+                    setConsoleMessageList("")
                   }}
                 >
                   Clear
@@ -551,8 +546,8 @@ const Controller = () => {
         )}
       </div>
     </>
-  );
-};
+  )
+}
 
-export default Controller;
-7;
+export default Controller
+7
