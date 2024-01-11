@@ -275,21 +275,18 @@ const Controller = () => {
     return blob;
   };
 
-  const downloadGithubFile = (url: string) => {
-    downloadFileFromUrl(url)
-      .then(async (blob) => {
-        // You can now work with the blob here, for instance create
-        // an object URL for use in an <img> element:
-        const url = URL.createObjectURL(blob);
-        console.log(url, await blob.text());
-        // Use `url` as needed
-      })
-      .catch((error) => {
-        console.error(
-          "There has been a problem with your fetch operation: ",
-          error
-        );
-      });
+  const flashLatestFirmware = async () => {
+    const fileBlob = await downloadFileFromUrl(
+      "/mayhem_nightly_n_240111_OCI.ppfw.tar"
+    );
+
+    await uploadFile(
+      "/FIRMWARE/JOEL.ppfw.tar",
+      new Uint8Array(await fileBlob.arrayBuffer())
+    );
+
+    write("flash /FIRMWARE/JOEL.ppfw.tar", false, false);
+    console.log("DONE firmwaer update!");
   };
 
   const handleScroll = (e: React.WheelEvent) => {
@@ -462,7 +459,7 @@ const Controller = () => {
               >
                 Test
               </button> */}
-              <button
+              {/* <button
                 // onClick={() => downloadFile("PLAYLIST.TXT")}
                 onClick={() => downloadFile("/APPS/pacman.ppma")}
                 className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
@@ -471,14 +468,12 @@ const Controller = () => {
               </button>
               <button
                 // onClick={() => downloadFile("PLAYLIST.TXT")}
-                onClick={() =>
-                  downloadGithubFile("/mayhem_nightly_n_240111_OCI.ppfw.tar")
-                }
+                onClick={() => flashLatestFirmware()}
                 className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
               >
                 FW
-              </button>
-              <input type="file" onChange={onFileChange} />
+              </button> */}
+              {/* <input type="file" onChange={onFileChange} /> */}
               <input
                 type="text"
                 value={command}
