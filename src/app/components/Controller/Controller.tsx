@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import HotkeyButton from "../HotkeyButton/HotkeyButton";
 import { useSerial } from "../SerialLoader/SerialLoader";
 import { DataPacket } from "../SerialProvider/SerialProvider";
@@ -126,6 +126,53 @@ const Controller = () => {
     }
   };
 
+  const uploadFile = async (filePath: string, bytes: Uint8Array) => {
+    await write("fclose", false);
+    await write(`fopen ${filePath}`, false);
+
+    await write(`fseek 0`, false);
+
+    let blob = new Blob([bytes]);
+    const arrayBuffer = await blob.arrayBuffer();
+
+    const chunkSize = 9000;
+
+    console.log("Total length: ", arrayBuffer.byteLength);
+
+    let startTime = Date.now();
+    let totalTime = 0;
+
+    for (let i = 0; i < arrayBuffer.byteLength; i += chunkSize) {
+      const chunk = arrayBuffer.slice(i, i + chunkSize);
+
+      await write(`fwb ${chunk.byteLength}`, false, true);
+      await serial.queueWriteAndResponseBinary(new Uint8Array(chunk));
+
+      // calculate elapsed time and average time per chunk
+      let elapsed = Date.now() - startTime;
+      totalTime += elapsed;
+      let avgTimePerChunk = totalTime / (i / chunkSize + 1);
+
+      // estimate remaining time in seconds
+      let remainingChunks = (arrayBuffer.byteLength - i) / chunkSize;
+      let estRemainingTime = (remainingChunks * avgTimePerChunk) / 1000;
+
+      console.log(
+        "Chunk done",
+        i,
+        arrayBuffer.byteLength,
+        ((i / arrayBuffer.byteLength) * 100).toFixed(2) + "%",
+        "Estimated time remaining: " + estRemainingTime.toFixed(0) + " seconds"
+      );
+
+      // reset start time for next iteration
+      startTime = Date.now();
+    }
+    console.log("FILE DONE");
+
+    await write("fclose", false);
+  };
+
   const downloadFile = async (filePath: string) => {
     await write("fclose", false);
     let sizeResponse = await write(`filesize ${filePath}`, false, true);
@@ -171,8 +218,14 @@ const Controller = () => {
     return bytes;
   };
 
+  const bytesToHex = (bytes: Uint8Array) => {
+    return bytes
+      .map((byte: any) => byte.toString(16).padStart(2, "0"))
+      .join("");
+  };
+
   const downloadFileFromBytes = (
-    bytes: Uint8Array,
+    bytes: Uint8Array | string,
     fileName: string = "output.txt"
   ) => {
     let blob = new Blob([bytes]);
@@ -185,6 +238,55 @@ const Controller = () => {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  };
+
+  const onFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const fileList = event.target.files;
+    if (!fileList) return;
+
+    let file = fileList[0];
+    let reader = new FileReader();
+
+    reader.onloadend = () => {
+      const arrayBuffer = reader.result;
+      if (arrayBuffer instanceof ArrayBuffer) {
+        let bytes = new Uint8Array(arrayBuffer);
+        uploadFile(file.name, bytes);
+      }
+    };
+
+    reader.onerror = () => {
+      console.error("A problem occurred while reading the file.");
+    };
+
+    if (file) {
+      reader.readAsArrayBuffer(file);
+    }
+  };
+
+  const downloadFileFromUrl = async (url: string): Promise<Blob> => {
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    const blob = await response.blob();
+    return blob;
+  };
+
+  const flashLatestFirmware = async () => {
+    const fileBlob = await downloadFileFromUrl(
+      "/mayhem_nightly_n_240111_OCI.ppfw.tar"
+    );
+
+    await uploadFile(
+      "/FIRMWARE/JOEL.ppfw.tar",
+      new Uint8Array(await fileBlob.arrayBuffer())
+    );
+
+    write("flash /FIRMWARE/JOEL.ppfw.tar", false, false);
+    console.log("DONE firmwaer update!");
   };
 
   const handleScroll = (e: React.WheelEvent) => {
@@ -357,6 +459,21 @@ const Controller = () => {
               >
                 Test
               </button> */}
+              {/* <button
+                // onClick={() => downloadFile("PLAYLIST.TXT")}
+                onClick={() => downloadFile("/APPS/pacman.ppma")}
+                className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
+              >
+                Download
+              </button>
+              <button
+                // onClick={() => downloadFile("PLAYLIST.TXT")}
+                onClick={() => flashLatestFirmware()}
+                className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
+              >
+                FW
+              </button> */}
+              {/* <input type="file" onChange={onFileChange} /> */}
               <input
                 type="text"
                 value={command}
@@ -401,3 +518,4 @@ const Controller = () => {
 };
 
 export default Controller;
+7;
