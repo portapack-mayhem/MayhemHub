@@ -139,11 +139,34 @@ const Controller = () => {
 
     console.log("Total length: ", arrayBuffer.byteLength);
 
+    let startTime = Date.now();
+    let totalTime = 0;
+
     for (let i = 0; i < arrayBuffer.byteLength; i += chunkSize) {
       const chunk = arrayBuffer.slice(i, i + chunkSize);
 
       await write(`fwb ${chunk.byteLength}`, false, true);
       await serial.queueWriteAndResponseBinary(new Uint8Array(chunk));
+
+      // calculate elapsed time and average time per chunk
+      let elapsed = Date.now() - startTime;
+      totalTime += elapsed;
+      let avgTimePerChunk = totalTime / (i / chunkSize + 1);
+
+      // estimate remaining time in seconds
+      let remainingChunks = (arrayBuffer.byteLength - i) / chunkSize;
+      let estRemainingTime = (remainingChunks * avgTimePerChunk) / 1000;
+
+      console.log(
+        "Chunk done",
+        i,
+        arrayBuffer.byteLength,
+        ((i / arrayBuffer.byteLength) * 100).toFixed(2) + "%",
+        "Estimated time remaining: " + estRemainingTime.toFixed(0) + " seconds"
+      );
+
+      // reset start time for next iteration
+      startTime = Date.now();
     }
     console.log("FILE DONE");
 

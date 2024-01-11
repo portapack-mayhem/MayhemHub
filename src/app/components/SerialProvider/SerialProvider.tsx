@@ -376,31 +376,16 @@ const useWebSerial = ({
     const writer = port?.writable?.getWriter();
     if (writer) {
       try {
-        //====================
         let blob = new Blob([data]);
         const arrayBuffer = await blob.arrayBuffer();
-
-        // const byteChunks = [];
-        const chunkSize = 200;
+        const chunkSize = 250;
 
         for (let i = 0; i < arrayBuffer.byteLength; i += chunkSize) {
           const chunk = arrayBuffer.slice(i, i + chunkSize);
-
-          // const stuff = String.fromCharCode.apply(
-          //   null,
-          //   Array.from(new Uint8Array(chunk))
-          // );
-
-          // if (stuff.length <= 1) continue;
-          await delay(15);
-          // console.log("stuff: ", stuff);
-          // byteChunks.push(new Uint8Array(chunk));
-
+          await delay(10);
           await writer.write(new Uint8Array(chunk));
-          console.log("subpart sent: ", i, arrayBuffer.byteLength);
+          // console.log("subpart sent: ", i, arrayBuffer.byteLength);
         }
-        //====================
-        console.log("Chunk sent!");
         writer.releaseLock();
 
         setMessageQueue((prevQueue) => prevQueue.slice(1)); // Remove the message we just wrote from the queue
