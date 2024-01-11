@@ -384,14 +384,14 @@ const useWebSerial = ({
         console.log(submessages, submessages.length);
 
         for (const [index, sm] of submessages.entries()) {
-          if (sm.length <= 0) continue;
-          await delay(50);
+          if (sm.length <= 1) continue; // Changed this from 0 to 1 to fix the issue with the last submessage being empty and causing the write to freak out
+          await delay(100);
           const smcoded = await encoder.encode(sm);
           await writer.write(smcoded);
           console.log(
             "subpart sent: ",
             sm.length,
-            index,
+            index + 1,
             submessages.length,
             sm
           );
