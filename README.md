@@ -3,6 +3,7 @@
 This is a [Next.js](https://nextjs.org/) TypeScript project. We use [Tailwind](https://tailwindcss.com/) for styling.
 
 We have make this website a PWA, so you can load it even without an internet connection!
+
 ## Getting Started
 
 First, install the dependencies
@@ -24,3 +25,8 @@ bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## Cloudflare
+
+To run the Cloudflare Functions locally you can run
+`npx wrangler pages dev public`
