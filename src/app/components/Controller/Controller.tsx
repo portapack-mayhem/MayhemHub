@@ -135,32 +135,17 @@ const Controller = () => {
     let blob = new Blob([bytes]);
     const arrayBuffer = await blob.arrayBuffer();
 
-    const byteChunks = [];
     const chunkSize = 9000;
+
+    console.log("Total length: ", arrayBuffer.byteLength);
 
     for (let i = 0; i < arrayBuffer.byteLength; i += chunkSize) {
       const chunk = arrayBuffer.slice(i, i + chunkSize);
-      byteChunks.push(new Uint8Array(chunk));
-
-      const stuff = String.fromCharCode.apply(
-        null,
-        Array.from(new Uint8ClampedArray(chunk))
-      );
 
       await write(`fwb ${chunk.byteLength}`, false, true);
-      await write(`${stuff}`, false, true);
+      await serial.queueWriteAndResponseBinary(new Uint8Array(chunk));
     }
     console.log("FILE DONE");
-
-    // const hexChunks = (await blob.text()).match(/.{1,9000}/gs);
-    // if (!hexChunks) return;
-    // console.log(hexChunks.length, hexChunks[0].length, hexChunks);
-
-    // for (const chunk of hexChunks) {
-    //   console.log(chunk.length);
-    //   await write(`fwb ${chunk.length}`, false, true);
-    //   await write(`${chunk}`, false, true);
-    // }
 
     await write("fclose", false);
   };
