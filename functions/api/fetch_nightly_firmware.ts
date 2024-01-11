@@ -3,7 +3,6 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "GET,HEAD,POST,OPTIONS,DELETE",
   "Access-Control-Allow-Headers": "Content-Type",
   "Access-Control-Max-Age": "86400",
-  "Content-Type": "application/json;charset=utf-8",
 };
 
 export const onRequestGet: PagesFunction = async (context) => {
@@ -34,12 +33,10 @@ export const onRequestGet: PagesFunction = async (context) => {
 
   let fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
 
-  // You can modify the response here, like setting content-disposition to force a file download
-  response = new Response(response.body, response);
-  response.headers.set(
-    "Content-Disposition",
-    `attachment; filename="${fileName}"`
-  );
-
-  return response;
+  return new Response(response.body, {
+    headers: {
+      ...corsHeaders,
+      "Content-Disposition": `attachment; filename="${fileName}"`,
+    },
+  });
 };
