@@ -91,7 +91,7 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
         <h1 className="mb-5 text-4xl font-semibold">Get Started</h1>
 
         <p className="mb-10 text-3xl leading-snug">
-          Connect your HackRF via USB to get started.
+          Connect your HackRF/Portapack via USB to get started.
         </p>
 
         <button

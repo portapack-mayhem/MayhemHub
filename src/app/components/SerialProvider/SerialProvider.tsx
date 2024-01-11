@@ -72,6 +72,7 @@ export interface UseWebSerialReturn {
   write: () => Promise<void>;
   queueWrite: (message: string) => number;
   queueWriteAndResponse: (message: string) => Promise<DataPacket>;
+  queueWriteAndResponseBinary: (message: Uint8Array) => Promise<DataPacket>;
   commandResponseMap: DataPacket[];
   options: {
     baudRate: BaudRatesType;
@@ -125,9 +126,10 @@ const useWebSerial = ({
   const portRef = useRef<WebSerialPort | null>(null);
   const [ports, setPorts] = useState<WebSerialPort[]>(webSerialContext.ports);
   const [isOpen, setIsOpen] = useState(false);
-  const [isReading, setIsReading] = useState(false);
+  const [isReading, setIsReading] = useState<boolean>(false);
+  const isIncomingMessage = useRef<boolean>(false);
   const [baudRate, setBaudRate] = useState<BaudRatesType>(115200);
-  const [bufferSize, setBufferSize] = useState(255);
+  const [bufferSize, setBufferSize] = useState(30);
   const [dataBits, setDataBits] = useState<DataBitsType>(8);
   const [stopBits, setStopBits] = useState<StopBitsType>(1);
   const [flowControl, setFlowControl] = useState<FlowControlType>("none");
@@ -140,7 +142,7 @@ const useWebSerial = ({
   const [dataSetReady, setDataSetReady] = useState(false);
   const [ringIndicator, setRingIndicator] = useState(false);
 
-  const [messageQueue, setMessageQueue] = useState<Array<string>>([]);
+  const [messageQueue, setMessageQueue] = useState<Array<Uint8Array>>([]);
   const commandResponseMap = useRef<DataPacket[]>([]);
   const commandCounter = useRef(0);
 
@@ -310,8 +312,16 @@ const useWebSerial = ({
       let lastProcessedCommand = 0;
       do {
         await reader.read().then(({ done, value }) => {
+          isIncomingMessage.current = true;
           completeString += decoder.decode(value);
-          if (done || completeString.endsWith("ch> ")) {
+          if (done) {
+            console.log("DONE WAS HIT WHAT THE FUCK!!!!");
+          }
+          if (
+            done ||
+            completeString.endsWith("ch> ") ||
+            completeString.endsWith(" bytes\r\n") // This is to handle fwb as it ends with "send x bytes"
+          ) {
             onData(completeString);
 
             let lastCommandIndex = commandResponseMap.current.find(
@@ -323,6 +333,7 @@ const useWebSerial = ({
               lastProcessedCommand = lastProcessedCommand + 1;
             }
             completeString = "";
+            isIncomingMessage.current = false;
             return;
           }
         });
@@ -346,40 +357,57 @@ const useWebSerial = ({
     port.cancelRequested = true;
   };
 
+  const delay = (ms: number) => {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  };
+
   /**
    *
    * @param {string} message
    */
   const write = useCallback(async () => {
-    if (messageQueue.length === 0) {
+    if (messageQueue.length === 0 || isIncomingMessage.current) {
       return;
     }
 
     const port = portRef.current;
-    const encoder = new TextEncoder();
-    const message = messageQueue[0]; // Fetch the oldest message (the first one in the array)
-    const data = encoder.encode(message + "\r\n");
+    let data = messageQueue[0]; // Fetch the oldest message (the first one in the array)
 
     const writer = port?.writable?.getWriter();
     if (writer) {
       try {
-        await writer.write(data);
+        // Once speed is fixed, this can be swapped in for the loop below
+        // await writer.write(data);
+
+        let blob = new Blob([data]);
+        const arrayBuffer = await blob.arrayBuffer();
+        const chunkSize = 350;
+
+        for (let i = 0; i < arrayBuffer.byteLength; i += chunkSize) {
+          const chunk = arrayBuffer.slice(i, i + chunkSize);
+          await delay(5);
+          await writer.write(new Uint8Array(chunk));
+        }
+        writer.releaseLock();
+
         setMessageQueue((prevQueue) => prevQueue.slice(1)); // Remove the message we just wrote from the queue
       } finally {
         writer.releaseLock();
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [messageQueue]);
+  }, [messageQueue, isIncomingMessage.current]);
 
   useEffect(() => {
     if (messageQueue.length > 0) {
       write();
     }
-  }, [messageQueue, write]); // This effect will run every time `messageQueue` changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messageQueue, write, isIncomingMessage.current]); // This effect will run every time `messageQueue` changes
 
   const queueWrite = (message: string) => {
     const id = commandCounter.current++;
+    message = message + "\r";
     commandResponseMap.current = [
       ...commandResponseMap.current,
       {
@@ -388,13 +416,18 @@ const useWebSerial = ({
         response: null,
       },
     ];
-    setMessageQueue((prevQueue) => [...prevQueue, message]); // Add the new message to the end of the queue
+
+    const encoder = new TextEncoder();
+    const data = encoder.encode(message);
+
+    setMessageQueue((prevQueue) => [...prevQueue, data]); // Add the new message to the end of the queue
 
     return id;
   };
 
   const queueWriteAndResponse = async (message: string) => {
     const id = commandCounter.current++;
+    message = message + "\r";
     commandResponseMap.current = [
       ...commandResponseMap.current,
       {
@@ -403,6 +436,40 @@ const useWebSerial = ({
         response: null,
       },
     ];
+
+    const encoder = new TextEncoder();
+    const data = await encoder.encode(message);
+
+    setMessageQueue((prevQueue) => [...prevQueue, data]); // Add the new message to the end of the queue
+
+    let commandResponse;
+    while (
+      !(commandResponse = commandResponseMap.current.find(
+        (item) => item.id === id && item.response !== null
+      ))
+    ) {
+      await new Promise((r) => setTimeout(r, 50));
+    }
+
+    return commandResponse;
+  };
+
+  const queueWriteAndResponseBinary = async (message: Uint8Array) => {
+    const id = commandCounter.current++;
+
+    const messageString = String.fromCharCode.apply(
+      null,
+      Array.from(new Uint8Array(message))
+    );
+    commandResponseMap.current = [
+      ...commandResponseMap.current,
+      {
+        id: id,
+        command: messageString,
+        response: null,
+      },
+    ];
+
     setMessageQueue((prevQueue) => [...prevQueue, message]); // Add the new message to the end of the queue
 
     let commandResponse;
@@ -442,6 +509,7 @@ const useWebSerial = ({
         portRef.current = ports[0] as WebSerialPort;
       }
     });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {}, [
@@ -493,6 +561,7 @@ const useWebSerial = ({
     write,
     queueWrite,
     queueWriteAndResponse,
+    queueWriteAndResponseBinary,
     options: {
       baudRate,
       bufferSize,
