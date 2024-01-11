@@ -277,7 +277,7 @@ const Controller = () => {
 
   const flashLatestFirmware = async () => {
     const fileBlob = await downloadFileFromUrl(
-      "/mayhem_nightly_n_240111_OCI.ppfw.tar"
+      "https://hackrf.app/api/fetch_firmware"
     );
 
     await uploadFile(
@@ -459,7 +459,7 @@ const Controller = () => {
               >
                 Test
               </button> */}
-              {/* <button
+              <button
                 // onClick={() => downloadFile("PLAYLIST.TXT")}
                 onClick={() => downloadFile("/APPS/pacman.ppma")}
                 className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
@@ -472,7 +472,7 @@ const Controller = () => {
                 className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
               >
                 FW
-              </button> */}
+              </button>
               {/* <input type="file" onChange={onFileChange} /> */}
               <input
                 type="text"

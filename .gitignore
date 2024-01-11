@@ -42,5 +42,5 @@ next-env.d.ts
 **/public/fallback**
 **/public/precache**
 
-#Cloudflare
+# Cloudflare
 .wrangler

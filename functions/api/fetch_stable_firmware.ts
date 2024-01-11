@@ -7,8 +7,27 @@ const corsHeaders = {
 };
 
 export const onRequestGet: PagesFunction = async (context) => {
-  let fileUrl =
-    "https://github.com/portapack-mayhem/mayhem-firmware/releases/download/nightly-tag-2024-01-11/mayhem_nightly_n_240111_OCI.ppfw.tar";
+  let apiUrl =
+    "https://api.github.com/repos/portapack-mayhem/mayhem-firmware/releases/latest";
+
+  let apiResponse = await fetch(apiUrl, {
+    method: "GET",
+    headers: { "User-Agent": "portapack-mayhem" },
+  });
+
+  if (!apiResponse.ok) {
+    throw new Error(`HTTP error! status: ${apiResponse.status}`);
+  }
+
+  let apiData: any = await apiResponse.json();
+  // assuming you want to fetch the first release data
+  let browser_download_url = apiData.assets.find((asset: any) => {
+    const assetName: string = asset["name"];
+    return assetName.includes(".ppfw.tar");
+  }).browser_download_url;
+  console.log(browser_download_url);
+
+  let fileUrl = browser_download_url;
 
   let response = await fetch(fileUrl, context.request);
 
