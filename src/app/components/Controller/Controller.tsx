@@ -291,16 +291,18 @@ const Controller = () => {
     const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
     let matches = contentDispositionHeader?.match(filenameRegex);
     let filename =
-      matches && matches[1] ? matches[1].replace(/['"]/g, "") : "unknown";
+      matches && matches[1] ? matches[1].replace(/['"]/g, "") : "unknown.fail";
 
     const blob = await response.blob();
+    console.log(blob);
 
     return { blob, filename };
   };
 
   const flashLatestFirmware = async () => {
     const fileBlob = await downloadFileFromUrl(
-      "https://hackrf.app/api/fetch_nightly_firmware"
+      // "https://hackrf.app/api/fetch_nightly_firmware"
+      "http://localhost:8788/api/fetch_nightly_firmware"
     );
 
     console.log("Downloading firmware update...", fileBlob.filename);
@@ -310,9 +312,9 @@ const Controller = () => {
       new Uint8Array(await fileBlob.blob.arrayBuffer())
     );
 
-    await write(`flash /FIRMWARE/${fileBlob.filename}`, false, true);
-    console.log("DONE firmware update!");
-    alert("Firmware update complete! Please wait for your device to reboot.");
+    // await write(`flash /FIRMWARE/${fileBlob.filename}`, false, true);
+    // console.log("DONE firmware update!");
+    // alert("Firmware update complete! Please wait for your device to reboot.");
   };
 
   const handleScroll = (e: React.WheelEvent) => {

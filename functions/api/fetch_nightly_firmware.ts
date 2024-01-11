@@ -33,10 +33,23 @@ export const onRequestGet: PagesFunction = async (context) => {
 
   let fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
 
-  return new Response(response.body, {
-    headers: {
-      ...corsHeaders,
-      "Content-Disposition": `attachment; filename="${fileName}"`,
-    },
+  // return new Response(response.body, {
+  //   headers: {
+  //     ...corsHeaders,
+  //     "Content-Disposition": `attachment; filename="${fileName}"`,
+  //   },
+  // });
+
+  console.log(response.headers);
+  response = new Response(response.body, response);
+  Object.entries(corsHeaders).forEach(([key, value]) => {
+    response.headers.set(key, value);
   });
+  response.headers.set(
+    "Content-Disposition",
+    `attachment; filename="${fileName}"`
+  );
+  response.headers.delete("content-security-policy");
+
+  return response;
 };
