@@ -374,7 +374,7 @@ const useWebSerial = ({
     let toFlush = "";
     let message = messageQueue[0]; // Fetch the oldest message (the first one in the array)
     // const data = encoder.encode(message + "\r");
-    const data = message;
+    const data = message + "\r";
 
     const writer = port?.writable?.getWriter();
     if (writer) {
@@ -385,8 +385,8 @@ const useWebSerial = ({
 
         for (const [index, sm] of submessages.entries()) {
           if (sm.length <= 0) continue;
-          await delay(500);
-          const smcoded = await encoder.encode(sm + "\r");
+          await delay(50);
+          const smcoded = await encoder.encode(sm);
           await writer.write(smcoded);
           console.log(
             "subpart sent: ",
@@ -398,6 +398,8 @@ const useWebSerial = ({
         }
         console.log("Chunk sent!");
         writer.releaseLock();
+        // await delay(500);
+        // writer.releaseLock();
 
         // await delay(50);
         // await writer.write(data);
