@@ -376,15 +376,17 @@ const useWebSerial = ({
     const writer = port?.writable?.getWriter();
     if (writer) {
       try {
+        // Once speed is fixed, this can be swapped in for the loop below
+        // await writer.write(data);
+
         let blob = new Blob([data]);
         const arrayBuffer = await blob.arrayBuffer();
-        const chunkSize = 250;
+        const chunkSize = 350;
 
         for (let i = 0; i < arrayBuffer.byteLength; i += chunkSize) {
           const chunk = arrayBuffer.slice(i, i + chunkSize);
-          await delay(10);
+          await delay(5);
           await writer.write(new Uint8Array(chunk));
-          // console.log("subpart sent: ", i, arrayBuffer.byteLength);
         }
         writer.releaseLock();
 
