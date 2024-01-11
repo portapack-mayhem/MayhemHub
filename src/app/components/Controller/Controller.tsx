@@ -9,6 +9,7 @@ import ToggleSwitch from "../ToggleSwitch/ToggleSwitch";
 const Controller = () => {
   const { serial, consoleMessage } = useSerial();
   const [consoleMessageList, setConsoleMessageList] = useState<string>("");
+  const [updateStatus, setUpdateStatus] = useState<string>("");
   const [command, setCommand] = useState<string>("");
   const [autoUpdateFrame, setAutoUpdateFrame] = useState<boolean>(true);
   const [loadingFrame, setLoadingFrame] = useState<boolean>(true);
@@ -163,6 +164,11 @@ const Controller = () => {
         arrayBuffer.byteLength,
         ((i / arrayBuffer.byteLength) * 100).toFixed(2) + "%",
         "Estimated time remaining: " + estRemainingTime.toFixed(0) + " seconds"
+      );
+      setUpdateStatus(
+        `${((i / arrayBuffer.byteLength) * 100).toFixed(
+          2
+        )}% Estimated time remaining: ${estRemainingTime.toFixed(0)} seconds`
       );
 
       // reset start time for next iteration
@@ -453,7 +459,7 @@ const Controller = () => {
           </button>
         ) : (
           <div className="mt-10 flex w-[80%] flex-row items-center justify-center gap-5">
-            <div className="flex gap-1 self-start">
+            <div className="flex h-full flex-col gap-1 self-start">
               <button
                 // onClick={() => downloadFile("PLAYLIST.TXT")}
                 onClick={() => flashLatestFirmware()}
@@ -461,6 +467,11 @@ const Controller = () => {
               >
                 Update Firmware to latest nightly
               </button>
+              <textarea
+                className="h-full w-full rounded bg-gray-200 p-2 text-black"
+                readOnly
+                value={updateStatus}
+              />
             </div>
             <div className="flex w-full flex-col items-center justify-center gap-1">
               <div className="flex w-full flex-row items-center justify-center gap-1">
