@@ -270,15 +270,29 @@ const Controller = () => {
     }
   };
 
-  const downloadFileFromUrl = async (url: string): Promise<Blob> => {
+  interface DownloadedFile {
+    blob: Blob;
+    filename: string;
+  }
+
+  const downloadFileFromUrl = async (url: string): Promise<DownloadedFile> => {
     const response = await fetch(url);
 
     if (!response.ok) {
       throw new Error("Network response was not ok");
     }
 
+    const contentDispositionHeader = response.headers.get(
+      "Content-Disposition"
+    );
+    console.log(contentDispositionHeader);
+    const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+    let matches = contentDispositionHeader?.match(filenameRegex);
+    let filename = matches && matches[1] ? matches[1] : "unknown";
+
     const blob = await response.blob();
-    return blob;
+
+    return { blob, filename };
   };
 
   const flashLatestFirmware = async () => {
@@ -286,12 +300,14 @@ const Controller = () => {
       "https://hackrf.app/api/fetch_nightly_firmware"
     );
 
+    console.log("Downloading firmware update...", fileBlob.filename);
+
     await uploadFile(
-      "/FIRMWARE/JOEL.ppfw.tar",
-      new Uint8Array(await fileBlob.arrayBuffer())
+      `/FIRMWARE/${fileBlob.filename}`,
+      new Uint8Array(await fileBlob.blob.arrayBuffer())
     );
 
-    await write("flash /FIRMWARE/JOEL.ppfw.tar", false, true);
+    await write(`flash /FIRMWARE/${fileBlob.filename}`, false, true);
     console.log("DONE firmware update!");
     alert("Firmware update complete! Please wait for your device to reboot.");
   };

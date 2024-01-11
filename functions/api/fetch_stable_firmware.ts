@@ -3,7 +3,6 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "GET,HEAD,POST,OPTIONS,DELETE",
   "Access-Control-Allow-Headers": "Content-Type",
   "Access-Control-Max-Age": "86400",
-  "Content-Type": "application/json;charset=utf-8",
 };
 
 export const onRequestGet: PagesFunction = async (context) => {
