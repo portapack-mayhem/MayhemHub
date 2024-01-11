@@ -280,17 +280,13 @@ const Controller = () => {
       throw new Error("Network response was not ok")
     }
 
-    console.log(response.headers)
-
     const contentDispositionHeader = response.headers.get("Content-Disposition")
-    console.log(contentDispositionHeader)
     const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/
     let matches = contentDispositionHeader?.match(filenameRegex)
     let filename =
       matches && matches[1] ? matches[1].replace(/['"]/g, "") : "unknown.fail"
 
     const blob = await response.blob()
-    console.log(blob)
 
     return { blob, filename }
   }
@@ -308,7 +304,7 @@ const Controller = () => {
     )
 
     await write(`flash /FIRMWARE/${fileBlob.filename}`, false, true)
-    console.log("DONE firmware update!")
+    console.log("DONE! firmware complete. Rebooting...")
     alert("Firmware update complete! Please wait for your device to reboot.")
   }
 
