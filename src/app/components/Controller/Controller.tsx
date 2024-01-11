@@ -282,13 +282,16 @@ const Controller = () => {
       throw new Error("Network response was not ok");
     }
 
+    console.log(response.headers);
+
     const contentDispositionHeader = response.headers.get(
       "Content-Disposition"
     );
     console.log(contentDispositionHeader);
     const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
     let matches = contentDispositionHeader?.match(filenameRegex);
-    let filename = matches && matches[1] ? matches[1] : "unknown";
+    let filename =
+      matches && matches[1] ? matches[1].replace(/['"]/g, "") : "unknown";
 
     const blob = await response.blob();
 
