@@ -144,7 +144,7 @@ const Controller = () => {
 
       const stuff = String.fromCharCode.apply(
         null,
-        Array.from(new Uint8Array(chunk))
+        Array.from(new Uint8ClampedArray(chunk))
       );
 
       await write(`fwb ${chunk.byteLength}`, false, true);
@@ -254,6 +254,34 @@ const Controller = () => {
     if (file) {
       reader.readAsArrayBuffer(file);
     }
+  };
+
+  const downloadFileFromUrl = async (url: string): Promise<Blob> => {
+    const response = await fetch(url);
+
+    if (!response.ok) {
+      throw new Error("Network response was not ok");
+    }
+
+    const blob = await response.blob();
+    return blob;
+  };
+
+  const downloadGithubFile = (url: string) => {
+    downloadFileFromUrl(url)
+      .then(async (blob) => {
+        // You can now work with the blob here, for instance create
+        // an object URL for use in an <img> element:
+        const url = URL.createObjectURL(blob);
+        console.log(url, await blob.text());
+        // Use `url` as needed
+      })
+      .catch((error) => {
+        console.error(
+          "There has been a problem with your fetch operation: ",
+          error
+        );
+      });
   };
 
   const handleScroll = (e: React.WheelEvent) => {
@@ -431,7 +459,16 @@ const Controller = () => {
                 onClick={() => downloadFile("/APPS/pacman.ppma")}
                 className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
               >
-                Test
+                Download
+              </button>
+              <button
+                // onClick={() => downloadFile("PLAYLIST.TXT")}
+                onClick={() =>
+                  downloadGithubFile("/mayhem_nightly_n_240111_OCI.ppfw.tar")
+                }
+                className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
+              >
+                FW
               </button>
               <input type="file" onChange={onFileChange} />
               <input
@@ -478,3 +515,4 @@ const Controller = () => {
 };
 
 export default Controller;
+7;

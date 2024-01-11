@@ -379,18 +379,25 @@ const useWebSerial = ({
     const writer = port?.writable?.getWriter();
     if (writer) {
       try {
-        const submessages = data.match(/.{1,30}/gs) || [];
+        const submessages = data.match(/.{1,200}/gs) || [];
 
         console.log(submessages, submessages.length);
 
-        for (const sm of submessages) {
+        for (const [index, sm] of submessages.entries()) {
           if (sm.length <= 0) continue;
-          await delay(200);
+          await delay(500);
           const smcoded = await encoder.encode(sm + "\r");
           await writer.write(smcoded);
-          console.log("subpart sent: ", sm);
+          console.log(
+            "subpart sent: ",
+            sm.length,
+            index,
+            submessages.length,
+            sm
+          );
         }
         console.log("Chunk sent!");
+        writer.releaseLock();
 
         // await delay(50);
         // await writer.write(data);
