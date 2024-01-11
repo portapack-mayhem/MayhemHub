@@ -11,10 +11,10 @@ import {
 	__facade_register__,
 } from "C:\\Users\\jLynx\\AppData\\Local\\npm-cache\\_npx\\32026684e21afda6\\node_modules\\wrangler\\templates\\middleware\\common.ts";
 
-import worker from "A:\\Users\\jLynx\\Documents\\Code\\Websites\\React\\MayhemHub\\.wrangler\\tmp\\bundle-56pCrN\\middleware-insertion-facade.js";
+import worker from "A:\\Users\\jLynx\\Documents\\Code\\Websites\\React\\MayhemHub\\.wrangler\\tmp\\bundle-2I48Kc\\middleware-insertion-facade.js";
 
 // We need to preserve all of the exports from the worker
-export * from "A:\\Users\\jLynx\\Documents\\Code\\Websites\\React\\MayhemHub\\.wrangler\\tmp\\bundle-56pCrN\\middleware-insertion-facade.js";
+export * from "A:\\Users\\jLynx\\Documents\\Code\\Websites\\React\\MayhemHub\\.wrangler\\tmp\\bundle-2I48Kc\\middleware-insertion-facade.js";
 
 class __Facade_ScheduledController__ implements ScheduledController {
 	#noRetry: ScheduledController["noRetry"];
