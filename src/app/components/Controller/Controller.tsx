@@ -90,7 +90,6 @@ const Controller = () => {
           const rootItems = rootStructure.response.split("\r\n").slice(1, -1);
 
           const fileStructures = parseDirectories(rootItems);
-          // console.log(fileStructures, rootStructure, rootItems);
           setDirStructure(fileStructures);
         }
       };
@@ -466,7 +465,13 @@ const Controller = () => {
 
   // File Component
   const File = ({ file }: { file: FileStructure }) => (
-    <div className="flex items-center">
+    <div
+      className="flex cursor-pointer items-center"
+      onClick={() => {
+        console.log(file.path + file.name);
+        downloadFile(file.path + file.name);
+      }}
+    >
       <FontAwesomeIcon icon={faFile} className="mr-2" />
       <p>{file.name}</p>
     </div>
