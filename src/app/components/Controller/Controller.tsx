@@ -1,6 +1,19 @@
 "use client";
 
-import React, { ChangeEvent, useEffect, useRef, useState } from "react";
+import {
+  faFile,
+  faFolder,
+  faFolderOpen,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import React, {
+  ChangeEvent,
+  ReactNode,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { FileStructure } from "../FileStructure/FileStructure";
 import HotkeyButton from "../HotkeyButton/HotkeyButton";
 import { useSerial } from "../SerialLoader/SerialLoader";
 import { DataPacket } from "../SerialProvider/SerialProvider";
@@ -13,6 +26,7 @@ const Controller = () => {
   const [command, setCommand] = useState<string>("");
   const [autoUpdateFrame, setAutoUpdateFrame] = useState<boolean>(true);
   const [loadingFrame, setLoadingFrame] = useState<boolean>(true);
+  const [dirStructure, setDirStructure] = useState<FileStructure[]>();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   const started = useRef<boolean>(false);
@@ -59,11 +73,53 @@ const Controller = () => {
     if (serial.isOpen && !serial.isReading && !started.current) {
       started.current = true;
       serial.startReading();
-      write(setDeviceTime(), false);
-      write("screenframeshort", false);
+      // await write(setDeviceTime(), false);
+
+      const initSerialSetupCalls = async () => {
+        await write(setDeviceTime(), false);
+
+        await fetchFolderStructure();
+
+        await write("screenframeshort", false);
+      };
+
+      const fetchFolderStructure = async () => {
+        const rootStructure = await write(`ls /`, false, true); // get the children directories
+
+        if (rootStructure.response) {
+          const rootItems = rootStructure.response.split("\r\n").slice(1, -1);
+
+          const fileStructures = parseDirectories(rootItems);
+          // console.log(fileStructures, rootStructure, rootItems);
+          setDirStructure(fileStructures);
+        }
+      };
+
+      initSerialSetupCalls();
+
+      // await write("screenframeshort", false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serial]);
+
+  // Helper function to parse the directories into FileStructure
+  const parseDirectories = (
+    dirList: string[],
+    parentPath: string = "/"
+  ): FileStructure[] => {
+    return dirList.map((path) => {
+      const isFolder = path.endsWith("/");
+      const name = isFolder ? path.slice(0, -1) : path;
+
+      return {
+        name,
+        path: parentPath,
+        type: isFolder ? "folder" : "file",
+        children: isFolder ? [] : undefined,
+        isOpen: false,
+      };
+    });
+  };
 
   const renderFrame = () => {
     const width = 241;
@@ -327,10 +383,128 @@ const Controller = () => {
     // }
   };
 
+  const updateDirectoryStructure = (
+    structure: FileStructure[],
+    targetFolder: FileStructure,
+    newChildren: FileStructure[]
+  ): FileStructure[] => {
+    return structure.map((folder) => {
+      if (folder.name === targetFolder.name) {
+        return { ...folder, children: newChildren, isOpen: !folder.isOpen };
+      }
+
+      if (folder.children) {
+        return {
+          ...folder,
+          children: updateDirectoryStructure(
+            folder.children,
+            targetFolder,
+            newChildren
+          ),
+        };
+      }
+
+      return folder;
+    });
+  };
+
+  const FolderToggle = ({
+    folder,
+    indent,
+  }: {
+    folder: FileStructure;
+    indent: number;
+  }) => {
+    const toggleFolder = async () => {
+      let fileStructures: FileStructure[] = folder.children || [];
+      if (!folder.isOpen) {
+        const childDirs = await write(
+          `ls ${folder.path + folder.name}`,
+          false,
+          true
+        );
+
+        if (childDirs.response) {
+          const childItems = childDirs.response.split("\r\n").slice(1, -1);
+          fileStructures = parseDirectories(
+            childItems,
+            `${folder.path}${folder.name}/`
+          );
+        }
+      }
+      setDirStructure(
+        (prevState) =>
+          prevState &&
+          updateDirectoryStructure(prevState, folder, fileStructures)
+      );
+    };
+
+    return (
+      <div style={{ marginLeft: `${indent}em` }}>
+        <div
+          className="flex cursor-pointer items-center"
+          onClick={toggleFolder}
+        >
+          <FontAwesomeIcon
+            icon={folder.isOpen ? faFolderOpen : faFolder}
+            className="mr-2 text-yellow-200"
+          />
+          <h3>{folder.name}</h3>
+        </div>
+        {folder.isOpen &&
+          folder.children &&
+          folder.children.map((file, index) => (
+            <ListItem key={index} item={file} indent={indent + 1} />
+          ))}
+      </div>
+    );
+  };
+
+  useEffect(() => {
+    console.log(dirStructure);
+  }, [dirStructure]);
+
+  // File Component
+  const File = ({ file }: { file: FileStructure }) => (
+    <div className="flex items-center">
+      <FontAwesomeIcon icon={faFile} className="mr-2" />
+      <p>{file.name}</p>
+    </div>
+  );
+
+  // ListItem Component
+  const ListItem = ({
+    item,
+    indent,
+  }: {
+    item: FileStructure;
+    indent: number;
+  }) => {
+    return (
+      <div>
+        {item.type === "folder" ? (
+          <FolderToggle folder={item} indent={indent} />
+        ) : (
+          <div style={{ marginLeft: `${indent}em` }}>
+            <File file={item} />
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <>
       <div className="flex h-full w-full flex-col items-center justify-center gap-5 p-5">
         <h1>Connected to HackRF!</h1>
+
+        <div>
+          {dirStructure &&
+            dirStructure.map((file, index) => (
+              <ListItem key={index} item={file} indent={0} />
+            ))}
+        </div>
+
         {!serial.isReading && "Enable console for buttons to enable"}
         <div
           id="ControllerSection"

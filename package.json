@@ -10,6 +10,9 @@
   },
   "dependencies": {
     "@ducanh2912/next-pwa": "^10.0.2",
+    "@fortawesome/fontawesome-svg-core": "^6.5.1",
+    "@fortawesome/free-solid-svg-icons": "^6.5.1",
+    "@fortawesome/react-fontawesome": "^0.2.0",
     "@types/w3c-web-serial": "^1.0.6",
     "eslint-plugin-tailwindcss": "^3.13.1",
     "install": "^0.13.0",
