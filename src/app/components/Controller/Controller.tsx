@@ -135,7 +135,6 @@ const Controller = () => {
   };
 
   const onFileChange = (event: ChangeEvent<HTMLInputElement>, path: string) => {
-    console.log("HIT!");
     const fileList = event.target.files;
     if (!fileList) return;
 
@@ -146,7 +145,6 @@ const Controller = () => {
       const arrayBuffer = reader.result;
       if (arrayBuffer instanceof ArrayBuffer) {
         let bytes = new Uint8Array(arrayBuffer);
-        console.log(path + file.name);
         uploadFile(path + file.name, bytes, setUpdateStatus); // ToDo: This should possibly be some sort of callback
       }
     };
@@ -284,7 +282,6 @@ const Controller = () => {
                   }
                 }}
                 onChange={(e) => {
-                  console.log("HIT THE TIHGN");
                   onFileChange(e, selectedUploadFolder);
                 }}
               />

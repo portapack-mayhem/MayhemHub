@@ -314,9 +314,6 @@ const useWebSerial = ({
         await reader.read().then(({ done, value }) => {
           isIncomingMessage.current = true;
           completeString += decoder.decode(value);
-          if (done) {
-            console.log("DONE WAS HIT WHAT THE FUCK!!!!");
-          }
           if (
             done ||
             completeString.endsWith("ch> ") ||
