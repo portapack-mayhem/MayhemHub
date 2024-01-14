@@ -333,6 +333,7 @@ const Controller = () => {
                 <input
                   ref={firmwareFileInputRef}
                   type="file"
+                  accept=".tar"
                   style={{ display: "none" }}
                   onClick={() => {
                     if (fileInputRef.current) {
@@ -439,11 +440,7 @@ const Controller = () => {
           >
             Update to latest stable release
           </button>
-          <textarea
-            className="h-full w-full rounded bg-gray-200 p-2 text-black"
-            readOnly
-            value={updateStatus}
-          />
+          <p>{updateStatus}</p>
         </div>
       </Modal>
     </>
