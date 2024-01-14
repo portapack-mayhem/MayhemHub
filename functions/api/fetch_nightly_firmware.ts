@@ -1,50 +1,50 @@
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Methods": "GET,HEAD,POST,OPTIONS,DELETE",
-  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Allow-Methods": "GET,HEAD,POST,PUT,OPTIONS,DELETE",
+  "Access-Control-Allow-Headers": "*",
   "Access-Control-Max-Age": "86400",
-}
+};
 
 export const onRequestGet: PagesFunction = async (context) => {
   let apiUrl =
-    "https://api.github.com/repos/portapack-mayhem/mayhem-firmware/releases"
+    "https://api.github.com/repos/portapack-mayhem/mayhem-firmware/releases";
 
   let apiResponse = await fetch(apiUrl, {
     method: "GET",
     headers: { "User-Agent": "portapack-mayhem" },
-  })
+  });
 
   if (!apiResponse.ok) {
-    throw new Error(`HTTP error! status: ${apiResponse.status}`)
+    throw new Error(`HTTP error! status: ${apiResponse.status}`);
   }
 
-  let apiData: any = await apiResponse.json()
+  let apiData: any = await apiResponse.json();
 
   // assuming you want to fetch the first release data
   let browser_download_url = apiData[0].assets.find((asset: any) => {
-    const assetName: string = asset["name"]
-    return assetName.includes(".ppfw.tar")
-  }).browser_download_url
-  console.log(browser_download_url)
+    const assetName: string = asset["name"];
+    return assetName.includes(".ppfw.tar");
+  }).browser_download_url;
+  console.log(browser_download_url);
 
-  const fileUrl = browser_download_url
-  const resourceResponse = await fetch(fileUrl)
+  const fileUrl = browser_download_url;
+  const resourceResponse = await fetch(fileUrl);
 
   if (!resourceResponse.ok) {
-    throw new Error(`HTTP error! status: ${resourceResponse.status}`)
+    throw new Error(`HTTP error! status: ${resourceResponse.status}`);
   }
 
-  const resourceBody = await resourceResponse.body
-  let fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1)
+  const resourceBody = await resourceResponse.body;
+  let fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
 
-  let proxyResponse = new Response(resourceBody, resourceResponse)
+  let proxyResponse = new Response(resourceBody, resourceResponse);
   Object.entries(corsHeaders).forEach(([key, value]) => {
-    proxyResponse.headers.set(key, value)
-  })
+    proxyResponse.headers.set(key, value);
+  });
   proxyResponse.headers.set(
     "Content-Disposition",
     `attachment; filename="${fileName}`
-  )
+  );
 
-  return proxyResponse
-}
+  return proxyResponse;
+};
