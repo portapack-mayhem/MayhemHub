@@ -209,7 +209,7 @@ const Controller = () => {
     }
   };
 
-  const flashLatestFirmware = async () => {
+  const flashLatestNightlyFirmware = async () => {
     const fileBlob = await downloadFileFromUrl(
       "https://hackrf.app/api/fetch_nightly_firmware"
     );
@@ -417,7 +417,7 @@ const Controller = () => {
           <p>Select from the available options</p>
           <button
             disabled={disableTransmitAction}
-            onClick={() => flashLatestFirmware()}
+            onClick={() => flashLatestNightlyFirmware()}
             className="rounded bg-blue-400 p-2 text-white disabled:opacity-50"
           >
             Update to latest nightly release
@@ -433,7 +433,7 @@ const Controller = () => {
             Flash custom firmware
           </button>
           <button
-            onClick={() => flashLatestFirmware()}
+            onClick={() => flashLatestNightlyFirmware()}
             // disabled={disableTransmitAction}
             disabled={true} // This is disabled as there is no stable firmware that will work with the current version of the webapp
             className="rounded bg-blue-400 p-2 text-white disabled:opacity-50"
