@@ -7,7 +7,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Dispatch, RefObject, SetStateAction, useState } from "react";
 import { parseDirectories } from "@/app/utils/fileUtils";
-import { DownloadFile, useWriteCommand } from "@/app/utils/serialUtils";
+import { useWriteCommand } from "@/app/utils/serialUtils";
 
 // Define FileType
 export type FileType = "file" | "folder";
@@ -32,6 +32,8 @@ export const FileBrowser = ({
   dirStructure: FileStructure[] | undefined;
   setDirStructure: Dispatch<SetStateAction<FileStructure[] | undefined>>;
 }) => {
+  const { write, downloadFile } = useWriteCommand();
+
   const updateDirectoryStructure = (
     structure: FileStructure[],
     targetFolder: FileStructure,
@@ -64,8 +66,6 @@ export const FileBrowser = ({
     folder: FileStructure;
     indent: number;
   }) => {
-    const { write } = useWriteCommand();
-
     const toggleFolder = async () => {
       let fileStructures: FileStructure[] = folder.children || [];
       if (!folder.isOpen) {
@@ -131,8 +131,7 @@ export const FileBrowser = ({
     <div
       className="flex cursor-pointer items-center"
       onClick={() => {
-        console.log(file.path + file.name);
-        DownloadFile(file.path + file.name);
+        downloadFile(file.path + file.name);
       }}
     >
       <FontAwesomeIcon icon={faFile} className="mr-2" />

@@ -2,11 +2,7 @@
 
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { parseDirectories } from "@/app/utils/fileUtils";
-import {
-  UploadFile,
-  downloadFileFromUrl,
-  useWriteCommand,
-} from "@/app/utils/serialUtils";
+import { downloadFileFromUrl, useWriteCommand } from "@/app/utils/serialUtils";
 import { DeviceButtons } from "../DeviceButtons/DeviceButtons";
 import { FileBrowser, FileStructure } from "../FileBrowser/FileBrowser";
 import HotkeyButton from "../HotkeyButton/HotkeyButton";
@@ -15,7 +11,8 @@ import ToggleSwitch from "../ToggleSwitch/ToggleSwitch";
 
 const Controller = () => {
   const { serial, consoleMessage } = useSerial();
-  const { write, loadingFrame, setLoadingFrame } = useWriteCommand();
+  const { write, uploadFile, loadingFrame, setLoadingFrame } =
+    useWriteCommand();
 
   const [consoleMessageList, setConsoleMessageList] = useState<string>("");
   const [updateStatus, setUpdateStatus] = useState<string>("");
@@ -150,7 +147,7 @@ const Controller = () => {
       if (arrayBuffer instanceof ArrayBuffer) {
         let bytes = new Uint8Array(arrayBuffer);
         console.log(path + file.name);
-        UploadFile(path + file.name, bytes, setUpdateStatus); // ToDo: This should possibly be some sort of callback
+        uploadFile(path + file.name, bytes, setUpdateStatus); // ToDo: This should possibly be some sort of callback
       }
     };
 
@@ -170,7 +167,7 @@ const Controller = () => {
 
     console.log("Downloading firmware update...", fileBlob.filename);
 
-    await UploadFile(
+    await uploadFile(
       `/FIRMWARE/${fileBlob.filename}`,
       new Uint8Array(await fileBlob.blob.arrayBuffer()),
       setUpdateStatus
