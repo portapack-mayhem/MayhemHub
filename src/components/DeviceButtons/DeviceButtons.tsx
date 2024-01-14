@@ -13,6 +13,7 @@ export const DeviceButtons = ({
   const disableTransmitAction = false;
 
   useEffect(() => {
+    // Why is this not updating?
     console.log(disableTransmitAction);
   }, [disableTransmitAction]);
 
