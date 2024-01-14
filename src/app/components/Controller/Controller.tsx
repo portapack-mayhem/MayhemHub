@@ -149,7 +149,7 @@ const Controller = () => {
       if (arrayBuffer instanceof ArrayBuffer) {
         let bytes = new Uint8Array(arrayBuffer);
         console.log(path + file.name);
-        UploadFile(path + file.name, bytes);
+        UploadFile(path + file.name, bytes, setUpdateStatus); // ToDo: This should possibly be some sort of callback
       }
     };
 
@@ -171,7 +171,8 @@ const Controller = () => {
 
     await UploadFile(
       `/FIRMWARE/${fileBlob.filename}`,
-      new Uint8Array(await fileBlob.blob.arrayBuffer())
+      new Uint8Array(await fileBlob.blob.arrayBuffer()),
+      setUpdateStatus
     );
 
     await Write(`flash /FIRMWARE/${fileBlob.filename}`, false, true);

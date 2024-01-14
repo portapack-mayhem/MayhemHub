@@ -1,3 +1,4 @@
+import { Dispatch, SetStateAction } from "react";
 import { hexToBytes } from "./fileUtils";
 import { useSerial } from "../components/SerialLoader/SerialLoader";
 import { DataPacket } from "../components/SerialProvider/SerialProvider";
@@ -105,7 +106,11 @@ export const downloadFileFromUrl = async (
   return { blob, filename };
 };
 
-export const UploadFile = async (filePath: string, bytes: Uint8Array) => {
+export const UploadFile = async (
+  filePath: string,
+  bytes: Uint8Array,
+  setUpdateStatus: Dispatch<SetStateAction<string>>
+) => {
   const { serial, consoleMessage } = useSerial();
 
   await Write("fclose", false);
