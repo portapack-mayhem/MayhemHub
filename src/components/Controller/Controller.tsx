@@ -45,7 +45,7 @@ const Controller = () => {
 
   useEffect(() => {
     // We dont add this to the console as its not needed. This may change in the future
-    if (consoleMessage.includes("screenframe")) {
+    if (consoleMessage.startsWith("screenframe")) {
       renderFrame();
       setLoadingFrame(false);
     } else {
