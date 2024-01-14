@@ -21,6 +21,8 @@ export type FileStructure = {
   isOpen: boolean;
 };
 
+// ToDo: Need to add the disableTransmitAction check here so we cant look though folder or upload files while we are already uploading a file
+
 export const FileBrowser = ({
   fileInputRef,
   setSelectedUploadFolder,

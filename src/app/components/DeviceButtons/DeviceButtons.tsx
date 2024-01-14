@@ -2,10 +2,10 @@ import { useWriteCommand } from "@/app/utils/serialUtils";
 import HotkeyButton from "../HotkeyButton/HotkeyButton";
 
 export const DeviceButtons = ({
-  loadingFrame,
+  disableTransmitAction,
   autoUpdateFrame,
 }: {
-  loadingFrame: boolean;
+  disableTransmitAction: boolean;
   autoUpdateFrame: boolean;
 }) => {
   const { write } = useWriteCommand();
@@ -20,13 +20,13 @@ export const DeviceButtons = ({
           <div></div>
           <HotkeyButton
             label="Left"
-            disabled={loadingFrame}
+            disabled={disableTransmitAction}
             onClickFunction={() => write("button 2", autoUpdateFrame)}
             className="h-16 w-16 bg-green-500"
             shortcutKeys={"ArrowLeft"}
           />
           <button
-            disabled={loadingFrame}
+            disabled={disableTransmitAction}
             onClick={() => write("button 7", autoUpdateFrame)}
             className="h-12 w-12 self-end justify-self-start rounded bg-blue-400 text-white disabled:opacity-50"
           >
@@ -34,21 +34,21 @@ export const DeviceButtons = ({
           </button>
           <HotkeyButton
             label="Up"
-            disabled={loadingFrame}
+            disabled={disableTransmitAction}
             onClickFunction={() => write("button 4", autoUpdateFrame)}
             className="h-16 w-16 bg-green-500"
             shortcutKeys={"ArrowUp"}
           />
           <HotkeyButton
             label="Ok"
-            disabled={loadingFrame}
+            disabled={disableTransmitAction}
             onClickFunction={() => write("button 5", autoUpdateFrame)}
             className="h-16 w-16 bg-blue-500"
             shortcutKeys={"Enter"}
           />
           <HotkeyButton
             label="Down"
-            disabled={loadingFrame}
+            disabled={disableTransmitAction}
             onClickFunction={() => write("button 3", autoUpdateFrame)}
             className="h-16 w-16 bg-green-500"
             shortcutKeys={"ArrowDown"}
@@ -56,13 +56,13 @@ export const DeviceButtons = ({
           <div></div>
           <HotkeyButton
             label="Right"
-            disabled={loadingFrame}
+            disabled={disableTransmitAction}
             onClickFunction={() => write("button 1", autoUpdateFrame)}
             className="h-16 w-16 bg-green-500"
             shortcutKeys={"ArrowRight"}
           />
           <button
-            disabled={loadingFrame}
+            disabled={disableTransmitAction}
             onClick={() => write("button 8", autoUpdateFrame)}
             className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
           >
@@ -73,13 +73,13 @@ export const DeviceButtons = ({
       <div className="flex items-center justify-center gap-4">
         <HotkeyButton
           label="DFU"
-          disabled={loadingFrame}
+          disabled={disableTransmitAction}
           onClickFunction={() => write("button 6", autoUpdateFrame)}
           className="h-16 w-16 bg-slate-400"
           shortcutKeys={"mod+D"}
         />
         <button
-          disabled={loadingFrame}
+          disabled={disableTransmitAction}
           onClick={() => write("reboot", autoUpdateFrame)}
           className="h-16 w-16 rounded bg-slate-400 text-white disabled:opacity-50"
         >

@@ -11,6 +11,9 @@ interface DownloadedFile {
 export const useWriteCommand = () => {
   const { serial } = useSerial();
   const [loadingFrame, setLoadingFrame] = useState<boolean>(true);
+  const [fileUploadBlocker, setFileUploadBlocker] = useState<boolean>(false);
+
+  const disableTransmitAction: boolean = loadingFrame || fileUploadBlocker;
 
   const write = async (
     command: string,
@@ -75,6 +78,7 @@ export const useWriteCommand = () => {
     bytes: Uint8Array,
     setUpdateStatus: Dispatch<SetStateAction<string>>
   ) => {
+    setFileUploadBlocker(true);
     await write("fclose", false);
     await write(`fopen ${filePath}`, false);
 
@@ -125,9 +129,16 @@ export const useWriteCommand = () => {
     setUpdateStatus(`File upload complete!`);
 
     await write("fclose", false);
+    setFileUploadBlocker(false);
   };
 
-  return { write, downloadFile, uploadFile, loadingFrame, setLoadingFrame };
+  return {
+    write,
+    downloadFile,
+    uploadFile,
+    disableTransmitAction,
+    setLoadingFrame,
+  };
 };
 
 const downloadFileFromBytes = (
