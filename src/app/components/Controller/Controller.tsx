@@ -69,7 +69,7 @@ const Controller = () => {
 
         await fetchFolderStructure();
 
-        await write("screenframeshort", false);
+        write("screenframeshort", false);
 
         setConsoleMessageList("");
         setSetupComplete(true);
@@ -304,10 +304,7 @@ const Controller = () => {
               />
             </div>
 
-            <DeviceButtons
-              disableTransmitAction={disableTransmitAction}
-              autoUpdateFrame={autoUpdateFrame}
-            />
+            <DeviceButtons autoUpdateFrame={autoUpdateFrame} />
           </div>
 
           {!serial.isReading ? (
@@ -454,4 +451,3 @@ const Controller = () => {
 };
 
 export default Controller;
-7;

@@ -1,14 +1,20 @@
+import { useEffect } from "react";
 import { useWriteCommand } from "@/app/utils/serialUtils";
 import HotkeyButton from "../HotkeyButton/HotkeyButton";
 
 export const DeviceButtons = ({
-  disableTransmitAction,
   autoUpdateFrame,
 }: {
-  disableTransmitAction: boolean;
   autoUpdateFrame: boolean;
 }) => {
+  // const { write, disableTransmitAction } = useWriteCommand();
   const { write } = useWriteCommand();
+
+  const disableTransmitAction = false;
+
+  useEffect(() => {
+    console.log(disableTransmitAction);
+  }, [disableTransmitAction]);
 
   return (
     <div

@@ -1,4 +1,10 @@
-import { Dispatch, SetStateAction, useState } from "react";
+import {
+  Dispatch,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { hexToBytes } from "./fileUtils";
 import { useSerial } from "../components/SerialLoader/SerialLoader";
 import { DataPacket } from "../components/SerialProvider/SerialProvider";
@@ -12,8 +18,28 @@ export const useWriteCommand = () => {
   const { serial } = useSerial();
   const [loadingFrame, setLoadingFrame] = useState<boolean>(true);
   const [fileUploadBlocker, setFileUploadBlocker] = useState<boolean>(false);
+  const [disableTransmitAction, setDisableTransmitAction] =
+    useState<boolean>(true);
 
-  const disableTransmitAction: boolean = loadingFrame || fileUploadBlocker;
+  // const disableTransmitAction: boolean = loadingFrame || fileUploadBlocker;
+
+  useEffect(() => {
+    const disableTransmitActionUpdating = loadingFrame || fileUploadBlocker;
+    console.log(
+      "Horse",
+      loadingFrame,
+      fileUploadBlocker,
+      disableTransmitActionUpdating
+    );
+
+    // Triggers an immediate rerender with updated state
+    setDisableTransmitAction(disableTransmitActionUpdating);
+  }, [loadingFrame, fileUploadBlocker, disableTransmitAction]);
+
+  // const disableTransmitAction: boolean = useCallback(async () => {
+  //   return loadingFrame || fileUploadBlocker;
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [loadingFrame || fileUploadBlocker]);
 
   const write = async (
     command: string,
