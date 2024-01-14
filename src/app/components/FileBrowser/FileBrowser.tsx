@@ -7,7 +7,7 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Dispatch, RefObject, SetStateAction, useState } from "react";
 import { parseDirectories } from "@/app/utils/fileUtils";
-import { DownloadFile, Write } from "@/app/utils/serialUtils";
+import { DownloadFile, useWriteCommand } from "@/app/utils/serialUtils";
 
 // Define FileType
 export type FileType = "file" | "folder";
@@ -24,13 +24,14 @@ export type FileStructure = {
 export const FileBrowser = ({
   fileInputRef,
   setSelectedUploadFolder,
+  dirStructure,
+  setDirStructure,
 }: {
   fileInputRef: RefObject<HTMLInputElement>;
   setSelectedUploadFolder: Dispatch<SetStateAction<string>>;
+  dirStructure: FileStructure[] | undefined;
+  setDirStructure: Dispatch<SetStateAction<FileStructure[] | undefined>>;
 }) => {
-  // const { serial, consoleMessage } = useSerial();
-  const [dirStructure, setDirStructure] = useState<FileStructure[]>();
-
   const updateDirectoryStructure = (
     structure: FileStructure[],
     targetFolder: FileStructure,
@@ -63,10 +64,12 @@ export const FileBrowser = ({
     folder: FileStructure;
     indent: number;
   }) => {
+    const { write } = useWriteCommand();
+
     const toggleFolder = async () => {
       let fileStructures: FileStructure[] = folder.children || [];
       if (!folder.isOpen) {
-        const childDirs = await Write(
+        const childDirs = await write(
           `ls ${folder.path + folder.name}`,
           false,
           true

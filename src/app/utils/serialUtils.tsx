@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import { hexToBytes } from "./fileUtils";
 import { useSerial } from "../components/SerialLoader/SerialLoader";
 import { DataPacket } from "../components/SerialProvider/SerialProvider";
@@ -8,40 +8,44 @@ interface DownloadedFile {
   filename: string;
 }
 
-export const Write = async (
-  command: string,
-  updateFrame: boolean,
-  awaitResponse: boolean = true
-) => {
+export const useWriteCommand = () => {
   const { serial, consoleMessage } = useSerial();
+  const [loadingFrame, setLoadingFrame] = useState<boolean>(true);
 
-  let data: DataPacket = {
-    id: 0,
-    command: "",
-    response: null,
+  const write = async (
+    command: string,
+    updateFrame: boolean,
+    awaitResponse: boolean = true
+  ) => {
+    let data: DataPacket = {
+      id: 0,
+      command: "",
+      response: null,
+    };
+    if (awaitResponse) data = await serial.queueWriteAndResponse(command);
+    else serial.queueWrite(command);
+    if (updateFrame) {
+      serial.queueWrite("screenframeshort");
+      setLoadingFrame(true);
+    }
+
+    return data;
   };
-  if (awaitResponse) data = await serial.queueWriteAndResponse(command);
-  else serial.queueWrite(command);
-  if (updateFrame) {
-    serial.queueWrite("screenframeshort");
-    setLoadingFrame(true);
-  }
-
-  return data;
+  return { write, loadingFrame, setLoadingFrame };
 };
 
 export const DownloadFile = async (filePath: string) => {
-  const { serial, consoleMessage } = useSerial();
+  const { write } = useWriteCommand();
 
-  await Write("fclose", false);
-  let sizeResponse = await Write(`filesize ${filePath}`, false, true);
+  await write("fclose", false);
+  let sizeResponse = await write(`filesize ${filePath}`, false, true);
   if (!sizeResponse.response) {
     console.error("Error downloading (size) file");
   }
   let size = parseInt(sizeResponse.response?.split("\r\n")[1] || "0");
-  await Write(`fopen ${filePath}`, false);
+  await write(`fopen ${filePath}`, false);
 
-  await Write(`fseek 0`, false);
+  await write(`fseek 0`, false);
 
   let rem = size;
   let chunk = 62 * 15;
@@ -53,7 +57,7 @@ export const DownloadFile = async (filePath: string) => {
       chunk = rem;
     }
     let lines =
-      (await Write(`fread ${chunk.toString()}`, false, true)).response
+      (await write(`fread ${chunk.toString()}`, false, true)).response
         ?.split("\r\n")
         .slice(1)
         .slice(0, -2)
@@ -67,7 +71,7 @@ export const DownloadFile = async (filePath: string) => {
     dataObject,
     filePath.substring(filePath.lastIndexOf("/") + 1)
   );
-  await Write("fclose", false);
+  await write("fclose", false);
 };
 
 const downloadFileFromBytes = (
@@ -111,12 +115,13 @@ export const UploadFile = async (
   bytes: Uint8Array,
   setUpdateStatus: Dispatch<SetStateAction<string>>
 ) => {
-  const { serial, consoleMessage } = useSerial();
+  const { serial } = useSerial();
+  const { write } = useWriteCommand();
 
-  await Write("fclose", false);
-  await Write(`fopen ${filePath}`, false);
+  await write("fclose", false);
+  await write(`fopen ${filePath}`, false);
 
-  await Write(`fseek 0`, false);
+  await write(`fseek 0`, false);
 
   let blob = new Blob([bytes]);
   const arrayBuffer = await blob.arrayBuffer();
@@ -131,7 +136,7 @@ export const UploadFile = async (
   for (let i = 0; i < arrayBuffer.byteLength; i += chunkSize) {
     const chunk = arrayBuffer.slice(i, i + chunkSize);
 
-    await Write(`fwb ${chunk.byteLength}`, false, true);
+    await write(`fwb ${chunk.byteLength}`, false, true);
     await serial.queueWriteAndResponseBinary(new Uint8Array(chunk));
 
     // calculate elapsed time and average time per chunk
@@ -162,5 +167,5 @@ export const UploadFile = async (
   console.log("FILE DONE");
   setUpdateStatus(`File upload complete!`);
 
-  await Write("fclose", false);
+  await write("fclose", false);
 };

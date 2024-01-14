@@ -4,8 +4,8 @@ import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { parseDirectories } from "@/app/utils/fileUtils";
 import {
   UploadFile,
-  Write,
   downloadFileFromUrl,
+  useWriteCommand,
 } from "@/app/utils/serialUtils";
 import { DeviceButtons } from "../DeviceButtons/DeviceButtons";
 import { FileBrowser, FileStructure } from "../FileBrowser/FileBrowser";
@@ -15,12 +15,13 @@ import ToggleSwitch from "../ToggleSwitch/ToggleSwitch";
 
 const Controller = () => {
   const { serial, consoleMessage } = useSerial();
+  const { write, loadingFrame, setLoadingFrame } = useWriteCommand();
+
   const [consoleMessageList, setConsoleMessageList] = useState<string>("");
   const [updateStatus, setUpdateStatus] = useState<string>("");
   const [selectedUploadFolder, setSelectedUploadFolder] = useState<string>("/");
   const [command, setCommand] = useState<string>("");
   const [autoUpdateFrame, setAutoUpdateFrame] = useState<boolean>(true);
-  const [loadingFrame, setLoadingFrame] = useState<boolean>(true);
   const [dirStructure, setDirStructure] = useState<FileStructure[]>();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null); // Create a reference
@@ -28,7 +29,7 @@ const Controller = () => {
   const started = useRef<boolean>(false);
 
   const sendCommand = async () => {
-    await Write(command, false);
+    await write(command, false);
     setCommand("");
   };
 
@@ -51,15 +52,15 @@ const Controller = () => {
       serial.startReading();
 
       const initSerialSetupCalls = async () => {
-        await Write(setDeviceTime(), false);
+        await write(setDeviceTime(), false);
 
         await fetchFolderStructure();
 
-        await Write("screenframeshort", false);
+        await write("screenframeshort", false);
       };
 
       const fetchFolderStructure = async () => {
-        const rootStructure = await Write(`ls /`, false, true); // get the children directories
+        const rootStructure = await write(`ls /`, false, true); // get the children directories
 
         if (rootStructure.response) {
           const rootItems = rootStructure.response.split("\r\n").slice(1, -1);
@@ -132,7 +133,7 @@ const Controller = () => {
       e.preventDefault();
       let key_code = e.key.length === 1 ? e.key.charCodeAt(0) : e.keyCode;
       const keyHex = key_code.toString(16).padStart(2, "0").toUpperCase();
-      Write(`keyboard ${keyHex}`, autoUpdateFrame);
+      write(`keyboard ${keyHex}`, autoUpdateFrame);
     }
   };
 
@@ -175,7 +176,7 @@ const Controller = () => {
       setUpdateStatus
     );
 
-    await Write(`flash /FIRMWARE/${fileBlob.filename}`, false, true);
+    await write(`flash /FIRMWARE/${fileBlob.filename}`, false, true);
     console.log("DONE! firmware complete. Rebooting...");
     alert("Firmware update complete! Please wait for your device to reboot.");
   };
@@ -222,7 +223,7 @@ const Controller = () => {
                 <ToggleSwitch
                   isToggle={autoUpdateFrame}
                   toggleSwitch={() => {
-                    if (!autoUpdateFrame) Write("screenframeshort", false);
+                    if (!autoUpdateFrame) write("screenframeshort", false);
                     setAutoUpdateFrame(!autoUpdateFrame);
                   }}
                 />
@@ -232,7 +233,7 @@ const Controller = () => {
                   onClickFunction={() => {
                     if (!loadingFrame) {
                       setLoadingFrame(true);
-                      Write("screenframeshort", false);
+                      write("screenframeshort", false);
                     }
                   }}
                   className="h-6 w-6 bg-blue-500"
@@ -255,7 +256,7 @@ const Controller = () => {
                 const x = event.clientX - bounds.left;
                 const y = event.clientY - bounds.top;
 
-                Write(`touch ${x} ${y}`, autoUpdateFrame);
+                write(`touch ${x} ${y}`, autoUpdateFrame);
               }}
             />
           </div>
@@ -305,6 +306,8 @@ const Controller = () => {
                 <FileBrowser
                   fileInputRef={fileInputRef}
                   setSelectedUploadFolder={setSelectedUploadFolder}
+                  dirStructure={dirStructure}
+                  setDirStructure={setDirStructure}
                 />
               </div>
             </div>
