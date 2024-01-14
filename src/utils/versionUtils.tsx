@@ -17,7 +17,7 @@ const nightlyToDate = (input: string): string => {
 };
 
 export const getVersionType = (versionString: string): Version => {
-  const stableRegex = /^\d+\.\d+\.\d+$/;
+  const stableRegex = /^v?\d+\.\d+\.\d+$/;
   const nightlyRegex = /^n_\d+$/;
   const customRegex = /^[a-f0-9]+$/;
 
@@ -32,7 +32,7 @@ export const getVersionType = (versionString: string): Version => {
   }
 };
 
-export const getVersionLink = (versionString: string): string => {
+export const getVersionLink = (versionString: string = ""): string => {
   const type = getVersionType(versionString);
   if (type === "stable") {
     return `https://github.com/portapack-mayhem/mayhem-firmware/releases/tag/${versionString}`;

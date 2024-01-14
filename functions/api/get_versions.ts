@@ -42,8 +42,14 @@ export const onRequestGet: PagesFunction = async (context) => {
   );
 
   const data = {
-    latest_stable: latestStableObject.tag_name,
-    latest_nightly: nightlyVersion,
+    stable: {
+      version: latestStableObject.tag_name,
+      published_at: latestStableObject.published_at,
+    },
+    nightly: {
+      version: nightlyVersion,
+      published_at: latestNightlyObject.published_at,
+    },
   };
 
   const json = JSON.stringify(data);

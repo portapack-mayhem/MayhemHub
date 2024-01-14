@@ -1,6 +1,7 @@
 "use client";
 
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
+import { LatestVersions } from "@/app/models";
 import { parseDirectories } from "@/utils/fileUtils";
 import { downloadFileFromUrl, useWriteCommand } from "@/utils/serialUtils";
 import {
@@ -30,6 +31,7 @@ const Controller = () => {
   const [firmwarModalOpen, setFirmwarModalOpen] = useState<boolean>(false);
   const [setupComplete, setSetupComplete] = useState<boolean>(false);
   const [dirStructure, setDirStructure] = useState<FileStructure[]>();
+  const [latestVersion, setLatestVersion] = useState<LatestVersions>();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const firmwareFileInputRef = useRef<HTMLInputElement>(null);
@@ -78,6 +80,8 @@ const Controller = () => {
 
         setConsoleMessageList("");
         setSetupComplete(true);
+
+        setLatestVersion(await getLatestVersions());
       };
 
       const fetchFolderStructure = async () => {
@@ -95,6 +99,16 @@ const Controller = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serial]);
+
+  const getLatestVersions = async () => {
+    const apiResponse = await fetch("https://hackrf.app/api/get_versions");
+
+    if (!apiResponse.ok) {
+      console.error("Network response was not ok");
+    }
+
+    return await apiResponse.json<LatestVersions>();
+  };
 
   const renderFrame = () => {
     const width = 241;
@@ -436,6 +450,29 @@ const Controller = () => {
                 {deviceVersion} - {getVersionType(deviceVersion)}
               </a>
             </p>
+            <div className="flex flex-col gap-1">
+              <p>
+                Latest Stable:{" "}
+                <a
+                  className="text-blue-300 underline transition-colors duration-200 hover:text-blue-400"
+                  href={getVersionLink(latestVersion?.stable.version)}
+                  target="_blank"
+                >
+                  {latestVersion?.stable.version}
+                </a>
+              </p>
+              <p>
+                Latest Nightly:{" "}
+                <a
+                  className="text-blue-300 underline transition-colors duration-200 hover:text-blue-400"
+                  href={getVersionLink(latestVersion?.nightly.version)}
+                  target="_blank"
+                >
+                  {latestVersion?.nightly.version}
+                </a>
+              </p>
+            </div>
+
             <p>Select from the available options</p>
             <button
               disabled={disableTransmitAction}
