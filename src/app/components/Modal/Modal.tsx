@@ -29,9 +29,7 @@ const Modal = ({
     <>
       {isModalOpen && (
         <div className="fixed inset-0 z-40 flex items-center justify-center">
-          {/* <Backdrop onClick={closeModal} isModal={true} /> */}
-          <div className="fixed inset-0 bg-black opacity-50"></div>{" "}
-          {/* Overlay */}
+          <div className="fixed inset-0 bg-black opacity-50"></div>
           <div
             className={`z-50 overflow-auto rounded-lg border border-gray-900 bg-gray-500 shadow-xl ${className}`}
             {...props}

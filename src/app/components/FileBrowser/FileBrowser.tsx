@@ -111,6 +111,7 @@ export const FileBrowser = ({
             icon={faUpload}
             className="mr-2 cursor-pointer text-blue-500"
             onClick={(e) => {
+              // ToDo: Complete this so the button does not get clicked
               // e.stopPropagation();
               // e.preventDefault();
               setSelectedUploadFolder(folder.path + folder.name + "/");

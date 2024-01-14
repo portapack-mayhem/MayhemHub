@@ -21,12 +21,13 @@ export const useWriteCommand = () => {
   const [disableTransmitAction, setDisableTransmitAction] =
     useState<boolean>(true);
 
+  // ToDo: This stuff below does not seem to be correctly updating, so leavin this in to debug
   // const disableTransmitAction: boolean = loadingFrame || fileUploadBlocker;
 
   useEffect(() => {
     const disableTransmitActionUpdating = loadingFrame || fileUploadBlocker;
     console.log(
-      "Horse",
+      "Update state: ",
       loadingFrame,
       fileUploadBlocker,
       disableTransmitActionUpdating
