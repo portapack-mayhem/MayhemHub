@@ -4,6 +4,7 @@ import {
   faFile,
   faFolder,
   faFolderOpen,
+  faUpload,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, {
@@ -23,11 +24,13 @@ const Controller = () => {
   const { serial, consoleMessage } = useSerial();
   const [consoleMessageList, setConsoleMessageList] = useState<string>("");
   const [updateStatus, setUpdateStatus] = useState<string>("");
+  const [selectedUploadFolder, setSelectedUploadFolder] = useState<string>("/");
   const [command, setCommand] = useState<string>("");
   const [autoUpdateFrame, setAutoUpdateFrame] = useState<boolean>(true);
   const [loadingFrame, setLoadingFrame] = useState<boolean>(true);
   const [dirStructure, setDirStructure] = useState<FileStructure[]>();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null); // Create a reference
 
   const started = useRef<boolean>(false);
 
@@ -73,7 +76,6 @@ const Controller = () => {
     if (serial.isOpen && !serial.isReading && !started.current) {
       started.current = true;
       serial.startReading();
-      // await write(setDeviceTime(), false);
 
       const initSerialSetupCalls = async () => {
         await write(setDeviceTime(), false);
@@ -95,8 +97,6 @@ const Controller = () => {
       };
 
       initSerialSetupCalls();
-
-      // await write("screenframeshort", false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serial]);
@@ -302,7 +302,8 @@ const Controller = () => {
     URL.revokeObjectURL(url);
   };
 
-  const onFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+  const onFileChange = (event: ChangeEvent<HTMLInputElement>, path: string) => {
+    console.log("HIT!");
     const fileList = event.target.files;
     if (!fileList) return;
 
@@ -313,7 +314,8 @@ const Controller = () => {
       const arrayBuffer = reader.result;
       if (arrayBuffer instanceof ArrayBuffer) {
         let bytes = new Uint8Array(arrayBuffer);
-        uploadFile(file.name, bytes);
+        console.log(path + file.name);
+        // uploadFile(path + file.name, bytes);
       }
     };
 
@@ -423,6 +425,7 @@ const Controller = () => {
           true
         );
 
+        // Currently dirs with spaces in them are not valid
         if (childDirs.response) {
           const childItems = childDirs.response.split("\r\n").slice(1, -1);
           fileStructures = parseDirectories(
@@ -441,15 +444,29 @@ const Controller = () => {
     return (
       <div style={{ marginLeft: `${indent}em` }}>
         <div
-          className="flex cursor-pointer items-center"
+          className="flex cursor-pointer items-center justify-between"
           onClick={toggleFolder}
         >
+          <div className="flex items-center">
+            <FontAwesomeIcon
+              icon={folder.isOpen ? faFolderOpen : faFolder}
+              className="mr-2 text-yellow-500"
+            />
+            <h3>{folder.name}</h3>
+          </div>
+
           <FontAwesomeIcon
-            icon={folder.isOpen ? faFolderOpen : faFolder}
-            className="mr-2 text-yellow-200"
+            icon={faUpload}
+            className="mr-2 cursor-pointer text-blue-500"
+            onClick={(e) => {
+              // e.stopPropagation();
+              // e.preventDefault();
+              setSelectedUploadFolder(folder.path + folder.name + "/");
+              fileInputRef.current?.click();
+            }}
           />
-          <h3>{folder.name}</h3>
         </div>
+
         {folder.isOpen &&
           folder.children &&
           folder.children.map((file, index) => (
@@ -502,14 +519,6 @@ const Controller = () => {
     <>
       <div className="flex h-full w-full flex-col items-center justify-center gap-5 p-5">
         <h1>Connected to HackRF!</h1>
-
-        <div>
-          {dirStructure &&
-            dirStructure.map((file, index) => (
-              <ListItem key={index} item={file} indent={0} />
-            ))}
-        </div>
-
         {!serial.isReading && "Enable console for buttons to enable"}
         <div
           id="ControllerSection"
@@ -656,7 +665,21 @@ const Controller = () => {
         ) : (
           <div className="mt-10 flex w-[80%] flex-row items-center justify-center gap-5">
             <div className="flex h-full flex-col gap-1 self-start">
-              <button
+              <input
+                ref={fileInputRef}
+                type="file"
+                style={{ display: "none" }}
+                onClick={() => {
+                  if (fileInputRef.current) {
+                    fileInputRef.current.value = "";
+                  }
+                }}
+                onChange={(e) => {
+                  console.log("HIT THE TIHGN");
+                  onFileChange(e, selectedUploadFolder);
+                }}
+              />
+              {/* <button
                 // onClick={() => downloadFile("PLAYLIST.TXT")}
                 onClick={() => flashLatestFirmware()}
                 className="self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
@@ -667,24 +690,16 @@ const Controller = () => {
                 className="h-full w-full rounded bg-gray-200 p-2 text-black"
                 readOnly
                 value={updateStatus}
-              />
+              /> */}
+              <div className="flex max-h-96 flex-col overflow-y-auto">
+                {dirStructure &&
+                  dirStructure.map((file, index) => (
+                    <ListItem key={index} item={file} indent={0} />
+                  ))}
+              </div>
             </div>
             <div className="flex w-full flex-col items-center justify-center gap-1">
               <div className="flex w-full flex-row items-center justify-center gap-1">
-                {/* <button
-                onClick={() => downloadFile("test.txt")}
-                className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
-              >
-                Test
-              </button> */}
-                {/* <button
-                // onClick={() => downloadFile("PLAYLIST.TXT")}
-                onClick={() => downloadFile("/APPS/pacman.ppma")}
-                className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
-              >
-                Download
-              </button> */}
-                <input type="file" onChange={onFileChange} />
                 <input
                   type="text"
                   value={command}
