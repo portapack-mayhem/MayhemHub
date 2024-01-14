@@ -1,8 +1,13 @@
 "use client";
 
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
-import { parseDirectories } from "@/app/utils/fileUtils";
-import { downloadFileFromUrl, useWriteCommand } from "@/app/utils/serialUtils";
+import { parseDirectories } from "@/utils/fileUtils";
+import { downloadFileFromUrl, useWriteCommand } from "@/utils/serialUtils";
+import {
+  getVersionLink,
+  getVersionType,
+  nightlyVersionFormat,
+} from "@/utils/versionUtils";
 import { DeviceButtons } from "../DeviceButtons/DeviceButtons";
 import { FileBrowser, FileStructure } from "../FileBrowser/FileBrowser";
 import HotkeyButton from "../HotkeyButton/HotkeyButton";
@@ -413,35 +418,53 @@ const Controller = () => {
         closeModal={() => setFirmwarModalOpen(false)}
         className="w-[40%]"
       >
-        <div className="flex flex-col gap-3">
-          <p>Select from the available options</p>
-          <button
-            disabled={disableTransmitAction}
-            onClick={() => flashLatestNightlyFirmware()}
-            className="rounded bg-blue-400 p-2 text-white disabled:opacity-50"
-          >
-            Update to latest nightly release
-          </button>
-          <button
-            disabled={disableTransmitAction}
-            onClick={() => {
-              setSelectedUploadFolder("/FIRMWARE");
-              firmwareFileInputRef.current?.click();
-            }}
-            className="rounded bg-blue-400 p-2 text-white disabled:opacity-50"
-          >
-            Flash custom firmware
-          </button>
-          <button
-            onClick={() => flashLatestNightlyFirmware()}
-            // disabled={disableTransmitAction}
-            disabled={true} // This is disabled as there is no stable firmware that will work with the current version of the webapp
-            className="rounded bg-blue-400 p-2 text-white disabled:opacity-50"
-          >
-            Update to latest stable release
-          </button>
-          <p>{updateStatus}</p>
-        </div>
+        {nightlyVersionFormat(deviceVersion) < 240114 &&
+        getVersionType(deviceVersion) == "nightly" ? (
+          <p>
+            sorry your version is too old. Please manually update to the latest
+            nightly
+          </p>
+        ) : (
+          <div className="flex flex-col gap-3">
+            <p>
+              Current installed version:{" "}
+              <a
+                className="text-blue-300 underline transition-colors duration-200 hover:text-blue-400"
+                href={getVersionLink(deviceVersion)}
+                target="_blank"
+              >
+                {deviceVersion} - {getVersionType(deviceVersion)}
+              </a>
+            </p>
+            <p>Select from the available options</p>
+            <button
+              disabled={disableTransmitAction}
+              onClick={() => flashLatestNightlyFirmware()}
+              className="rounded bg-blue-400 p-2 text-white disabled:opacity-50"
+            >
+              Update to latest nightly release
+            </button>
+            <button
+              disabled={disableTransmitAction}
+              onClick={() => {
+                setSelectedUploadFolder("/FIRMWARE");
+                firmwareFileInputRef.current?.click();
+              }}
+              className="rounded bg-blue-400 p-2 text-white disabled:opacity-50"
+            >
+              Flash custom firmware
+            </button>
+            <button
+              onClick={() => flashLatestNightlyFirmware()}
+              // disabled={disableTransmitAction}
+              disabled={true} // This is disabled as there is no stable firmware that will work with the current version of the webapp
+              className="rounded bg-blue-400 p-2 text-white disabled:opacity-50"
+            >
+              Update to latest stable release
+            </button>
+            <p>{updateStatus}</p>
+          </div>
+        )}
       </Modal>
     </>
   );

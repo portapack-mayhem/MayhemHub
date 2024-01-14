@@ -6,8 +6,8 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Dispatch, RefObject, SetStateAction, useState } from "react";
-import { parseDirectories } from "@/app/utils/fileUtils";
-import { useWriteCommand } from "@/app/utils/serialUtils";
+import { parseDirectories } from "@/utils/fileUtils";
+import { useWriteCommand } from "@/utils/serialUtils";
 
 // Define FileType
 export type FileType = "file" | "folder";

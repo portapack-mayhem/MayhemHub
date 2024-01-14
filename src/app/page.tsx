@@ -1,12 +1,12 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import Controller from "./components/Controller/Controller";
-import { Loader } from "./components/Loader/Loader";
+import Controller from "@/components/Controller/Controller";
+import { Loader } from "@/components/Loader/Loader";
 
 const Home = () => {
   const SerialLoader = dynamic(
-    async () => await import("./components/SerialLoader/SerialLoader"),
+    async () => await import("@/components/SerialLoader/SerialLoader"),
     {
       loading: () => <Loader />,
       ssr: false,
