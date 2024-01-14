@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useWriteCommand } from "@/app/utils/serialUtils";
+import { useWriteCommand } from "@/utils/serialUtils";
 import HotkeyButton from "../HotkeyButton/HotkeyButton";
 
 export const DeviceButtons = ({

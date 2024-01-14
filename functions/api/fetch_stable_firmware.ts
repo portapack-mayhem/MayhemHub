@@ -2,6 +2,7 @@ const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET,HEAD,POST,PUT,OPTIONS,DELETE",
   "Access-Control-Allow-Headers": "*",
+  "Access-Control-Expose-Headers": "*",
   "Access-Control-Max-Age": "86400",
 };
 

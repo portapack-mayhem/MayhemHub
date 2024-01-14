@@ -1,8 +1,14 @@
 "use client";
 
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
-import { parseDirectories } from "@/app/utils/fileUtils";
-import { downloadFileFromUrl, useWriteCommand } from "@/app/utils/serialUtils";
+import { LatestVersions } from "@/app/models";
+import { parseDirectories } from "@/utils/fileUtils";
+import { downloadFileFromUrl, useWriteCommand } from "@/utils/serialUtils";
+import {
+  getVersionLink,
+  getVersionType,
+  nightlyVersionFormat,
+} from "@/utils/versionUtils";
 import { DeviceButtons } from "../DeviceButtons/DeviceButtons";
 import { FileBrowser, FileStructure } from "../FileBrowser/FileBrowser";
 import HotkeyButton from "../HotkeyButton/HotkeyButton";
@@ -25,6 +31,7 @@ const Controller = () => {
   const [firmwarModalOpen, setFirmwarModalOpen] = useState<boolean>(false);
   const [setupComplete, setSetupComplete] = useState<boolean>(false);
   const [dirStructure, setDirStructure] = useState<FileStructure[]>();
+  const [latestVersion, setLatestVersion] = useState<LatestVersions>();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const firmwareFileInputRef = useRef<HTMLInputElement>(null);
@@ -73,6 +80,8 @@ const Controller = () => {
 
         setConsoleMessageList("");
         setSetupComplete(true);
+
+        setLatestVersion(await getLatestVersions());
       };
 
       const fetchFolderStructure = async () => {
@@ -90,6 +99,16 @@ const Controller = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serial]);
+
+  const getLatestVersions = async () => {
+    const apiResponse = await fetch("https://hackrf.app/api/get_versions");
+
+    if (!apiResponse.ok) {
+      console.error("Network response was not ok");
+    }
+
+    return await apiResponse.json<LatestVersions>();
+  };
 
   const renderFrame = () => {
     const width = 241;
@@ -209,7 +228,7 @@ const Controller = () => {
     }
   };
 
-  const flashLatestFirmware = async () => {
+  const flashLatestNightlyFirmware = async () => {
     const fileBlob = await downloadFileFromUrl(
       "https://hackrf.app/api/fetch_nightly_firmware"
     );
@@ -333,6 +352,7 @@ const Controller = () => {
                 <input
                   ref={firmwareFileInputRef}
                   type="file"
+                  accept=".tar"
                   style={{ display: "none" }}
                   onClick={() => {
                     if (fileInputRef.current) {
@@ -412,39 +432,76 @@ const Controller = () => {
         closeModal={() => setFirmwarModalOpen(false)}
         className="w-[40%]"
       >
-        <div className="flex flex-col gap-3">
-          <p>Select from the available options</p>
-          <button
-            disabled={disableTransmitAction}
-            onClick={() => flashLatestFirmware()}
-            className="rounded bg-blue-400 p-2 text-white disabled:opacity-50"
-          >
-            Update to latest nightly release
-          </button>
-          <button
-            disabled={disableTransmitAction}
-            onClick={() => {
-              setSelectedUploadFolder("/FIRMWARE");
-              firmwareFileInputRef.current?.click();
-            }}
-            className="rounded bg-blue-400 p-2 text-white disabled:opacity-50"
-          >
-            Flash custom firmware
-          </button>
-          <button
-            onClick={() => flashLatestFirmware()}
-            // disabled={disableTransmitAction}
-            disabled={true} // This is disabled as there is no stable firmware that will work with the current version of the webapp
-            className="rounded bg-blue-400 p-2 text-white disabled:opacity-50"
-          >
-            Update to latest stable release
-          </button>
-          <textarea
-            className="h-full w-full rounded bg-gray-200 p-2 text-black"
-            readOnly
-            value={updateStatus}
-          />
-        </div>
+        {nightlyVersionFormat(deviceVersion) < 240114 &&
+        getVersionType(deviceVersion) == "nightly" ? (
+          <p>
+            sorry your version is too old. Please manually update to the latest
+            nightly
+          </p>
+        ) : (
+          <div className="flex flex-col gap-3">
+            <p>
+              Current installed version:{" "}
+              <a
+                className="text-blue-300 underline transition-colors duration-200 hover:text-blue-400"
+                href={getVersionLink(deviceVersion)}
+                target="_blank"
+              >
+                {deviceVersion} - {getVersionType(deviceVersion)}
+              </a>
+            </p>
+            <div className="flex flex-col gap-1">
+              <p>
+                Latest Stable:{" "}
+                <a
+                  className="text-blue-300 underline transition-colors duration-200 hover:text-blue-400"
+                  href={getVersionLink(latestVersion?.stable.version)}
+                  target="_blank"
+                >
+                  {latestVersion?.stable.version}
+                </a>
+              </p>
+              <p>
+                Latest Nightly:{" "}
+                <a
+                  className="text-blue-300 underline transition-colors duration-200 hover:text-blue-400"
+                  href={getVersionLink(latestVersion?.nightly.version)}
+                  target="_blank"
+                >
+                  {latestVersion?.nightly.version}
+                </a>
+              </p>
+            </div>
+
+            <p>Select from the available options</p>
+            <button
+              disabled={disableTransmitAction}
+              onClick={() => flashLatestNightlyFirmware()}
+              className="rounded bg-blue-400 p-2 text-white disabled:opacity-50"
+            >
+              Update to latest nightly release
+            </button>
+            <button
+              disabled={disableTransmitAction}
+              onClick={() => {
+                setSelectedUploadFolder("/FIRMWARE");
+                firmwareFileInputRef.current?.click();
+              }}
+              className="rounded bg-blue-400 p-2 text-white disabled:opacity-50"
+            >
+              Flash custom firmware
+            </button>
+            <button
+              onClick={() => flashLatestNightlyFirmware()}
+              // disabled={disableTransmitAction}
+              disabled={true} // This is disabled as there is no stable firmware that will work with the current version of the webapp
+              className="rounded bg-blue-400 p-2 text-white disabled:opacity-50"
+            >
+              Update to latest stable release
+            </button>
+            <p>{updateStatus}</p>
+          </div>
+        )}
       </Modal>
     </>
   );
