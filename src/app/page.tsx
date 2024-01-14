@@ -1,5 +1,7 @@
 "use client";
 
+import { faGithubAlt } from "@fortawesome/free-brands-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import dynamic from "next/dynamic";
 import Controller from "@/components/Controller/Controller";
 import { Loader } from "@/components/Loader/Loader";
@@ -22,7 +24,10 @@ const Home = () => {
       </main>
       <footer className="text-center text-blue-500">
         <a href="https://github.com/portapack-mayhem/MayhemHub" target="_blank">
-          GitHub Repo
+          <FontAwesomeIcon
+            icon={faGithubAlt}
+            className="mr-2 text-2xl text-white"
+          />
         </a>
       </footer>
     </>
