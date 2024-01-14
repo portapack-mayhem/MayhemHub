@@ -2,12 +2,13 @@
 
 import dynamic from "next/dynamic";
 import Controller from "./components/Controller/Controller";
+import { Loader } from "./components/Loader/Loader";
 
 const Home = () => {
   const SerialLoader = dynamic(
     async () => await import("./components/SerialLoader/SerialLoader"),
     {
-      loading: () => <p>Loading...</p>,
+      loading: () => <Loader />,
       ssr: false,
     }
   );
