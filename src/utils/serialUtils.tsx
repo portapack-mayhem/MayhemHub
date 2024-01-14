@@ -158,6 +158,7 @@ export const useWriteCommand = () => {
     downloadFile,
     uploadFile,
     disableTransmitAction,
+    loadingFrame,
     setLoadingFrame,
   };
 };

@@ -7,10 +7,10 @@ export const DeviceButtons = ({
 }: {
   autoUpdateFrame: boolean;
 }) => {
-  // const { write, disableTransmitAction } = useWriteCommand();
-  const { write } = useWriteCommand();
+  const { write, disableTransmitAction, loadingFrame } = useWriteCommand();
+  // const { write } = useWriteCommand();
 
-  const disableTransmitAction = false;
+  // const disableTransmitAction = false;
 
   useEffect(() => {
     // Why is this not updating?
@@ -27,7 +27,7 @@ export const DeviceButtons = ({
           <div></div>
           <HotkeyButton
             label="Left"
-            disabled={disableTransmitAction}
+            disabled={loadingFrame}
             onClickFunction={() => write("button 2", autoUpdateFrame)}
             className="h-16 w-16 bg-green-500"
             shortcutKeys={"ArrowLeft"}
