@@ -331,96 +331,100 @@ const Controller = () => {
               className="rounded bg-orange-300 p-2 text-white disabled:opacity-50"
               onClick={() => serial.startReading()}
             >
-              Start reading console
+              Reading console...
             </button>
           ) : (
-            <div className="mt-10 flex w-[80%] flex-row items-center justify-center gap-5">
-              <div className="flex h-full flex-col gap-1 self-start">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  style={{ display: "none" }}
-                  onClick={() => {
-                    if (fileInputRef.current) {
-                      fileInputRef.current.value = "";
-                    }
-                  }}
-                  onChange={(e) => {
-                    onFileChange(e, selectedUploadFolder);
-                  }}
-                />
-                <input
-                  ref={firmwareFileInputRef}
-                  type="file"
-                  accept=".tar"
-                  style={{ display: "none" }}
-                  onClick={() => {
-                    if (fileInputRef.current) {
-                      fileInputRef.current.value = "";
-                    }
-                  }}
-                  onChange={(e) => {
-                    onFirmwareFileChange(e, selectedUploadFolder);
-                  }}
-                />
-                <div className="flex max-h-96 flex-col overflow-y-auto">
-                  <FileBrowser
-                    fileInputRef={fileInputRef}
-                    setSelectedUploadFolder={setSelectedUploadFolder}
-                    dirStructure={dirStructure}
-                    setDirStructure={setDirStructure}
+            <>
+              <div className="mt-10 flex w-[80%] flex-row items-center justify-center gap-5 rounded-md bg-slate-600 p-5">
+                <div className="flex h-full w-[35%] flex-col gap-1 self-start">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    style={{ display: "none" }}
+                    onClick={() => {
+                      if (fileInputRef.current) {
+                        fileInputRef.current.value = "";
+                      }
+                    }}
+                    onChange={(e) => {
+                      onFileChange(e, selectedUploadFolder);
+                    }}
+                  />
+                  <input
+                    ref={firmwareFileInputRef}
+                    type="file"
+                    accept=".tar"
+                    style={{ display: "none" }}
+                    onClick={() => {
+                      if (fileInputRef.current) {
+                        fileInputRef.current.value = "";
+                      }
+                    }}
+                    onChange={(e) => {
+                      onFirmwareFileChange(e, selectedUploadFolder);
+                    }}
+                  />
+                  <div className="flex max-h-96 flex-col overflow-y-auto">
+                    <FileBrowser
+                      fileInputRef={fileInputRef}
+                      setSelectedUploadFolder={setSelectedUploadFolder}
+                      dirStructure={dirStructure}
+                      setDirStructure={setDirStructure}
+                    />
+                  </div>
+                </div>
+                <div className="flex w-full flex-col items-center justify-center gap-1">
+                  <div className="flex w-full flex-row items-center justify-center gap-1">
+                    <input
+                      type="text"
+                      value={command}
+                      onChange={(e) => setCommand(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          sendCommand();
+                        }
+                      }}
+                      className="w-full rounded-md border-2 border-blue-500 p-2 text-black"
+                    />
+                    <button
+                      type="submit"
+                      className="rounded-md bg-blue-500 p-2 text-white"
+                      onClick={() => {
+                        sendCommand();
+                      }}
+                    >
+                      Send
+                    </button>
+                    <button
+                      type="submit"
+                      className="rounded-md bg-red-500 p-2 text-white"
+                      onClick={() => {
+                        setConsoleMessageList("");
+                      }}
+                    >
+                      Clear
+                    </button>
+                  </div>
+                  <textarea
+                    className="h-[350px] w-full rounded bg-gray-200 p-2 text-black"
+                    readOnly
+                    value={consoleMessageList}
                   />
                 </div>
               </div>
-              <div className="flex h-full flex-col gap-1 self-start">
-                <p>Version: {deviceVersion}</p>
+              <div className="flex w-[40%] flex-col items-center justify-center rounded-md bg-slate-600 p-5">
+                <p className="mb-1 text-sm">
+                  Firmware Version: {deviceVersion}
+                </p>
                 <button
                   onClick={() => setFirmwarModalOpen(true)}
-                  className="self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
+                  className="rounded bg-blue-400 p-2 text-sm text-white disabled:opacity-50"
                 >
                   Manage Firmware
                 </button>
               </div>
-              <div className="flex w-full flex-col items-center justify-center gap-1">
-                <div className="flex w-full flex-row items-center justify-center gap-1">
-                  <input
-                    type="text"
-                    value={command}
-                    onChange={(e) => setCommand(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        sendCommand();
-                      }
-                    }}
-                    className="w-full rounded-md border-2 border-blue-500 p-2 text-black"
-                  />
-                  <button
-                    type="submit"
-                    className="rounded-md bg-blue-500 p-2 text-white"
-                    onClick={() => {
-                      sendCommand();
-                    }}
-                  >
-                    Send
-                  </button>
-                  <button
-                    type="submit"
-                    className="rounded-md bg-red-500 p-2 text-white"
-                    onClick={() => {
-                      setConsoleMessageList("");
-                    }}
-                  >
-                    Clear
-                  </button>
-                </div>
-                <textarea
-                  className="h-[350px] w-full rounded bg-gray-200 p-2 text-black"
-                  readOnly
-                  value={consoleMessageList}
-                />
-              </div>
-            </div>
+            </>
           )}
         </div>
       ) : (
@@ -435,13 +439,13 @@ const Controller = () => {
         {nightlyVersionFormat(deviceVersion) < 240114 &&
         getVersionType(deviceVersion) == "nightly" ? (
           <p>
-            sorry your version is too old. Please manually update to the latest
-            nightly
+            Sorry, your firmware version is too old to do this. Please manually
+            update to the latest nightly!
           </p>
         ) : (
           <div className="flex flex-col gap-3">
             <p>
-              Current installed version:{" "}
+              Currently installed version:{" "}
               <a
                 className="text-blue-300 underline transition-colors duration-200 hover:text-blue-400"
                 href={getVersionLink(deviceVersion)}
@@ -473,7 +477,7 @@ const Controller = () => {
               </p>
             </div>
 
-            <p>Select from the available options</p>
+            <p className="mt-3">Select from the available options:</p>
             <button
               disabled={disableTransmitAction}
               onClick={() => flashLatestNightlyFirmware()}
