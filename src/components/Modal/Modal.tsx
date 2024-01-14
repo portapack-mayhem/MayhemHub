@@ -1,3 +1,5 @@
+import { faRectangleXmark } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect } from "react";
 
 export interface IModal {
@@ -36,7 +38,12 @@ const Modal = ({
           >
             {title && (
               <div className="flex gap-4 border-b border-gray-500 p-4">
-                <button onClick={closeModal}>X</button>
+                <button onClick={closeModal} className="pr-3">
+                  <FontAwesomeIcon
+                    icon={faRectangleXmark}
+                    className="text-2xl text-white"
+                  />
+                </button>
 
                 <p>{title}</p>
               </div>
