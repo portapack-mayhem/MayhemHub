@@ -1,21 +1,26 @@
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { useWriteCommand } from "@/utils/serialUtils";
 import HotkeyButton from "../HotkeyButton/HotkeyButton";
+import { SharedStateContext } from "../SharedStateContext/SharedStateContext";
 
 export const DeviceButtons = ({
   autoUpdateFrame,
 }: {
   autoUpdateFrame: boolean;
 }) => {
-  const { write, disableTransmitAction, loadingFrame } = useWriteCommand();
+  const { write, disableTransmitAction, loadingFrame, fileUploadBlocker } =
+    useWriteCommand();
   // const { write } = useWriteCommand();
 
   // const disableTransmitAction = false;
 
+  const sharedStateContext = useContext(SharedStateContext);
+  const { sharedState } = sharedStateContext;
+
   useEffect(() => {
     // Why is this not updating?
-    console.log(disableTransmitAction);
-  }, [disableTransmitAction]);
+    console.log(sharedState);
+  }, [sharedState]);
 
   return (
     <div
@@ -27,7 +32,7 @@ export const DeviceButtons = ({
           <div></div>
           <HotkeyButton
             label="Left"
-            disabled={loadingFrame}
+            disabled={sharedState}
             onClickFunction={() => write("button 2", autoUpdateFrame)}
             className="h-16 w-16 bg-green-500"
             shortcutKeys={"ArrowLeft"}
@@ -41,7 +46,7 @@ export const DeviceButtons = ({
           </button>
           <HotkeyButton
             label="Up"
-            disabled={disableTransmitAction}
+            disabled={fileUploadBlocker}
             onClickFunction={() => write("button 4", autoUpdateFrame)}
             className="h-16 w-16 bg-green-500"
             shortcutKeys={"ArrowUp"}
