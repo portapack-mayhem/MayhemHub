@@ -1,3 +1,4 @@
+import { ReactNode } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 
 interface IHotkeyButton {
@@ -8,7 +9,7 @@ interface IHotkeyButton {
   /**
    * Text to display on button
    */
-  label?: string;
+  label?: string | ReactNode;
   /**
    * Comma-separated string of shortcutkeys
    */

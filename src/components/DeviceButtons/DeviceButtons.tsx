@@ -1,3 +1,5 @@
+import { faRotateLeft, faRotateRight } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useWriteCommand } from "@/utils/serialUtils";
 import HotkeyButton from "../HotkeyButton/HotkeyButton";
 
@@ -60,7 +62,7 @@ export const DeviceButtons = ({
             onClick={() => write("button 7", autoUpdateFrame)}
             className="h-12 w-12 self-end justify-self-start rounded bg-blue-400 text-white disabled:opacity-50"
           >
-            ↪️
+            <FontAwesomeIcon icon={faRotateLeft} />
           </button>
           <HotkeyButton
             label="Up"
@@ -96,7 +98,7 @@ export const DeviceButtons = ({
             onClick={() => write("button 8", autoUpdateFrame)}
             className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
           >
-            ↩️
+            <FontAwesomeIcon icon={faRotateRight} />
           </button>
         </div>
       </div>

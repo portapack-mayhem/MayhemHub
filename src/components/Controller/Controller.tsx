@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  faRotate,
+  faRotateLeft,
+  faRotateRight,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { LatestVersions } from "@/app/models";
 import { parseDirectories } from "@/utils/fileUtils";
@@ -287,7 +293,7 @@ const Controller = () => {
                     }}
                   />
                   <HotkeyButton
-                    label="🔄"
+                    label={<FontAwesomeIcon icon={faRotate} />}
                     disabled={disableTransmitAction}
                     onClickFunction={() => {
                       if (!disableTransmitAction) {
@@ -356,7 +362,7 @@ const Controller = () => {
                     onClick={() => write("button 7", autoUpdateFrame)}
                     className="h-12 w-12 self-end justify-self-start rounded bg-blue-400 text-white disabled:opacity-50"
                   >
-                    ↪️
+                    <FontAwesomeIcon icon={faRotateLeft} />
                   </button>
                   <HotkeyButton
                     label="Up"
@@ -392,7 +398,7 @@ const Controller = () => {
                     onClick={() => write("button 8", autoUpdateFrame)}
                     className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
                   >
-                    ↩️
+                    <FontAwesomeIcon icon={faRotateRight} />
                   </button>
                 </div>
               </div>
