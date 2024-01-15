@@ -159,7 +159,7 @@ const Controller = () => {
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (
-      (e.key.length === 1 && /[a-zA-Z0-9 ]/.test(e.key)) ||
+      (e.key.length === 1 && /[a-zA-Z0-9 \\.]/.test(e.key)) ||
       e.key === "Backspace"
     ) {
       e.preventDefault();
