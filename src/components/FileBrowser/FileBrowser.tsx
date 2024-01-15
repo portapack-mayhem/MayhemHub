@@ -5,7 +5,7 @@ import {
   faFile,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Dispatch, RefObject, SetStateAction, useState } from "react";
+import { Dispatch, RefObject, SetStateAction } from "react";
 import { parseDirectories } from "@/utils/fileUtils";
 import { useWriteCommand } from "@/utils/serialUtils";
 
