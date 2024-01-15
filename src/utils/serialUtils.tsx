@@ -20,13 +20,6 @@ export const useWriteCommand = () => {
 
   useEffect(() => {
     const disableTransmitActionUpdating = loadingFrame || fileUploadBlocker;
-    console.log(
-      "Update state: ",
-      loadingFrame,
-      fileUploadBlocker,
-      disableTransmitActionUpdating
-    );
-
     // Triggers an immediate rerender with updated state
     setDisableTransmitAction(disableTransmitActionUpdating);
   }, [loadingFrame, fileUploadBlocker, disableTransmitAction]);
