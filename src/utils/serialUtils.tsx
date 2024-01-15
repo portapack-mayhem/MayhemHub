@@ -1,12 +1,5 @@
-import {
-  Dispatch,
-  SetStateAction,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { DataPacket } from "@/components/SerialProvider/SerialProvider";
-import { SharedStateContext } from "@/components/SharedStateContext/SharedStateContext";
 import { hexToBytes } from "./fileUtils";
 import { useSerial } from "../components/SerialLoader/SerialLoader";
 
@@ -22,12 +15,6 @@ export const useWriteCommand = () => {
   const [disableTransmitAction, setDisableTransmitAction] =
     useState<boolean>(true);
 
-  // ToDo: This stuff below does not seem to be correctly updating, so leavin this in to debug
-  // const disableTransmitAction: boolean = loadingFrame || fileUploadBlocker;
-
-  const sharedStateContext = useContext(SharedStateContext);
-  const { sharedState, setSharedState } = sharedStateContext;
-
   useEffect(() => {
     const disableTransmitActionUpdating = loadingFrame || fileUploadBlocker;
     console.log(
@@ -39,13 +26,7 @@ export const useWriteCommand = () => {
 
     // Triggers an immediate rerender with updated state
     setDisableTransmitAction(disableTransmitActionUpdating);
-    setSharedState(disableTransmitActionUpdating);
-  }, [loadingFrame, fileUploadBlocker, disableTransmitAction, setSharedState]);
-
-  // const disableTransmitAction: boolean = useCallback(async () => {
-  //   return loadingFrame || fileUploadBlocker;
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, [loadingFrame || fileUploadBlocker]);
+  }, [loadingFrame, fileUploadBlocker, disableTransmitAction]);
 
   const write = async (
     command: string,

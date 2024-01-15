@@ -1,38 +1,56 @@
-import { useContext, useEffect } from "react";
 import { useWriteCommand } from "@/utils/serialUtils";
 import HotkeyButton from "../HotkeyButton/HotkeyButton";
-import { SharedStateContext } from "../SharedStateContext/SharedStateContext";
 
 export const DeviceButtons = ({
   autoUpdateFrame,
+  disableTransmitAction,
 }: {
   autoUpdateFrame: boolean;
+  disableTransmitAction: boolean;
 }) => {
-  const { write, disableTransmitAction, loadingFrame, fileUploadBlocker } =
-    useWriteCommand();
-  // const { write } = useWriteCommand();
-
-  // const disableTransmitAction = false;
-
-  const sharedStateContext = useContext(SharedStateContext);
-  const { sharedState } = sharedStateContext;
-
-  useEffect(() => {
-    // Why is this not updating?
-    console.log(sharedState);
-  }, [sharedState]);
+  const { write } = useWriteCommand();
 
   return (
     <div
       className="flex flex-col items-center justify-center gap-5"
       id="controlGroup"
     >
+      {/* Test Buttons ==================================================================================================== */}
+      <button
+        disabled={disableTransmitAction}
+        onClick={() => write("button 7", true, true)}
+        className="h-12 w-12 self-end justify-self-start rounded bg-blue-400 text-white disabled:opacity-50"
+      >
+        T1
+      </button>
+      <button
+        disabled={disableTransmitAction}
+        onClick={() => write("button 7", true, false)}
+        className="h-12 w-12 self-end justify-self-start rounded bg-blue-400 text-white disabled:opacity-50"
+      >
+        T2
+      </button>
+      <button
+        disabled={disableTransmitAction}
+        onClick={async () => await write("button 7", true, true)}
+        className="h-12 w-12 self-end justify-self-start rounded bg-blue-400 text-white disabled:opacity-50"
+      >
+        T3
+      </button>
+      <button
+        disabled={disableTransmitAction}
+        onClick={async () => await write("button 7", true, false)}
+        className="h-12 w-12 self-end justify-self-start rounded bg-blue-400 text-white disabled:opacity-50"
+      >
+        T4
+      </button>
+      {/* ==================================================================================================== */}
       <div className="flex flex-col items-center justify-center">
         <div className="grid grid-flow-col grid-rows-3 gap-4">
           <div></div>
           <HotkeyButton
             label="Left"
-            disabled={sharedState}
+            disabled={disableTransmitAction}
             onClickFunction={() => write("button 2", autoUpdateFrame)}
             className="h-16 w-16 bg-green-500"
             shortcutKeys={"ArrowLeft"}
@@ -46,7 +64,7 @@ export const DeviceButtons = ({
           </button>
           <HotkeyButton
             label="Up"
-            disabled={fileUploadBlocker}
+            disabled={disableTransmitAction}
             onClickFunction={() => write("button 4", autoUpdateFrame)}
             className="h-16 w-16 bg-green-500"
             shortcutKeys={"ArrowUp"}
