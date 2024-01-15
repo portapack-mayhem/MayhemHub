@@ -1,5 +1,11 @@
 "use client";
 
+import {
+  faRotate,
+  faRotateLeft,
+  faRotateRight,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { LatestVersions } from "@/app/models";
 import { parseDirectories } from "@/utils/fileUtils";
@@ -9,7 +15,6 @@ import {
   getVersionType,
   nightlyVersionFormat,
 } from "@/utils/versionUtils";
-import { DeviceButtons } from "../DeviceButtons/DeviceButtons";
 import { FileBrowser, FileStructure } from "../FileBrowser/FileBrowser";
 import HotkeyButton from "../HotkeyButton/HotkeyButton";
 import { Loader } from "../Loader/Loader";
@@ -111,8 +116,6 @@ const Controller = () => {
   };
 
   const renderFrame = () => {
-    const width = 241;
-    const height = 321;
     if (!consoleMessage.includes("screenframe")) return;
 
     const lines = consoleMessage.split("\r\n");
@@ -162,7 +165,7 @@ const Controller = () => {
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (
-      (e.key.length === 1 && /[a-zA-Z0-9 ]/.test(e.key)) ||
+      (e.key.length === 1 && /[a-zA-Z0-9 \\.]/.test(e.key)) ||
       e.key === "Backspace"
     ) {
       e.preventDefault();
@@ -290,7 +293,7 @@ const Controller = () => {
                     }}
                   />
                   <HotkeyButton
-                    label="🔄"
+                    label={<FontAwesomeIcon icon={faRotate} />}
                     disabled={disableTransmitAction}
                     onClickFunction={() => {
                       if (!disableTransmitAction) {
@@ -323,7 +326,99 @@ const Controller = () => {
               />
             </div>
 
-            <DeviceButtons autoUpdateFrame={autoUpdateFrame} />
+            {/* 
+            
+            Attention!
+            For some reason, when I use <DeviceButtons />, once the buttons are clicked, the 
+            buttons never disable. I have spent hours trying to fix this, but I cannot. So 
+            for now I have moved them back out of their own compoent which "Solves" the problem.
+
+            Basically the issue is it seems to be setting the state of disableTransmitAction, but 
+            not rerendering.
+
+            If someone else could fix this, that would be great <3
+
+            */}
+            {/* <DeviceButtons
+              autoUpdateFrame={autoUpdateFrame}
+              disableTransmitAction={disableTransmitAction}
+            /> */}
+            <div
+              className="flex flex-col items-center justify-center gap-5"
+              id="controlGroup"
+            >
+              <div className="flex flex-col items-center justify-center">
+                <div className="grid grid-flow-col grid-rows-3 gap-4">
+                  <div></div>
+                  <HotkeyButton
+                    label="Left"
+                    disabled={disableTransmitAction}
+                    onClickFunction={() => write("button 2", autoUpdateFrame)}
+                    className="h-16 w-16 bg-green-500"
+                    shortcutKeys={"ArrowLeft"}
+                  />
+                  <button
+                    disabled={disableTransmitAction}
+                    onClick={() => write("button 7", autoUpdateFrame)}
+                    className="h-12 w-12 self-end justify-self-start rounded bg-blue-400 text-white disabled:opacity-50"
+                  >
+                    <FontAwesomeIcon icon={faRotateLeft} />
+                  </button>
+                  <HotkeyButton
+                    label="Up"
+                    disabled={disableTransmitAction}
+                    onClickFunction={() => write("button 4", autoUpdateFrame)}
+                    className="h-16 w-16 bg-green-500"
+                    shortcutKeys={"ArrowUp"}
+                  />
+                  <HotkeyButton
+                    label="Ok"
+                    disabled={disableTransmitAction}
+                    onClickFunction={() => write("button 5", autoUpdateFrame)}
+                    className="h-16 w-16 bg-blue-500"
+                    shortcutKeys={"Enter"}
+                  />
+                  <HotkeyButton
+                    label="Down"
+                    disabled={disableTransmitAction}
+                    onClickFunction={() => write("button 3", autoUpdateFrame)}
+                    className="h-16 w-16 bg-green-500"
+                    shortcutKeys={"ArrowDown"}
+                  />
+                  <div></div>
+                  <HotkeyButton
+                    label="Right"
+                    disabled={disableTransmitAction}
+                    onClickFunction={() => write("button 1", autoUpdateFrame)}
+                    className="h-16 w-16 bg-green-500"
+                    shortcutKeys={"ArrowRight"}
+                  />
+                  <button
+                    disabled={disableTransmitAction}
+                    onClick={() => write("button 8", autoUpdateFrame)}
+                    className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
+                  >
+                    <FontAwesomeIcon icon={faRotateRight} />
+                  </button>
+                </div>
+              </div>
+              <div className="flex items-center justify-center gap-4">
+                <HotkeyButton
+                  label="DFU"
+                  disabled={disableTransmitAction}
+                  onClickFunction={() => write("button 6", autoUpdateFrame)}
+                  className="h-16 w-16 bg-slate-400"
+                  shortcutKeys={"mod+D"}
+                />
+                <button
+                  disabled={disableTransmitAction}
+                  onClick={() => write("reboot", autoUpdateFrame)}
+                  className="h-16 w-16 rounded bg-slate-400 text-white disabled:opacity-50"
+                >
+                  Reboot
+                </button>
+              </div>
+            </div>
           </div>
 
           {!serial.isReading ? (
