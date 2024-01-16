@@ -518,7 +518,7 @@ const Controller = () => {
                 </div>
               </div>
               <div className="m-5 flex w-[20%] flex-col items-center justify-center rounded-md bg-gray-700 p-5">
-                <p className="pb-5 text-sm">
+                <p className="pb-5 text-center text-sm">
                   Firmware Version: {deviceVersion}
                 </p>
                 <button
