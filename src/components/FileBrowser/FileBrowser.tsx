@@ -109,7 +109,7 @@ export const FileBrowser = ({
 
           <FontAwesomeIcon
             icon={faUpload}
-            className="mr-2 cursor-pointer text-blue-500"
+            className="mr-2 cursor-pointer text-white"
             onClick={(e) => {
               // ToDo: Complete this so the button does not get clicked
               // e.stopPropagation();

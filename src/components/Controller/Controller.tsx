@@ -4,6 +4,12 @@ import {
   faRotate,
   faRotateLeft,
   faRotateRight,
+  faArrowUp,
+  faArrowDown,
+  faArrowLeft,
+  faArrowRight,
+  faCheckCircle,
+  faCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
@@ -104,6 +110,16 @@ const Controller = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serial]);
+
+  useEffect(() => {
+    let serial_console = document.getElementById(
+      "serial_console"
+    ) as HTMLElement;
+
+    if (!!serial_console) {
+      serial_console.scrollTop = serial_console.scrollHeight;
+    }
+  }, [consoleMessageList]);
 
   const getLatestVersions = async () => {
     const apiResponse = await fetch("https://hackrf.app/api/get_versions");
@@ -266,12 +282,19 @@ const Controller = () => {
   return (
     <>
       {setupComplete ? (
-        <div className="flex h-full w-full flex-col items-center justify-center gap-5 p-5">
-          <h1>Connected to HackRF!</h1>
-          {!serial.isReading && "Enable console for buttons to enable"}
+        <div className="flex h-full w-full flex-col items-center justify-center">
+          <h1 className="m-6 p-2">
+            HackRF Connected
+            <FontAwesomeIcon
+              className="pl-2 text-green-500"
+              icon={faCheckCircle}
+            />
+          </h1>
+          {!serial.isReading &&
+            "Please enable the console, so the buttons can also be enabled!"}
           <div
             id="ControllerSection"
-            className="flex h-full w-full flex-col items-center justify-center gap-5 p-5 outline-none focus:ring-0 md:flex-row md:items-end"
+            className="flex h-full max-w-[80%] flex-col items-center justify-center gap-24 rounded-lg bg-slate-800 p-10 outline-none focus:ring-0 md:flex-row md:items-start"
             onWheel={handleScroll}
             tabIndex={0}
             onKeyDown={(e) => {
@@ -282,8 +305,27 @@ const Controller = () => {
               className="flex flex-col items-center justify-center gap-5"
               id="screenGroup"
             >
-              <div className="flex flex-col items-center justify-center">
-                <p>Live Screen</p>
+              <canvas
+                ref={canvasRef}
+                width={241}
+                height={321}
+                className={`${
+                  !disableTransmitAction && "cursor-pointer"
+                } shadow-glow shadow-neutral-500 outline-none focus:ring-0`}
+                onMouseDown={(
+                  event: React.MouseEvent<HTMLCanvasElement, MouseEvent>
+                ) => {
+                  if (!canvasRef.current || disableTransmitAction) return;
+                  const bounds = canvasRef.current.getBoundingClientRect();
+                  const x = event.clientX - bounds.left;
+                  const y = event.clientY - bounds.top;
+
+                  write(`touch ${x} ${y}`, autoUpdateFrame);
+                }}
+              />
+
+              <div className="flex flex-col items-center justify-center rounded-md bg-gray-700 p-3">
+                <p className="pb-4">Live Screen</p>
                 <div className="flex flex-row items-center justify-center gap-5">
                   <ToggleSwitch
                     isToggle={autoUpdateFrame}
@@ -306,24 +348,6 @@ const Controller = () => {
                   />
                 </div>
               </div>
-              <canvas
-                ref={canvasRef}
-                width={241}
-                height={321}
-                className={`${
-                  !disableTransmitAction && "cursor-pointer"
-                } shadow-glow shadow-neutral-500 outline-none focus:ring-0`}
-                onMouseDown={(
-                  event: React.MouseEvent<HTMLCanvasElement, MouseEvent>
-                ) => {
-                  if (!canvasRef.current || disableTransmitAction) return;
-                  const bounds = canvasRef.current.getBoundingClientRect();
-                  const x = event.clientX - bounds.left;
-                  const y = event.clientY - bounds.top;
-
-                  write(`touch ${x} ${y}`, autoUpdateFrame);
-                }}
-              />
             </div>
 
             {/* 
@@ -344,14 +368,14 @@ const Controller = () => {
               disableTransmitAction={disableTransmitAction}
             /> */}
             <div
-              className="flex flex-col items-center justify-center gap-5"
+              className="flex flex-col items-center justify-center gap-4"
               id="controlGroup"
             >
-              <div className="flex flex-col items-center justify-center">
+              <div className="flex flex-col items-center justify-center rounded-lg bg-gray-800">
                 <div className="grid grid-flow-col grid-rows-3 gap-4">
                   <div></div>
                   <HotkeyButton
-                    label="Left"
+                    label={<FontAwesomeIcon icon={faArrowLeft} />}
                     disabled={disableTransmitAction}
                     onClickFunction={() => write("button 2", autoUpdateFrame)}
                     className="h-16 w-16 bg-green-500"
@@ -365,21 +389,21 @@ const Controller = () => {
                     <FontAwesomeIcon icon={faRotateLeft} />
                   </button>
                   <HotkeyButton
-                    label="Up"
+                    label={<FontAwesomeIcon icon={faArrowUp} />}
                     disabled={disableTransmitAction}
                     onClickFunction={() => write("button 4", autoUpdateFrame)}
                     className="h-16 w-16 bg-green-500"
                     shortcutKeys={"ArrowUp"}
                   />
                   <HotkeyButton
-                    label="Ok"
+                    label={<FontAwesomeIcon icon={faCheckCircle} />}
                     disabled={disableTransmitAction}
                     onClickFunction={() => write("button 5", autoUpdateFrame)}
                     className="h-16 w-16 bg-blue-500"
                     shortcutKeys={"Enter"}
                   />
                   <HotkeyButton
-                    label="Down"
+                    label={<FontAwesomeIcon icon={faArrowDown} />}
                     disabled={disableTransmitAction}
                     onClickFunction={() => write("button 3", autoUpdateFrame)}
                     className="h-16 w-16 bg-green-500"
@@ -387,7 +411,7 @@ const Controller = () => {
                   />
                   <div></div>
                   <HotkeyButton
-                    label="Right"
+                    label={<FontAwesomeIcon icon={faArrowRight} />}
                     disabled={disableTransmitAction}
                     onClickFunction={() => write("button 1", autoUpdateFrame)}
                     className="h-16 w-16 bg-green-500"
@@ -402,20 +426,20 @@ const Controller = () => {
                   </button>
                 </div>
               </div>
-              <div className="flex items-center justify-center gap-4">
+              <div className="flex items-center justify-center gap-4 rounded-lg bg-gray-800 p-5">
                 <HotkeyButton
                   label="DFU"
                   disabled={disableTransmitAction}
                   onClickFunction={() => write("button 6", autoUpdateFrame)}
-                  className="h-16 w-16 bg-slate-400"
+                  className="h-16 w-20 bg-yellow-500"
                   shortcutKeys={"mod+D"}
                 />
                 <button
                   disabled={disableTransmitAction}
                   onClick={() => write("reboot", autoUpdateFrame)}
-                  className="h-16 w-16 rounded bg-slate-400 text-white disabled:opacity-50"
+                  className="h-16 w-20 rounded bg-red-600 text-white disabled:opacity-50"
                 >
-                  Reboot
+                  REBOOT
                 </button>
               </div>
             </div>
@@ -426,96 +450,101 @@ const Controller = () => {
               className="rounded bg-orange-300 p-2 text-white disabled:opacity-50"
               onClick={() => serial.startReading()}
             >
-              Start reading console
+              Start Reading Console
             </button>
           ) : (
-            <div className="mt-10 flex w-[80%] flex-row items-center justify-center gap-5">
-              <div className="flex h-full flex-col gap-1 self-start">
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  style={{ display: "none" }}
-                  onClick={() => {
-                    if (fileInputRef.current) {
-                      fileInputRef.current.value = "";
-                    }
-                  }}
-                  onChange={(e) => {
-                    onFileChange(e, selectedUploadFolder);
-                  }}
-                />
-                <input
-                  ref={firmwareFileInputRef}
-                  type="file"
-                  accept=".tar"
-                  style={{ display: "none" }}
-                  onClick={() => {
-                    if (fileInputRef.current) {
-                      fileInputRef.current.value = "";
-                    }
-                  }}
-                  onChange={(e) => {
-                    onFirmwareFileChange(e, selectedUploadFolder);
-                  }}
-                />
-                <div className="flex max-h-96 flex-col overflow-y-auto">
-                  <FileBrowser
-                    fileInputRef={fileInputRef}
-                    setSelectedUploadFolder={setSelectedUploadFolder}
-                    dirStructure={dirStructure}
-                    setDirStructure={setDirStructure}
+            <>
+              <div className="mt-10 flex w-[80%] flex-row items-center justify-center gap-5 rounded-md bg-gray-700 p-5">
+                <div className="flex h-full w-[35%] flex-col gap-1 self-start">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    style={{ display: "none" }}
+                    onClick={() => {
+                      if (fileInputRef.current) {
+                        fileInputRef.current.value = "";
+                      }
+                    }}
+                    onChange={(e) => {
+                      onFileChange(e, selectedUploadFolder);
+                    }}
+                  />
+                  <input
+                    ref={firmwareFileInputRef}
+                    type="file"
+                    accept=".tar"
+                    style={{ display: "none" }}
+                    onClick={() => {
+                      if (fileInputRef.current) {
+                        fileInputRef.current.value = "";
+                      }
+                    }}
+                    onChange={(e) => {
+                      onFirmwareFileChange(e, selectedUploadFolder);
+                    }}
+                  />
+                  <div className="flex max-h-96 flex-col overflow-y-auto">
+                    <FileBrowser
+                      fileInputRef={fileInputRef}
+                      setSelectedUploadFolder={setSelectedUploadFolder}
+                      dirStructure={dirStructure}
+                      setDirStructure={setDirStructure}
+                    />
+                  </div>
+                </div>
+                <div className="flex w-full flex-col items-center justify-center gap-1">
+                  <div className="flex w-full flex-row items-center justify-center gap-1">
+                    <input
+                      type="text"
+                      value={command}
+                      onChange={(e) => setCommand(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          sendCommand();
+                        }
+                      }}
+                      className="w-full rounded-md bg-gray-600 p-2 text-white"
+                    />
+                    <button
+                      type="submit"
+                      className="rounded-md bg-green-500 p-2 text-white"
+                      onClick={() => {
+                        sendCommand();
+                      }}
+                    >
+                      Send
+                    </button>
+                    <button
+                      type="submit"
+                      className="rounded-md bg-red-500 p-2 text-white"
+                      onClick={() => {
+                        setConsoleMessageList("");
+                      }}
+                    >
+                      Clear
+                    </button>
+                  </div>
+                  <textarea
+                    className="h-[350px] w-full rounded bg-gray-600 p-2 text-white"
+                    readOnly
+                    value={consoleMessageList}
+                    id="serial_console"
                   />
                 </div>
               </div>
-              <div className="flex h-full flex-col gap-1 self-start">
-                <p>Version: {deviceVersion}</p>
+              <div className="m-5 flex w-[20%] flex-col items-center justify-center rounded-md bg-gray-700 p-5">
+                <p className="pb-5 text-center text-sm">
+                  Firmware Version: {deviceVersion}
+                </p>
                 <button
                   onClick={() => setFirmwarModalOpen(true)}
-                  className="self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
+                  className="rounded bg-blue-400 p-2 text-sm text-white disabled:opacity-50"
                 >
                   Manage Firmware
                 </button>
               </div>
-              <div className="flex w-full flex-col items-center justify-center gap-1">
-                <div className="flex w-full flex-row items-center justify-center gap-1">
-                  <input
-                    type="text"
-                    value={command}
-                    onChange={(e) => setCommand(e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        e.preventDefault();
-                        sendCommand();
-                      }
-                    }}
-                    className="w-full rounded-md border-2 border-blue-500 p-2 text-black"
-                  />
-                  <button
-                    type="submit"
-                    className="rounded-md bg-blue-500 p-2 text-white"
-                    onClick={() => {
-                      sendCommand();
-                    }}
-                  >
-                    Send
-                  </button>
-                  <button
-                    type="submit"
-                    className="rounded-md bg-red-500 p-2 text-white"
-                    onClick={() => {
-                      setConsoleMessageList("");
-                    }}
-                  >
-                    Clear
-                  </button>
-                </div>
-                <textarea
-                  className="h-[350px] w-full rounded bg-gray-200 p-2 text-black"
-                  readOnly
-                  value={consoleMessageList}
-                />
-              </div>
-            </div>
+            </>
           )}
         </div>
       ) : (
@@ -530,13 +559,13 @@ const Controller = () => {
         {nightlyVersionFormat(deviceVersion) < 240114 &&
         getVersionType(deviceVersion) == "nightly" ? (
           <p>
-            sorry your version is too old. Please manually update to the latest
-            nightly
+            Sorry, your firmware version is too old to do this. Please manually
+            update to the latest nightly!
           </p>
         ) : (
           <div className="flex flex-col gap-3">
             <p>
-              Current installed version:{" "}
+              Currently installed version:{" "}
               <a
                 className="text-blue-300 underline transition-colors duration-200 hover:text-blue-400"
                 href={getVersionLink(deviceVersion)}
@@ -568,7 +597,7 @@ const Controller = () => {
               </p>
             </div>
 
-            <p>Select from the available options</p>
+            <p className="mt-3">Select from the available options:</p>
             <button
               disabled={disableTransmitAction}
               onClick={() => flashLatestNightlyFirmware()}
