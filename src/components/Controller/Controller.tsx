@@ -421,7 +421,7 @@ const Controller = () => {
                   label="DFU"
                   disabled={disableTransmitAction}
                   onClickFunction={() => write("button 6", autoUpdateFrame)}
-                  className="h-16 w-20 bg-yellow-400"
+                  className="h-16 w-20 bg-yellow-500"
                   shortcutKeys={"mod+D"}
                 />
                 <button
