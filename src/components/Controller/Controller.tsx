@@ -111,6 +111,16 @@ const Controller = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serial]);
 
+  useEffect(() => {
+    let serial_console = document.getElementById(
+      "serial_console"
+    ) as HTMLElement;
+
+    if (!!serial_console) {
+      serial_console.scrollTop = serial_console.scrollHeight;
+    }
+  }, [consoleMessageList]);
+
   const getLatestVersions = async () => {
     const apiResponse = await fetch("https://hackrf.app/api/get_versions");
 
@@ -516,9 +526,10 @@ const Controller = () => {
                     </button>
                   </div>
                   <textarea
-                    className="h-[350px] w-full rounded bg-gray-200 p-2 text-black"
+                    className="h-[350px] w-full rounded bg-gray-500 p-2 text-white"
                     readOnly
                     value={consoleMessageList}
+                    id="serial_console"
                   />
                 </div>
               </div>
