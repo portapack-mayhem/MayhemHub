@@ -504,7 +504,7 @@ const Controller = () => {
                           sendCommand();
                         }
                       }}
-                      className="w-full rounded-md border-2 border-blue-500 p-2 text-black"
+                      className="w-full rounded-md bg-gray-600 p-2 text-white"
                     />
                     <button
                       type="submit"
@@ -526,7 +526,7 @@ const Controller = () => {
                     </button>
                   </div>
                   <textarea
-                    className="h-[350px] w-full rounded bg-gray-500 p-2 text-white"
+                    className="h-[350px] w-full rounded bg-gray-600 p-2 text-white"
                     readOnly
                     value={consoleMessageList}
                     id="serial_console"
