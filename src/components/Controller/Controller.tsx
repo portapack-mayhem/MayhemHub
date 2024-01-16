@@ -426,7 +426,7 @@ const Controller = () => {
               className="rounded bg-orange-300 p-2 text-white disabled:opacity-50"
               onClick={() => serial.startReading()}
             >
-              Reading console...
+              Start Reading Console
             </button>
           ) : (
             <>
@@ -508,8 +508,8 @@ const Controller = () => {
                   />
                 </div>
               </div>
-              <div className="flex w-[40%] flex-col items-center justify-center rounded-md bg-slate-600 p-5">
-                <p className="mb-1 text-sm">
+              <div className="flex w-[30%] flex-col items-center justify-center rounded-md bg-slate-600 p-5">
+                <p className="pb-2 text-sm">
                   Firmware Version: {deviceVersion}
                 </p>
                 <button
