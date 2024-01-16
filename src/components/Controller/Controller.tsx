@@ -8,7 +8,8 @@ import {
   faArrowDown,
   faArrowLeft,
   faArrowRight,
-  faRightToBracket,
+  faCheckCircle,
+  faCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
@@ -272,8 +273,12 @@ const Controller = () => {
     <>
       {setupComplete ? (
         <div className="flex h-full w-full flex-col items-center justify-center">
-          <h1 className="m-6 rounded-lg bg-green-600 p-2">
-            Connected to HackRF!
+          <h1 className="m-6 p-2">
+            HackRF Connected
+            <FontAwesomeIcon
+              className="pl-2 text-green-500"
+              icon={faCheckCircle}
+            />
           </h1>
           {!serial.isReading &&
             "Please enable the console, so the buttons can also be enabled!"}
@@ -381,7 +386,7 @@ const Controller = () => {
                     shortcutKeys={"ArrowUp"}
                   />
                   <HotkeyButton
-                    label={<FontAwesomeIcon icon={faRightToBracket} />}
+                    label={<FontAwesomeIcon icon={faCheckCircle} />}
                     disabled={disableTransmitAction}
                     onClickFunction={() => write("button 5", autoUpdateFrame)}
                     className="h-16 w-16 bg-blue-500"

@@ -18,7 +18,7 @@ const Home = () => {
   return (
     <>
       <header className="w-[100%] bg-gray-700 p-4 text-left text-2xl">
-        HackRF.app
+        Mayhem Hub
       </header>
       <main className="flex h-full min-h-screen flex-col items-center justify-between p-1">
         <SerialLoader>
@@ -26,10 +26,6 @@ const Home = () => {
         </SerialLoader>
       </main>
       <footer className="text-center text-sm text-white">
-        <p className="pb-1">
-          Mayhem Project - {new Date().getFullYear()} - LICENSE
-        </p>
-        <br />
         <a href="https://github.com/portapack-mayhem/MayhemHub" target="_blank">
           <FontAwesomeIcon
             icon={faGithubAlt}
