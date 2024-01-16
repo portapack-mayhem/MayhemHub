@@ -26,10 +26,11 @@ const Home = () => {
         </SerialLoader>
       </main>
       <footer className="text-center text-sm text-white">
+        <p className="pb-1">Mayhem Hub - {new Date().getFullYear()}</p>
         <a href="https://github.com/portapack-mayhem/MayhemHub" target="_blank">
           <FontAwesomeIcon
             icon={faGithubAlt}
-            className="mr-2 text-2xl text-white"
+            className="mr-2 max-w-6 text-2xl text-white"
           />
         </a>
       </footer>
