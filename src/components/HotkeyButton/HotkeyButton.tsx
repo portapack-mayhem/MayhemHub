@@ -24,7 +24,7 @@ interface IHotkeyButton {
  */
 const HotkeyButton = ({
   onClickFunction,
-  label = "", // Refactor this to accept fontAwesome icon references?
+  label = "",
   shortcutKeys,
   disabled = false,
   hidden = false,

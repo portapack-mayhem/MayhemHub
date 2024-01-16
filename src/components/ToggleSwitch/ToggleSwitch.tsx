@@ -27,7 +27,7 @@ const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
           }`}
         ></div>
       </div>
-      <div className="ml-3 font-medium text-white">
+      <div className="ml-4 font-medium text-white">
         {isToggle ? "On" : "Off"}
       </div>
     </label>
