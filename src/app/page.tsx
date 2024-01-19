@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import dynamic from "next/dynamic";
 import Controller from "@/components/Controller/Controller";
 import { Loader } from "@/components/Loader/Loader";
+import { NavBar } from "@/components/NavBar/NavBar";
 
 const Home = () => {
   const SerialLoader = dynamic(
@@ -17,8 +18,8 @@ const Home = () => {
 
   return (
     <>
-      <header className="w-[100%] bg-gray-700 p-4 text-left text-2xl">
-        Mayhem Hub
+      <header>
+        <NavBar />
       </header>
       <main className="flex h-full min-h-screen flex-col items-center justify-between p-1">
         <SerialLoader>

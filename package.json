@@ -11,8 +11,8 @@
   "dependencies": {
     "@ducanh2912/next-pwa": "^10.0.2",
     "@fortawesome/fontawesome-svg-core": "^6.5.1",
-    "@fortawesome/free-solid-svg-icons": "^6.5.1",
     "@fortawesome/free-brands-svg-icons": "^6.5.1",
+    "@fortawesome/free-solid-svg-icons": "^6.5.1",
     "@fortawesome/react-fontawesome": "^0.2.0",
     "@types/w3c-web-serial": "^1.0.6",
     "eslint-plugin-tailwindcss": "^3.13.1",
@@ -29,6 +29,7 @@
     "@types/react": "^18",
     "@types/react-dom": "^18",
     "autoprefixer": "^10.0.1",
+    "daisyui": "^4.6.0",
     "eslint": "^8",
     "eslint-config-next": "14.0.4",
     "postcss": "^8",
