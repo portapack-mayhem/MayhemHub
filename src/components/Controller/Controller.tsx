@@ -9,7 +9,8 @@ import {
   faArrowLeft,
   faArrowRight,
   faCheckCircle,
-  faCircle,
+  faPaperPlane,
+  faCircleXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
@@ -378,13 +379,13 @@ const Controller = () => {
                     label={<FontAwesomeIcon icon={faArrowLeft} />}
                     disabled={disableTransmitAction}
                     onClickFunction={() => write("button 2", autoUpdateFrame)}
-                    className="h-16 w-16 bg-green-500"
+                    className="btn btn-success h-16 w-16"
                     shortcutKeys={"ArrowLeft"}
                   />
                   <button
                     disabled={disableTransmitAction}
                     onClick={() => write("button 7", autoUpdateFrame)}
-                    className="h-12 w-12 self-end justify-self-start rounded bg-blue-400 text-white disabled:opacity-50"
+                    className="btn btn-info h-12 w-12 self-end justify-self-start"
                   >
                     <FontAwesomeIcon icon={faRotateLeft} />
                   </button>
@@ -392,21 +393,21 @@ const Controller = () => {
                     label={<FontAwesomeIcon icon={faArrowUp} />}
                     disabled={disableTransmitAction}
                     onClickFunction={() => write("button 4", autoUpdateFrame)}
-                    className="h-16 w-16 bg-green-500"
+                    className="btn btn-success h-16 w-16"
                     shortcutKeys={"ArrowUp"}
                   />
                   <HotkeyButton
                     label={<FontAwesomeIcon icon={faCheckCircle} />}
                     disabled={disableTransmitAction}
                     onClickFunction={() => write("button 5", autoUpdateFrame)}
-                    className="h-16 w-16 bg-blue-500"
+                    className="btn btn-info h-16 w-16"
                     shortcutKeys={"Enter"}
                   />
                   <HotkeyButton
                     label={<FontAwesomeIcon icon={faArrowDown} />}
                     disabled={disableTransmitAction}
                     onClickFunction={() => write("button 3", autoUpdateFrame)}
-                    className="h-16 w-16 bg-green-500"
+                    className="btn btn-success h-16 w-16"
                     shortcutKeys={"ArrowDown"}
                   />
                   <div></div>
@@ -414,13 +415,13 @@ const Controller = () => {
                     label={<FontAwesomeIcon icon={faArrowRight} />}
                     disabled={disableTransmitAction}
                     onClickFunction={() => write("button 1", autoUpdateFrame)}
-                    className="h-16 w-16 bg-green-500"
+                    className="btn btn-success h-16 w-16"
                     shortcutKeys={"ArrowRight"}
                   />
                   <button
                     disabled={disableTransmitAction}
                     onClick={() => write("button 8", autoUpdateFrame)}
-                    className="h-12 w-12 self-end justify-self-end rounded bg-blue-400 text-white disabled:opacity-50"
+                    className="btn btn-info h-12 w-12 self-end justify-self-end"
                   >
                     <FontAwesomeIcon icon={faRotateRight} />
                   </button>
@@ -431,13 +432,13 @@ const Controller = () => {
                   label="DFU"
                   disabled={disableTransmitAction}
                   onClickFunction={() => write("button 6", autoUpdateFrame)}
-                  className="h-16 w-20 bg-yellow-500"
+                  className="btn btn-warning h-16 w-20"
                   shortcutKeys={"mod+D"}
                 />
                 <button
                   disabled={disableTransmitAction}
                   onClick={() => write("reboot", autoUpdateFrame)}
-                  className="h-16 w-20 rounded bg-red-600 text-white disabled:opacity-50"
+                  className="btn btn-error h-16 w-20"
                 >
                   REBOOT
                 </button>
@@ -493,6 +494,12 @@ const Controller = () => {
                   </div>
                 </div>
                 <div className="flex w-full flex-col items-center justify-center gap-1">
+                  <textarea
+                    className="h-[350px] w-full rounded bg-gray-600 p-2 text-white"
+                    readOnly
+                    value={consoleMessageList}
+                    id="serial_console"
+                  />
                   <div className="flex w-full flex-row items-center justify-center gap-1">
                     <input
                       type="text"
@@ -508,29 +515,23 @@ const Controller = () => {
                     />
                     <button
                       type="submit"
-                      className="rounded-md bg-green-500 p-2 text-white"
+                      className="btn btn-success btn-sm h-10 text-white"
                       onClick={() => {
                         sendCommand();
                       }}
                     >
-                      Send
+                      <FontAwesomeIcon icon={faPaperPlane} />
                     </button>
                     <button
                       type="submit"
-                      className="rounded-md bg-red-500 p-2 text-white"
+                      className="btn btn-error btn-sm h-10 text-white"
                       onClick={() => {
                         setConsoleMessageList("");
                       }}
                     >
-                      Clear
+                      <FontAwesomeIcon icon={faCircleXmark} />
                     </button>
                   </div>
-                  <textarea
-                    className="h-[350px] w-full rounded bg-gray-600 p-2 text-white"
-                    readOnly
-                    value={consoleMessageList}
-                    id="serial_console"
-                  />
                 </div>
               </div>
               <div className="m-5 flex w-[20%] flex-col items-center justify-center rounded-md bg-gray-700 p-5">
@@ -539,7 +540,7 @@ const Controller = () => {
                 </p>
                 <button
                   onClick={() => setFirmwarModalOpen(true)}
-                  className="rounded bg-blue-400 p-2 text-sm text-white disabled:opacity-50"
+                  className="btn btn-info"
                 >
                   Manage Firmware
                 </button>

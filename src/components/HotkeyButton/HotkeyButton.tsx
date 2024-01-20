@@ -45,7 +45,7 @@ const HotkeyButton = ({
         <button
           disabled={disabled}
           onClick={() => onClickFunction()}
-          className={`rounded text-white disabled:opacity-50 ${className}`}
+          className={`${className}`}
         >
           {label}
         </button>

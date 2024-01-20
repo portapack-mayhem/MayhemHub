@@ -4,7 +4,7 @@ export const NavBar = () => {
       <div className="flex-1">
         <a className="btn btn-ghost text-xl">Mayhem Hub</a>
       </div>
-      <div className="flex-none">
+      <div className="hidden flex-none sm:block">
         <ul className="menu menu-horizontal px-1">
           <li>
             <a href="https://wiki.hackrf.app" target="_blank">

@@ -8,6 +8,9 @@ const nextConfig = {
   compiler: {
     removeConsole: process.env.NODE_ENV !== "development", // Remove console.log in production
   },
+  env: {
+    BUILD_ID: new Date().toISOString(), // Later it would be worth setting up the git's commit hash as the build id
+  },
 };
 
 // Configuration object tells the next-pwa plugin
