@@ -1,6 +1,5 @@
 import { faGithubAlt } from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import("next").NextConfig;
 
 export const Footer = () => {
   return (
