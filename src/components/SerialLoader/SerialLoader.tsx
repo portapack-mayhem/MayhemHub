@@ -64,23 +64,21 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
   const errorMessage = () => (
     <div className="absolute inset-0 flex h-full min-h-screen w-full flex-1 flex-col items-center justify-center text-black">
       <div className="flex w-full max-w-lg flex-col rounded-xl bg-white p-6">
-        <h1 className="-mt-1 mb-2 text-xl font-medium">Error</h1>
+        <h1 className="-mt-1 mb-2 text-xl font-medium">😔 Uh oh... </h1>
         <p className="mb-1">
           Looks like your browser doesn&apos;t support the{" "}
           <a
-            className="hocus:underline text-green-900"
+            className="text-green-800 focus:underline"
             href="https://caniuse.com/web-serial"
             target="_blank"
             rel="noopener noreferrer"
           >
             Web Serial API
           </a>
-          😔
+          .
         </p>
-        <p>
-          Please try switching to a supported browser (e.g., Chrome, Edge,
-          Opera...).
-        </p>
+        <p>Please try switching to a supported browser.</p>
+        <p>(e.g.: Chrome, Edge, Opera...)</p>
       </div>
     </div>
   );
@@ -95,7 +93,7 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
         </p>
 
         <button
-          className="rounded-xl bg-green-800 p-5 pb-6 text-3xl text-white ring-0 ring-green-800/50 transition-all focus:bg-green-900 focus:outline-none focus:ring-8 disabled:cursor-not-allowed disabled:text-gray-500"
+          className="btn btn-success btn-lg"
           ref={pairButtonRef}
           disabled={
             serial.portState === "opening" || serial.portState === "closing"
@@ -115,7 +113,7 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
   // If autoconnect fails, then show manual connect button
   let buttonText = "";
   if (serial.portState === "closed") {
-    buttonText = "Connect device";
+    buttonText = "Connect Device";
   } else if (serial.portState === "opening") {
     buttonText = "Connecting...";
   } else if (serial.portState === "closing") {
