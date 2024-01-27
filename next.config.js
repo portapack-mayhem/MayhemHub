@@ -3,7 +3,7 @@
 const nextConfig = {
   output: "export",
   basePath: process.env.NEXT_PUBLIC_BASE_PATH ?? "",
-  reactStrictMode: true, // Enable React strict mode for improved error handling
+  reactStrictMode: false,
   swcMinify: true, // Enable SWC minification for improved performance
   compiler: {
     removeConsole: process.env.NODE_ENV !== "development", // Remove console.log in production

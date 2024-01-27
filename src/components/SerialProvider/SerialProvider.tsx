@@ -1,3 +1,4 @@
+import { useWriteCommand } from "@/utils/serialUtils";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 // Needing to do this as the typescript definitions for the Web Serial API are not yet complete
@@ -326,7 +327,10 @@ const useWebSerial = ({
             );
 
             if (lastCommandIndex) {
-              if (completeString.startsWith(lastCommandIndex.command)) {
+              if (
+                completeString.startsWith(lastCommandIndex.command) ||
+                lastCommandIndex.command === "binary"
+              ) {
                 lastCommandIndex.response = completeString;
                 lastProcessedCommand = lastProcessedCommand + 1;
               } else {
@@ -466,7 +470,7 @@ const useWebSerial = ({
   const queueWriteAndResponseBinary = async (message: Uint8Array) => {
     const id = commandCounter.current++;
 
-    const messageString = "long msg";
+    const messageString = "binary";
     // const messageString = String.fromCharCode.apply(
     //   null,
     //   Array.from(new Uint8Array(message))
