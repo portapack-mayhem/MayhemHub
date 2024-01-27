@@ -21,6 +21,7 @@ import {
   getVersionLink,
   getVersionType,
   nightlyVersionFormat,
+  stableVersionFormat,
 } from "@/utils/versionUtils";
 import { FileBrowser, FileStructure } from "../FileBrowser/FileBrowser";
 import HotkeyButton from "../HotkeyButton/HotkeyButton";
@@ -557,8 +558,10 @@ const Controller = () => {
         closeModal={() => setFirmwarModalOpen(false)}
         className="w-[40%]"
       >
-        {nightlyVersionFormat(deviceVersion) < 240114 &&
-        getVersionType(deviceVersion) == "nightly" ? (
+        {(nightlyVersionFormat(deviceVersion) < 240114 &&
+          getVersionType(deviceVersion) == "nightly") ||
+        (stableVersionFormat(deviceVersion) < 200 &&
+          getVersionType(deviceVersion) == "stable") ? (
           <p>
             Sorry, your firmware version is too old to do this. Please manually
             update to the latest nightly!

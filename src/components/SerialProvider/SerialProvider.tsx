@@ -268,6 +268,7 @@ const useWebSerial = ({
       portState.current = "closed";
       setIsOpen(false);
       console.error("Could not open port");
+      throw new Error("Could not open port");
     }
   };
 

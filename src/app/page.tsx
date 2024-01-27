@@ -17,15 +17,17 @@ const Home = () => {
 
   return (
     <>
-      <header>
-        <NavBar />
-      </header>
-      <main className="flex h-full min-h-screen flex-col items-center justify-between p-1">
-        <SerialLoader>
-          <Controller />
-        </SerialLoader>
-      </main>
-      <Footer />
+      <div className="flex min-h-screen flex-col">
+        <header>
+          <NavBar />
+        </header>
+        <main className="flex min-h-0 grow flex-col items-center justify-between p-1">
+          <SerialLoader>
+            <Controller />
+          </SerialLoader>
+        </main>
+        <Footer />
+      </div>
     </>
   );
 };

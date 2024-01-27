@@ -6,6 +6,11 @@ export const nightlyVersionFormat = (input: string): number => {
   return number;
 };
 
+export const stableVersionFormat = (input: string): number => {
+  const number = parseInt(input.replace(/\D/g, ""));
+  return number;
+};
+
 const nightlyToDate = (input: string): string => {
   const prefixRemoved = input.replace("n_", "");
 

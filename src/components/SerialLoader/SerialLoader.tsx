@@ -62,13 +62,13 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
   };
 
   const errorMessage = () => (
-    <div className="absolute inset-0 flex h-full min-h-screen w-full flex-1 flex-col items-center justify-center text-black">
+    <div className="flex flex-1 flex-col items-center justify-center text-black">
       <div className="flex w-full max-w-lg flex-col rounded-xl bg-white p-6">
         <h1 className="-mt-1 mb-2 text-xl font-medium">😔 Uh oh... </h1>
-        <p className="mb-1">
+        <p className="mb-1 pb-5">
           Looks like your browser doesn&apos;t support the{" "}
           <a
-            className="text-green-800 focus:underline"
+            className="text-green-800 underline"
             href="https://caniuse.com/web-serial"
             target="_blank"
             rel="noopener noreferrer"
@@ -77,8 +77,8 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
           </a>
           .
         </p>
-        <p>Please try switching to a supported browser.</p>
-        <p>(e.g.: Chrome, Edge, Opera...)</p>
+        <p>Please try switching to a browser that supports the API.</p>
+        <p className="italic opacity-70">(e.g.: Chrome, Edge, Opera...)</p>
       </div>
     </div>
   );
