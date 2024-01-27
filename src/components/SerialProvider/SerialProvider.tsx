@@ -1,4 +1,3 @@
-import { useWriteCommand } from "@/utils/serialUtils";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 // Needing to do this as the typescript definitions for the Web Serial API are not yet complete
