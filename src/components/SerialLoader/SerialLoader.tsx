@@ -61,7 +61,7 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
     }
   };
 
-  const errorMessage = () => (
+  const ErrorMessage = () => (
     <div className="flex flex-1 flex-col items-center justify-center text-black">
       <div className="flex w-full max-w-lg flex-col rounded-xl bg-white p-6">
         <h1 className="-mt-1 mb-2 text-xl font-medium">😔 Uh oh... </h1>
@@ -83,10 +83,10 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
     </div>
   );
 
-  const connectScreen = () => (
-    <div className="absolute inset-0 flex h-full w-full flex-1 flex-col items-center justify-center text-black">
+  const ConnectScreen = () => (
+    <div className="flex flex-1 flex-col items-center justify-center text-black">
       <div className="flex w-full max-w-4xl flex-col rounded-3xl bg-white p-10">
-        <h1 className="mb-5 text-4xl font-semibold">Get Started</h1>
+        {/* <h1 className="mb-5 text-4xl font-semibold">Get Started</h1> */}
 
         <p className="mb-10 text-3xl leading-snug">
           Connect your HackRF/Portapack via USB to get started.
@@ -105,10 +105,58 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
       </div>
     </div>
   );
+
+  const WelcomeMessage = () => (
+    <div className="mt-10 flex w-[80%] flex-col justify-center gap-5 rounded-md bg-gray-700 p-5">
+      <h1 className="mb-5 text-2xl font-semibold">
+        Welcome to the Mayhem Hub! Your one-stop destination for everything
+        related to Mayhem HackRF/Portapack.
+      </h1>
+      <p>
+        This site is devoted to enabling you to control your HackRF/Portapack
+        remotely using your computer, streamlining your experience, and
+        amplifying the functionality of your device.
+      </p>
+
+      <p>
+        Our site is designed to provide you with a simple, convenient way to
+        manage your HackRF/Portapack device. Through Mayhem Hub, you have an
+        entire suite of features at your fingertips, allowing you to take full
+        control of your device via your computer.
+      </p>
+
+      <p>
+        <b>One Click Firmware Upgrades:</b> No longer do you need to wade
+        through complicated procedures to update your device. With a single
+        click, we will manage all the hard stuff, leaving you to enjoy the new
+        features and improved performance.
+      </p>
+
+      <p>
+        <b>Remote File Upload and Download:</b> You can upload or download files
+        to and from your HackRF/Portapack device, without needing to remove your
+        Micro SD card or putting your HackRF into mass storage mode.
+      </p>
+
+      <p>
+        <b>Live Streaming the Screen:</b> View your HackRF/Portapack screen in
+        real-time. With the live streaming feature, you can always stay in touch
+        with your device, making sure everything is running smoothly.
+      </p>
+
+      <p>
+        And these are just the tip of the iceberg! Mayhem Hub is continuously
+        expanding its array of utilities and features, all designed with ease of
+        use and maximum productivity in mind. So don&apos;t wait any longer.
+        Let&apos;s start your journey with Mayhem Hub right now; its just a
+        click away!
+      </p>
+    </div>
+  );
   // If can't use serial, return error message
-  if (!serial.canUseSerial) {
-    return errorMessage();
-  }
+  // if (!serial.canUseSerial) {
+  //   return ErrorMessage();
+  // }
 
   // If autoconnect fails, then show manual connect button
   let buttonText = "";
@@ -127,7 +175,10 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
       {serial.portState === "open" ? (
         <Fragment>{children}</Fragment>
       ) : (
-        connectScreen()
+        <div className="flex flex-col items-center justify-center gap-5">
+          <WelcomeMessage />
+          {!serial.canUseSerial ? <ErrorMessage /> : <ConnectScreen />}
+        </div>
       )}
     </SerialContext.Provider>
   );

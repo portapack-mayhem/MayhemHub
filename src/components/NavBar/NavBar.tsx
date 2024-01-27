@@ -7,13 +7,18 @@ export const NavBar = () => {
       <div className="hidden flex-none sm:block">
         <ul className="menu menu-horizontal px-1">
           <li>
-            <a href="https://wiki.hackrf.app" target="_blank">
-              Wiki
+            <a href="https://discord.hackrf.app" target="_blank">
+              Discord
             </a>
           </li>
           <li>
             <a href="https://repo.hackrf.app" target="_blank">
               Repo
+            </a>
+          </li>
+          <li>
+            <a href="https://wiki.hackrf.app" target="_blank">
+              Wiki
             </a>
           </li>
           <li>
