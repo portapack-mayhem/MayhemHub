@@ -326,8 +326,16 @@ const useWebSerial = ({
             );
 
             if (lastCommandIndex) {
-              lastCommandIndex.response = completeString;
-              lastProcessedCommand = lastProcessedCommand + 1;
+              if (completeString.startsWith(lastCommandIndex.command)) {
+                lastCommandIndex.response = completeString;
+                lastProcessedCommand = lastProcessedCommand + 1;
+              } else {
+                console.log(
+                  "Command does not match the response, skipping",
+                  lastCommandIndex.command,
+                  lastCommandIndex.response
+                );
+              }
             }
             completeString = "";
             isIncomingMessage.current = false;
@@ -421,6 +429,10 @@ const useWebSerial = ({
 
     return id;
   };
+
+  // useEffect(() => {
+  //   console.log(commandResponseMap.current);
+  // }, [commandResponseMap.current]);
 
   const queueWriteAndResponse = async (message: string) => {
     const id = commandCounter.current++;
