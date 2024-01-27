@@ -140,16 +140,13 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
 
       <p>
         <b>Live Streaming the Screen:</b> View your HackRF/Portapack screen in
-        real-time. With the live streaming feature, you can always stay in touch
-        with your device, making sure everything is running smoothly.
+        real-time. With the live streaming feature, you can monitor your devices
+        screen remotely.
       </p>
 
       <p>
         And these are just the tip of the iceberg! Mayhem Hub is continuously
-        expanding its array of utilities and features, all designed with ease of
-        use and maximum productivity in mind. So don&apos;t wait any longer.
-        Let&apos;s start your journey with Mayhem Hub right now; its just a
-        click away!
+        expanding its array of utilities and features!
       </p>
     </div>
   );
