@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export const Footer = () => {
   return (
-    <footer className="footer items-center bg-neutral p-4 text-neutral-content">
+    <footer className="footer items-center bg-neutral p-4 text-neutral-content mt-10">
       <aside className="grid-flow-row items-center">
         <p>Mayhem Hub - {new Date().getFullYear()}</p>
         <small>Version: {process.env.BUILD_ID}</small>

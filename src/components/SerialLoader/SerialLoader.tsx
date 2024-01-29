@@ -106,12 +106,21 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
     </div>
   );
 
-  const WelcomeMessage = () => (
-    <div className="mt-10 flex w-[80%] flex-col justify-center gap-5 rounded-md bg-gray-700 p-5">
-      <h1 className="mb-5 text-2xl font-semibold">
-        Welcome to the Mayhem Hub! Your one-stop destination for everything
-        related to Mayhem HackRF/Portapack.
+  const TitleMessage = () => (
+    <div className="mt-7 flex w-[80%] flex-col justify-center rounded-md bg-gray-700 p-5">
+      <h1 className="text-center text-2xl font-semibold">
+        Welcome to the Mayhem Hub!
+        <br />
+        <span className="text-center text-xl font-normal italic opacity-70">
+          Your one-stop destination for everything related to Mayhem
+          HackRF/Portapack.
+        </span>
       </h1>
+    </div>
+  );
+
+  const AboutMessage = () => (
+    <div className="flex w-[80%] flex-col justify-center gap-5 rounded-md bg-gray-700 p-5">
       <p>
         This site is devoted to enabling you to control your HackRF/Portapack
         remotely using your computer, streamlining your experience, and
@@ -150,10 +159,6 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
       </p>
     </div>
   );
-  // If can't use serial, return error message
-  // if (!serial.canUseSerial) {
-  //   return ErrorMessage();
-  // }
 
   // If autoconnect fails, then show manual connect button
   let buttonText = "";
@@ -172,9 +177,10 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
       {serial.portState === "open" ? (
         <Fragment>{children}</Fragment>
       ) : (
-        <div className="flex flex-col items-center justify-center gap-5">
-          <WelcomeMessage />
+        <div className="flex flex-col items-center justify-center gap-10">
+          <TitleMessage />
           {!serial.canUseSerial ? <ErrorMessage /> : <ConnectScreen />}
+          <AboutMessage />
         </div>
       )}
     </SerialContext.Provider>
