@@ -376,11 +376,13 @@ const useWebSerial = ({
    */
   const write = useCallback(async () => {
     if (messageQueue.length === 0 || isIncomingMessage.current) {
+      console.log("incomming message thing");
       return;
     }
 
     const port = portRef.current;
     let data = messageQueue[0]; // Fetch the oldest message (the first one in the array)
+    console.log("Next up message: ", data.length);
 
     const writer = port?.writable?.getWriter();
     if (writer) {
@@ -392,15 +394,22 @@ const useWebSerial = ({
         const arrayBuffer = await blob.arrayBuffer();
         const chunkSize = 60;
 
+        // Note: I think it could be ther lock here stopping this from completing the upload (Lock as in my own custom one)
+
         for (let i = 0; i < arrayBuffer.byteLength; i += chunkSize) {
           const chunk = arrayBuffer.slice(i, i + chunkSize);
           await delay(5);
           await writer.write(new Uint8Array(chunk));
           console.log("CHUNK:", `${i}/${arrayBuffer.byteLength}`);
         }
+        console.log(`CHUNK COMPLETE!`);
+        console.log(`size left b: `, messageQueue.length);
         writer.releaseLock();
 
+        console.log(isIncomingMessage.current, messageQueue.length);
+        // Seems like this line is not triggering a re render
         setMessageQueue((prevQueue) => prevQueue.slice(1)); // Remove the message we just wrote from the queue
+        console.log(`size left a: `, messageQueue.length);
       } finally {
         writer.releaseLock();
       }
