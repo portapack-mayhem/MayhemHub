@@ -386,18 +386,17 @@ const useWebSerial = ({
     if (writer) {
       try {
         // Once speed is fixed, this can be swapped in for the loop below
-        // await writer.write(data);
+        await writer.write(data);
 
-        let blob = new Blob([data]);
-        const arrayBuffer = await blob.arrayBuffer();
-        const chunkSize = 60;
+        // let blob = new Blob([data]);
+        // const arrayBuffer = await blob.arrayBuffer();
+        // const chunkSize = 350;
 
-        for (let i = 0; i < arrayBuffer.byteLength; i += chunkSize) {
-          const chunk = arrayBuffer.slice(i, i + chunkSize);
-          await delay(5);
-          await writer.write(new Uint8Array(chunk));
-          console.log("CHUNK:", `${i}/${arrayBuffer.byteLength}`);
-        }
+        // for (let i = 0; i < arrayBuffer.byteLength; i += chunkSize) {
+        //   const chunk = arrayBuffer.slice(i, i + chunkSize);
+        //   await delay(5);
+        //   await writer.write(new Uint8Array(chunk));
+        // }
         writer.releaseLock();
 
         setMessageQueue((prevQueue) => prevQueue.slice(1)); // Remove the message we just wrote from the queue

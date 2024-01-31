@@ -93,7 +93,7 @@ export const useWriteCommand = () => {
     let blob = new Blob([bytes]);
     const arrayBuffer = await blob.arrayBuffer();
 
-    const chunkSize = 9000;
+    const chunkSize = 100000;
 
     console.log("Total length: ", arrayBuffer.byteLength);
 
