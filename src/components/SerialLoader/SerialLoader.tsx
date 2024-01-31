@@ -84,7 +84,7 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
   );
 
   const ConnectScreen = () => (
-    <div className="flex flex-1 flex-col items-center justify-center text-black">
+    <div className="flex flex-1 flex-col items-center justify-center px-5 text-center text-neutral">
       <div className="flex w-full max-w-4xl flex-col rounded-3xl bg-white p-10">
         {/* <h1 className="mb-5 text-4xl font-semibold">Get Started</h1> */}
 
