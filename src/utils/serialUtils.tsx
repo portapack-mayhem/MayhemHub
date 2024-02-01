@@ -10,7 +10,7 @@ interface DownloadedFile {
 
 export const useWriteCommand = () => {
   const { serial } = useSerial();
-  const [loadingFrame, setLoadingFrame] = useState<boolean>(true);
+  const [loadingFrame, setLoadingFrame] = useState<boolean>(false); // ToDo: Change this back to true for default
   const [fileUploadBlocker, setFileUploadBlocker] = useState<boolean>(false);
   const [disableTransmitAction, setDisableTransmitAction] =
     useState<boolean>(true);
@@ -79,6 +79,10 @@ export const useWriteCommand = () => {
     await write("fclose", false);
   };
 
+  const delay = (ms: number) => {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  };
+
   const uploadFile = async (
     filePath: string,
     bytes: Uint8Array,
@@ -86,9 +90,13 @@ export const useWriteCommand = () => {
   ) => {
     setFileUploadBlocker(true);
     await write("fclose", false);
+    await delay(50);
     await write(`fopen ${filePath}`, false);
+    console.log("fopen ");
 
+    await delay(50);
     await write(`fseek 0`, false);
+    console.log("FSEEK ");
 
     let blob = new Blob([bytes]);
     const arrayBuffer = await blob.arrayBuffer();
@@ -100,10 +108,13 @@ export const useWriteCommand = () => {
     let startTime = Date.now();
     let totalTime = 0;
 
+    await delay(50);
     for (let i = 0; i < arrayBuffer.byteLength; i += chunkSize) {
+      console.log("Starting chunk");
       const chunk = arrayBuffer.slice(i, i + chunkSize);
 
       await write(`fwb ${chunk.byteLength}`, false, true);
+      await delay(50);
       await serial.queueWriteAndResponseBinary(new Uint8Array(chunk));
 
       // calculate elapsed time and average time per chunk

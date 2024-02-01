@@ -108,7 +108,9 @@ const Controller = () => {
         }
       };
 
-      initSerialSetupCalls();
+      // initSerialSetupCalls();
+      setConsoleMessageList("");
+      setSetupComplete(true);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serial]);
@@ -292,6 +294,13 @@ const Controller = () => {
               icon={faCheckCircle}
             />
           </h1>
+          <button
+            disabled={disableTransmitAction}
+            onClick={() => flashLatestNightlyFirmware()}
+            className="rounded bg-blue-400 p-2 text-white disabled:opacity-50"
+          >
+            Update to latest nightly release
+          </button>
           {!serial.isReading &&
             "Please enable the console, so the buttons can also be enabled!"}
           <div
@@ -531,6 +540,15 @@ const Controller = () => {
                       }}
                     >
                       <FontAwesomeIcon icon={faCircleXmark} />
+                    </button>
+                    <button
+                      type="submit"
+                      className="btn btn-success btn-sm h-10 text-white"
+                      onClick={() => {
+                        serial.write();
+                      }}
+                    >
+                      FORCE
                     </button>
                   </div>
                 </div>

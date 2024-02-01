@@ -314,7 +314,9 @@ const useWebSerial = ({
       do {
         await reader.read().then(({ done, value }) => {
           isIncomingMessage.current = true;
+          // isIncomingMessage.current = false;
           completeString += decoder.decode(value);
+          console.log(completeString);
           if (
             done ||
             completeString.endsWith("ch> ") ||
@@ -376,7 +378,12 @@ const useWebSerial = ({
    */
   const write = useCallback(async () => {
     if (messageQueue.length === 0 || isIncomingMessage.current) {
-      console.log("incomming message thing");
+      console.log(
+        "BLOCKED! incomming message thing",
+        messageQueue.length,
+        isIncomingMessage.current,
+        commandResponseMap
+      );
       return;
     }
 
@@ -392,24 +399,31 @@ const useWebSerial = ({
 
         let blob = new Blob([data]);
         const arrayBuffer = await blob.arrayBuffer();
-        const chunkSize = 60;
+        const chunkSize = 200;
 
         // Note: I think it could be ther lock here stopping this from completing the upload (Lock as in my own custom one)
 
         for (let i = 0; i < arrayBuffer.byteLength; i += chunkSize) {
+          console.log("Chunk started");
           const chunk = arrayBuffer.slice(i, i + chunkSize);
           await delay(5);
           await writer.write(new Uint8Array(chunk));
-          console.log("CHUNK:", `${i}/${arrayBuffer.byteLength}`);
+          console.log("CHUNK:", `${i + chunkSize}/${arrayBuffer.byteLength}`);
         }
         console.log(`CHUNK COMPLETE!`);
-        console.log(`size left b: `, messageQueue.length);
+        // console.log(`write: size left b: `, messageQueue.length);
         writer.releaseLock();
 
-        console.log(isIncomingMessage.current, messageQueue.length);
+        console.log(
+          "DATA",
+          isIncomingMessage.current,
+          messageQueue.length,
+          messageQueue,
+          commandResponseMap
+        );
         // Seems like this line is not triggering a re render
         setMessageQueue((prevQueue) => prevQueue.slice(1)); // Remove the message we just wrote from the queue
-        console.log(`size left a: `, messageQueue.length);
+        // console.log(`write: size left a: `, messageQueue.length);
       } finally {
         writer.releaseLock();
       }
@@ -421,7 +435,11 @@ const useWebSerial = ({
 
   useEffect(() => {
     if (messageQueue.length > 0) {
+      console.log("useEffect: Calling WRITE!");
       write();
+    } else {
+      console.log("useEffect: NO WRITE!");
+      // write();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messageQueue, write, isIncomingMessage.current]); // This effect will run every time `messageQueue` changes
@@ -496,7 +514,11 @@ const useWebSerial = ({
       },
     ];
 
+    console.log("queueWriteAndResponseBinary", messageQueue, message);
+
     setMessageQueue((prevQueue) => [...prevQueue, message]); // Add the new message to the end of the queue
+
+    // console.log("queueWriteAndResponseBinary", messageQueue, message);
 
     let commandResponse;
     while (
