@@ -18,9 +18,7 @@
 }
 
 .nav > .nav-links {
-  display: inline;
-  float: right;
-  font-size: 18px;
+  height: -webkit-fill-available;
 }
 
 .nav > .nav-links > a {
@@ -65,7 +63,6 @@
     display: block;
     width: 100%;
     height: 0px;
-    transition: all 0.3s ease-in;
     overflow-y: hidden;
     top: 63px;
     left: 0px;
@@ -78,7 +75,7 @@
     height: 0px;
   }
   .nav > #nav-check:checked ~ .nav-links {
-    height: calc(50vh - 63px);
+    height: fit-content;
     overflow-y: auto;
   }
 }
