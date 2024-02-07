@@ -30,16 +30,29 @@ export const onRequestGet: PagesFunction = async (context) => {
     throw new Error(`HTTP error! status: ${apiResponse.status}`);
   }
 
-  let apiData: any = await apiResponse.json();
+  const apiData: any = await apiResponse.json();
 
   const latestNightlyObject = apiData.find(
     (item: any) => item.prerelease === true
   );
   const nightlyVersion = convertNightlyString(latestNightlyObject.tag_name);
 
-  const latestStableObject = apiData.find(
+  let latestStableObject = apiData.find(
     (item: any) => item.prerelease === false
   );
+
+  //If the release list is soo long we cant find the latest stable, then we check it directly with another API call
+  if (!latestStableObject) {
+    let apiUrl =
+      "https://api.github.com/repos/portapack-mayhem/mayhem-firmware/releases/latest";
+
+    let apiResponse = await fetch(apiUrl, {
+      method: "GET",
+      headers: { "User-Agent": "portapack-mayhem" },
+    });
+
+    latestStableObject = await apiResponse.json();
+  }
 
   const data = {
     stable: {
