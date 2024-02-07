@@ -17,7 +17,7 @@ export const NavBar = () => {
         </label>
       </div>
 
-      <div className="nav-links bg-neutral text-neutral-content">
+      <div className="nav-links float-end flex bg-neutral text-lg text-neutral-content">
         <a href="https://discord.hackrf.app" target="_blank" className="p-4">
           Discord
         </a>

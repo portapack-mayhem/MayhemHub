@@ -84,7 +84,7 @@ const Controller = () => {
           const mayhemVersion = matches[1];
           setDeviceVersion(mayhemVersion);
         } else {
-          console.log("Mayhem Version not found");
+          console.log("Mayhem version not found!");
         }
 
         await fetchFolderStructure();
@@ -345,7 +345,7 @@ const Controller = () => {
                         write("screenframeshort", false);
                       }
                     }}
-                    className="h-6 w-6 bg-blue-500"
+                    className={"h-6 w-6 rounded-sm bg-green-500"}
                     shortcutKeys={"mod+R"}
                   />
                 </div>

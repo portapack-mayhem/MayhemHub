@@ -32,7 +32,7 @@ const HotkeyButton = ({
 }: IHotkeyButton) => {
   useHotkeys(
     shortcutKeys,
-    (e) => {
+    () => {
       if (disabled) return;
       onClickFunction();
     },
@@ -45,7 +45,7 @@ const HotkeyButton = ({
         <button
           disabled={disabled}
           onClick={() => onClickFunction()}
-          className={`${className}`}
+          className={`${className} disabled:bg-slate-500`}
         >
           {label}
         </button>

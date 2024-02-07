@@ -84,7 +84,7 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
   );
 
   const ConnectScreen = () => (
-    <div className="flex flex-1 flex-col items-center justify-center text-black">
+    <div className="flex flex-1 flex-col items-center justify-center px-5 text-center text-neutral">
       <div className="flex w-full max-w-4xl flex-col rounded-3xl bg-white p-10">
         {/* <h1 className="mb-5 text-4xl font-semibold">Get Started</h1> */}
 
@@ -107,56 +107,55 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
   );
 
   const TitleMessage = () => (
-    <div className="mt-7 flex w-[80%] flex-col justify-center rounded-md bg-gray-700 p-5">
+    <div className="mt-7 flex flex-col justify-center rounded-md bg-neutral p-5">
       <h1 className="text-center text-2xl font-semibold">
         Welcome to the Mayhem Hub!
         <br />
         <span className="text-center text-xl font-normal italic opacity-70">
-          Your one-stop destination for everything related to Mayhem
-          HackRF/Portapack.
+          Your one-stop-shop for everything related to Mayhem HackRF/Portapack.
         </span>
       </h1>
     </div>
   );
 
   const AboutMessage = () => (
-    <div className="flex w-[80%] flex-col justify-center gap-5 rounded-md bg-gray-700 p-5">
-      <p>
-        This site is devoted to enabling you to control your HackRF/Portapack
-        remotely using your computer, streamlining your experience, and
-        amplifying the functionality of your device.
-      </p>
+    <div className="collapse collapse-arrow max-w-[80%] bg-neutral">
+      <input type="checkbox" />
+      <div className="collapse-title text-xl font-medium">
+        What is the Mayhem Hub?
+      </div>
+      <div className="collapse-content flex flex-col gap-5">
+        <p>
+          This app is devoted to enabling you to control your HackRF/Portapack
+          remotely using your computer, streamlining your experience, and
+          amplifying the functionality of your device, plus a few extras...
+        </p>
 
-      <p>
-        Our site is designed to provide you with a simple, convenient way to
-        manage your HackRF/Portapack device. Through Mayhem Hub, you have an
-        entire suite of features at your fingertips, allowing you to take full
-        control of your device via your computer.
-      </p>
+        <p>
+          <b>One Click Firmware Upgrades:</b> No longer do you need to wade
+          through complicated procedures to update your device. With a single
+          click, we will manage all the hard stuff, leaving you to enjoy the new
+          features and improved performance.
+        </p>
 
-      <p>
-        <b>One Click Firmware Upgrades:</b> No longer do you need to wade
-        through complicated procedures to update your device. With a single
-        click, we will manage all the hard stuff, leaving you to enjoy the new
-        features and improved performance.
-      </p>
+        <p>
+          <b>Remote File Upload and Download:</b> You can upload or download
+          files to and from your HackRF/Portapack device, without needing to
+          remove your Micro SD card or putting your HackRF into mass storage
+          mode.
+        </p>
 
-      <p>
-        <b>Remote File Upload and Download:</b> You can upload or download files
-        to and from your HackRF/Portapack device, without needing to remove your
-        Micro SD card or putting your HackRF into mass storage mode.
-      </p>
+        <p>
+          <b>Live Streaming the Screen:</b> View your HackRF/Portapack screen in
+          real-time. With the live streaming feature, you can monitor your
+          devices screen remotely.
+        </p>
 
-      <p>
-        <b>Live Streaming the Screen:</b> View your HackRF/Portapack screen in
-        real-time. With the live streaming feature, you can monitor your devices
-        screen remotely.
-      </p>
-
-      <p>
-        And these are just the tip of the iceberg! Mayhem Hub is continuously
-        expanding its array of utilities and features!
-      </p>
+        <p>
+          And these are just the tip of the iceberg! Mayhem Hub is continuously
+          expanding its array of utilities and features!
+        </p>
+      </div>
     </div>
   );
 
