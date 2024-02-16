@@ -604,6 +604,13 @@ const Controller = () => {
 
             <p className="mt-3">Select from the available options:</p>
             <button
+              onClick={() => flashLatestNightlyFirmware()}
+              disabled={disableTransmitAction}
+              className="rounded bg-blue-400 p-2 text-white disabled:opacity-50"
+            >
+              Update to latest stable release
+            </button>
+            <button
               disabled={disableTransmitAction}
               onClick={() => flashLatestNightlyFirmware()}
               className="rounded bg-blue-400 p-2 text-white disabled:opacity-50"
@@ -619,13 +626,6 @@ const Controller = () => {
               className="rounded bg-blue-400 p-2 text-white disabled:opacity-50"
             >
               Flash custom firmware
-            </button>
-            <button
-              onClick={() => flashLatestNightlyFirmware()}
-              disabled={disableTransmitAction}
-              className="rounded bg-blue-400 p-2 text-white disabled:opacity-50"
-            >
-              Update to latest stable release
             </button>
             <p>{updateStatus}</p>
           </div>
