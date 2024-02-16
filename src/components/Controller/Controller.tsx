@@ -622,8 +622,7 @@ const Controller = () => {
             </button>
             <button
               onClick={() => flashLatestNightlyFirmware()}
-              // disabled={disableTransmitAction}
-              disabled={true} // This is disabled as there is no stable firmware that will work with the current version of the webapp
+              disabled={disableTransmitAction}
               className="rounded bg-blue-400 p-2 text-white disabled:opacity-50"
             >
               Update to latest stable release
