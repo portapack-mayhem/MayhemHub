@@ -561,10 +561,11 @@ const Controller = () => {
         {(nightlyVersionFormat(deviceVersion) < 240114 &&
           getVersionType(deviceVersion) == "nightly") ||
         (stableVersionFormat(deviceVersion) < 200 &&
-          getVersionType(deviceVersion) == "stable") ? (
+          getVersionType(deviceVersion) == "stable") ||
+        deviceVersion === "" ? (
           <p>
-            Sorry, your firmware version is too old to do this. Please manually
-            update to the latest nightly!
+            Sorry, your firmware version is too old to support this feature.
+            Please manually update to the latest stable or nightly build!
           </p>
         ) : (
           <div className="flex flex-col gap-3">
