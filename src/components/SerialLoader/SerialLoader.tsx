@@ -102,6 +102,13 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
         >
           {buttonText}
         </button>
+        <div className="pt-5">
+          <i>No device found or cannot connect? </i>
+          <p>
+            Make sure you are running at least stable v2.0.0, nightly n_240114
+            or newer.
+          </p>
+        </div>
       </div>
     </div>
   );
