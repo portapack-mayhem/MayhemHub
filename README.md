@@ -8,7 +8,7 @@ We have make this website a PWA, so you can load it even without an internet con
 
 If you are new to *HackRF+PortaPack+Mayhem*, check this:
 
-[<img alt="The Best HackRF Portapack Firmware Yet - Mayhem Version 2" src="https://img.youtube.com/vi/WZqCENz-YAg/maxresdefault.jpg" width="512">]([https://grabify.link/C0J6ZR](https://www.youtube.com/watch?v=WZqCENz-YAg))
+[<img alt="The Best HackRF Portapack Firmware Yet - Mayhem Version 2" src="https://img.youtube.com/vi/WZqCENz-YAg/maxresdefault.jpg" width="512">](https://www.youtube.com/watch?v=WZqCENz-YAg)
 
 
 ## Getting Started
