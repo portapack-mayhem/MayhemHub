@@ -21,14 +21,21 @@ export const NavBar = () => {
         <a href="https://discord.hackrf.app" target="_blank" className="p-4">
           Discord
         </a>
-        <a href="https://repo.hackrf.app" target="_blank" className="p-4">
-          Repo
-        </a>
         <a href="https://wiki.hackrf.app" target="_blank" className="p-4">
           Wiki
         </a>
         <a href="https://release.hackrf.app" target="_blank" className="p-4">
           Firmware Releases
+        </a>
+        <a
+          href="https://github.com/portapack-mayhem/MayhemHub"
+          target="_blank"
+          className="p-4"
+        >
+          Hub Repo
+        </a>
+        <a href="https://repo.hackrf.app" target="_blank" className="p-4">
+          FW Repo
         </a>
       </div>
     </div>
