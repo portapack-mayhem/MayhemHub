@@ -256,6 +256,7 @@ const Controller = () => {
 
     console.log("Downloading firmware update...", fileBlob.filename);
 
+    await write(`mkdir /FIRMWARE`, false, true);
     await uploadFile(
       `/FIRMWARE/${fileBlob.filename}`,
       new Uint8Array(await fileBlob.blob.arrayBuffer()),
@@ -274,6 +275,7 @@ const Controller = () => {
 
     console.log("Downloading firmware update...", fileBlob.filename);
 
+    await write(`mkdir /FIRMWARE`, false, true);
     await uploadFile(
       `/FIRMWARE/${fileBlob.filename}`,
       new Uint8Array(await fileBlob.blob.arrayBuffer()),
