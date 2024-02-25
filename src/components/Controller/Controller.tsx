@@ -267,6 +267,24 @@ const Controller = () => {
     alert("Firmware update complete! Please wait for your device to reboot.");
   };
 
+  const flashLatestStableFirmware = async () => {
+    const fileBlob = await downloadFileFromUrl(
+      "https://hackrf.app/api/fetch_stable_firmware"
+    );
+
+    console.log("Downloading firmware update...", fileBlob.filename);
+
+    await uploadFile(
+      `/FIRMWARE/${fileBlob.filename}`,
+      new Uint8Array(await fileBlob.blob.arrayBuffer()),
+      setUpdateStatus
+    );
+
+    await write(`flash /FIRMWARE/${fileBlob.filename}`, false, true);
+    console.log("DONE! firmware complete. Rebooting...");
+    alert("Firmware update complete! Please wait for your device to reboot.");
+  };
+
   const handleScroll = (e: React.WheelEvent) => {
     // Disabled for the moment
     // e.preventDefault();
@@ -604,7 +622,7 @@ const Controller = () => {
 
             <p className="mt-3">Select from the available options:</p>
             <button
-              onClick={() => flashLatestNightlyFirmware()}
+              onClick={() => flashLatestStableFirmware()}
               disabled={disableTransmitAction}
               className="rounded bg-blue-400 p-2 text-white disabled:opacity-50"
             >
