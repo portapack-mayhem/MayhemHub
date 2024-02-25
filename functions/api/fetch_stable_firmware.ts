@@ -28,17 +28,23 @@ export const onRequestGet: PagesFunction = async (context) => {
   console.log(browser_download_url);
 
   let fileUrl = browser_download_url;
+  const resourceResponse = await fetch(fileUrl);
 
-  let response = await fetch(fileUrl, context.request);
+  if (!resourceResponse.ok) {
+    throw new Error(`HTTP error! status: ${resourceResponse.status}`);
+  }
 
+  const resourceBody = await resourceResponse.body;
   let fileName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
 
-  // You can modify the response here, like setting content-disposition to force a file download
-  response = new Response(response.body, response);
-  response.headers.set(
+  let proxyResponse = new Response(resourceBody, resourceResponse);
+  Object.entries(corsHeaders).forEach(([key, value]) => {
+    proxyResponse.headers.set(key, value);
+  });
+  proxyResponse.headers.set(
     "Content-Disposition",
-    `attachment; filename="${fileName}"`
+    `attachment; filename="${fileName}`
   );
 
-  return response;
+  return proxyResponse;
 };
