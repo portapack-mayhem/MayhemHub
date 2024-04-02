@@ -44,9 +44,3 @@ next-env.d.ts
 
 # Cloudflare
 .wrangler
-
-# pnpm
-pnpm-lock.yaml
-
-# vscode
-.vscode
