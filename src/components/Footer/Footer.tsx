@@ -1,7 +1,6 @@
 import { faGithubAlt } from "@fortawesome/free-brands-svg-icons";
-import { faRotateRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
+import { faRotateRight } from "@fortawesome/free-solid-svg-icons";
 
 export const Footer = () => {
 
