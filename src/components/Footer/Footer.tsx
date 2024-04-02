@@ -3,7 +3,6 @@ import { faRotateRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export const Footer = () => {
-
   const refreshHandler = () => {
     window.location.reload();
   };
@@ -21,8 +20,11 @@ export const Footer = () => {
             className="mr-2 max-w-6 text-2xl text-white"
           />
         </a>
-        <button onClick={refreshHandler} className="grid-flow-col gap-4 md:place-self-center md:justify-self-end">
-          <FontAwesomeIcon icon={faRotateRight} className="mr-2 max-w-6 text-2xl text-white" />
+        <button onClick={refreshHandler}>
+          <FontAwesomeIcon
+            icon={faRotateRight}
+            className="mr-2 max-w-6 text-2xl text-white"
+          />
         </button>
       </nav>
     </footer>
