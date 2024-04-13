@@ -114,7 +114,7 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
   );
 
   const TitleMessage = () => (
-    <div className="mt-7 flex flex-col justify-center rounded-md bg-neutral p-5">
+    <div className="mt-7 flex flex-col justify-center rounded-3xl bg-neutral p-5">
       <h1 className="text-center text-2xl font-semibold">
         Welcome to the Mayhem Hub!
         <br />
