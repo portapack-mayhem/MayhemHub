@@ -263,6 +263,7 @@ const Controller = () => {
       setUpdateStatus
     );
 
+    await write(`mkdir /APPS`, false, true); // not necessary after #2155 in main repo. (but not harmful)
     await write(`flash /FIRMWARE/${fileBlob.filename}`, false, true);
     console.log("DONE! firmware complete. Rebooting...");
     alert("Firmware update complete! Please wait for your device to reboot.");
