@@ -6,10 +6,10 @@ import {
   useRef,
   useState,
 } from "react";
+import Modal from "../Modal/Modal";
 import useWebSerial, {
   UseWebSerialReturn,
 } from "../SerialProvider/SerialProvider";
-import Modal from "../Modal/Modal";
 
 interface SerialLoaderProps {}
 
