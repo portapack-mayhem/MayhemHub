@@ -213,7 +213,7 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
             isModalOpen={isLinuxUserModalOpen}
             closeModal={toggleLinuxUserModal}
           >
-            {
+
               <div>
                 <ol>
                   <strong>Method 1:</strong>
@@ -238,7 +238,7 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
                   </ol>
                 </ol>
               </div>
-            }
+
           </Modal>
         </div>
       )}
