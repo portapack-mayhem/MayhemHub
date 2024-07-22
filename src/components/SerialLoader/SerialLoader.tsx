@@ -90,49 +90,55 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
     </div>
   );
 
-  const ConnectScreen = () => (
-    <div className="flex flex-1 flex-col items-center justify-center px-5 text-center text-neutral">
-      <div className="flex w-full max-w-4xl flex-col rounded-3xl bg-white p-10">
-        {/* <h1 className="mb-5 text-4xl font-semibold">Get Started</h1> */}
+  const ConnectScreen = () => {
+    const isLinux = /linux/i.test(navigator.userAgent);
+    console.log(isLinux);
 
-        <p className="mb-10 text-3xl leading-snug">
-          Connect your HackRF/Portapack via USB to get started.
-        </p>
+    return (
+      <div className="flex flex-1 flex-col items-center justify-center px-5 text-center text-neutral">
+        <div className="flex w-full max-w-4xl flex-col rounded-3xl bg-white p-10">
+          <p className="mb-10 text-3xl leading-snug">
+            Connect your HackRF/Portapack via USB to get started.
+          </p>
 
-        <button
-          className="btn btn-success btn-lg"
-          ref={pairButtonRef}
-          disabled={
-            serial.portState === "opening" || serial.portState === "closing"
-          }
-          onClick={onPairButtonClick}
-        >
-          {buttonText}
-        </button>
-        <div className="pt-5">
-          <i>No device found or cannot connect? </i>
-          <ul>
-            <li>
-              &bull; Keep your PortaPack in normal mode (instead of HackRF mode)
-            </li>
-            <li>
-              &bull; Make sure you are running at least stable v2.0.0, nightly
-              n_240114 or newer.
-            </li>
-            <li>
-              &bull; Linux user?{" "}
-              <span
-                className="text-blue-600 cursor-pointer"
-                onClick={toggleLinuxUserModal}
-              >
-                Permission help
-              </span>
-            </li>
-          </ul>
+          <button
+            className="btn btn-success btn-lg"
+            ref={pairButtonRef}
+            disabled={
+              serial.portState === "opening" || serial.portState === "closing"
+            }
+            onClick={onPairButtonClick}
+          >
+            {buttonText}
+          </button>
+          <div className="pt-5">
+            <i>No device found or cannot connect? </i>
+            <ul>
+              <li>
+                &bull; Keep your PortaPack in normal mode (instead of HackRF
+                mode)
+              </li>
+              <li>
+                &bull; Make sure you are running at least stable v2.0.0, nightly
+                n_240114 or newer.
+              </li>
+              {isLinux && (
+                <li>
+                  &bull; Linux user?{" "}
+                  <span
+                    className="text-blue-600 cursor-pointer"
+                    onClick={toggleLinuxUserModal}
+                  >
+                    Permission help
+                  </span>
+                </li>
+              )}
+            </ul>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const TitleMessage = () => (
     <div className="mt-7 flex flex-col justify-center rounded-3xl bg-neutral p-5">
@@ -213,32 +219,28 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
             isModalOpen={isLinuxUserModalOpen}
             closeModal={toggleLinuxUserModal}
           >
-
-              <div>
+            <div>
+              <ol>
+                <strong>Method 1:</strong>
                 <ol>
-                  <strong>Method 1:</strong>
-                  <ol>
-                    <li>Plug in your PortaPack.</li>
-                    <li>
-                      Find the specific name of your Portapack device, it
-                      usually is /dev/ttyUSBx or /dev/ttyACMx.
-                    </li>
-                    <li>
-                      Run the following command: sudo chmod a+rw
-                      YOUR_DEVICE_NAME
-                    </li>
-                  </ol>
-                  <strong>Method 2:</strong>
-                  <ol>
-                    <li>Plug in your PortaPack.</li>
-                    <li>
-                      Run the following command: sudo usermod -a -G dialout
-                      $USER
-                    </li>
-                  </ol>
+                  <li>Plug in your PortaPack.</li>
+                  <li>
+                    Find the specific name of your Portapack device, it usually
+                    is /dev/ttyUSBx or /dev/ttyACMx.
+                  </li>
+                  <li>
+                    Run the following command: sudo chmod a+rw YOUR_DEVICE_NAME
+                  </li>
                 </ol>
-              </div>
-
+                <strong>Method 2:</strong>
+                <ol>
+                  <li>Plug in your PortaPack.</li>
+                  <li>
+                    Run the following command: sudo usermod -a -G dialout $USER
+                  </li>
+                </ol>
+              </ol>
+            </div>
           </Modal>
         </div>
       )}
