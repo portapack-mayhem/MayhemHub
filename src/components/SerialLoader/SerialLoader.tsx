@@ -113,18 +113,17 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
           </button>
           <div className="pt-5">
             <i>No device found or cannot connect? </i>
-            <ul>
+            <ul className="list-disc list-inside">
               <li>
-                &bull; Keep your PortaPack in normal mode (instead of HackRF
-                mode)
+                Keep your PortaPack in normal mode (instead of HackRF mode)
               </li>
               <li>
-                &bull; Make sure you are running at least stable v2.0.0, nightly
+                Make sure you are running at least stable v2.0.0, nightly
                 n_240114 or newer.
               </li>
               {isLinux && (
                 <li>
-                  &bull; Linux user?{" "}
+                  Linux user?{" "}
                   <span
                     className="text-blue-600 cursor-pointer"
                     onClick={toggleLinuxUserModal}
