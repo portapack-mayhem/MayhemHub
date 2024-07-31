@@ -6,6 +6,7 @@ import {
   useRef,
   useState,
 } from "react";
+import Modal from "../Modal/Modal";
 import useWebSerial, {
   UseWebSerialReturn,
 } from "../SerialProvider/SerialProvider";
@@ -27,6 +28,8 @@ export const useSerial = () => useContext(SerialContext);
 const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
   const pairButtonRef = useRef<HTMLButtonElement>(null);
   const [consoleMessage, setConsoleMessage] = useState<string>();
+  const [isLinuxUserModalOpen, setIsLinuxUserModalOpen] =
+    useState<boolean>(false);
 
   const serial: UseWebSerialReturn = useWebSerial({
     onConnect: (data: any) => {
@@ -41,6 +44,10 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
       setConsoleMessage(data);
     },
   });
+
+  const toggleLinuxUserModal = () => {
+    setIsLinuxUserModalOpen(!isLinuxUserModalOpen);
+  };
 
   const onPairButtonClick = async () => {
     // Can identify the vendor and product IDs by plugging in the device and visiting: chrome://device-log/
@@ -83,40 +90,53 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
     </div>
   );
 
-  const ConnectScreen = () => (
-    <div className="flex flex-1 flex-col items-center justify-center px-5 text-center text-neutral">
-      <div className="flex w-full max-w-4xl flex-col rounded-3xl bg-white p-10">
-        {/* <h1 className="mb-5 text-4xl font-semibold">Get Started</h1> */}
+  const ConnectScreen = () => {
+    const isLinux = /linux/i.test(navigator.userAgent);
 
-        <p className="mb-10 text-3xl leading-snug">
-          Connect your HackRF/Portapack via USB to get started.
-        </p>
+    return (
+      <div className="flex flex-1 flex-col items-center justify-center px-5 text-center text-neutral">
+        <div className="flex w-full max-w-4xl flex-col rounded-3xl bg-white p-10">
+          <p className="mb-10 text-3xl leading-snug">
+            Connect your HackRF/Portapack via USB to get started.
+          </p>
 
-        <button
-          className="btn btn-success btn-lg"
-          ref={pairButtonRef}
-          disabled={
-            serial.portState === "opening" || serial.portState === "closing"
-          }
-          onClick={onPairButtonClick}
-        >
-          {buttonText}
-        </button>
-        <div className="pt-5">
-          <i>No device found or cannot connect? </i>
-          <ul>
-            <li>
-              &bull; Keep your PortaPack in normal mode (instead of HackRF mode)
-            </li>
-            <li>
-              &bull; Make sure you are running at least stable v2.0.0, nightly
-              n_240114 or newer.
-            </li>
-          </ul>
+          <button
+            className="btn btn-success btn-lg"
+            ref={pairButtonRef}
+            disabled={
+              serial.portState === "opening" || serial.portState === "closing"
+            }
+            onClick={onPairButtonClick}
+          >
+            {buttonText}
+          </button>
+          <div className="pt-5">
+            <i>No device found or cannot connect? </i>
+            <ul className="list-disc list-inside">
+              <li>
+                Keep your PortaPack in normal mode (instead of HackRF mode)
+              </li>
+              <li>
+                Make sure you are running at least stable v2.0.0, nightly
+                n_240114 or newer.
+              </li>
+              {isLinux && (
+                <li>
+                  Linux user?{" "}
+                  <span
+                    className="text-blue-600 cursor-pointer"
+                    onClick={toggleLinuxUserModal}
+                  >
+                    Permission help
+                  </span>
+                </li>
+              )}
+            </ul>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   const TitleMessage = () => (
     <div className="mt-7 flex flex-col justify-center rounded-3xl bg-neutral p-5">
@@ -192,6 +212,34 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
           <TitleMessage />
           {!serial.canUseSerial ? <ErrorMessage /> : <ConnectScreen />}
           <AboutMessage />
+          <Modal
+            title="Linux Permisson Guide"
+            isModalOpen={isLinuxUserModalOpen}
+            closeModal={toggleLinuxUserModal}
+          >
+            <div>
+              <ol>
+                <strong>Method 1:</strong>
+                <ol>
+                  <li>Plug in your PortaPack.</li>
+                  <li>
+                    Find the specific name of your Portapack device, it usually
+                    is /dev/ttyUSBx or /dev/ttyACMx.
+                  </li>
+                  <li>
+                    Run the following command: sudo chmod a+rw YOUR_DEVICE_NAME
+                  </li>
+                </ol>
+                <strong>Method 2:</strong>
+                <ol>
+                  <li>Plug in your PortaPack.</li>
+                  <li>
+                    Run the following command: sudo usermod -a -G dialout $USER
+                  </li>
+                </ol>
+              </ol>
+            </div>
+          </Modal>
         </div>
       )}
     </SerialContext.Provider>
