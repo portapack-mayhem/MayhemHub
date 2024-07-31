@@ -92,7 +92,6 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
 
   const ConnectScreen = () => {
     const isLinux = /linux/i.test(navigator.userAgent);
-    console.log(isLinux);
 
     return (
       <div className="flex flex-1 flex-col items-center justify-center px-5 text-center text-neutral">
