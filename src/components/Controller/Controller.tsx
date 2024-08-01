@@ -517,7 +517,7 @@ const Controller = () => {
                 </div>
                 <div className="flex w-full flex-col items-center justify-center gap-1">
                   <textarea
-                    className="h-[350px] w-full rounded bg-gray-600 p-2 text-white"
+                    className="h-[350px] w-full rounded bg-gray-600 p-2 text-white font-mono"
                     readOnly
                     value={consoleMessageList}
                     id="serial_console"
@@ -533,7 +533,7 @@ const Controller = () => {
                           sendCommand();
                         }
                       }}
-                      className="w-full rounded-md bg-gray-600 p-2 text-white"
+                      className="w-full rounded-md bg-gray-600 p-2 text-white font-mono"
                     />
                     <button
                       type="submit"
