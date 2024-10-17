@@ -11,6 +11,7 @@ import {
   faCheckCircle,
   faPaperPlane,
   faCircleXmark,
+  faCode,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
@@ -48,6 +49,10 @@ const Controller = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const firmwareFileInputRef = useRef<HTMLInputElement>(null);
+  const scriptFileInputRef = useRef<HTMLInputElement>(null);
+  const [scriptStatus, setScriptStatus] = useState<string>(
+    "Type single command above or pick a script"
+  );
 
   const started = useRef<boolean>(false);
 
@@ -302,6 +307,66 @@ const Controller = () => {
     // }
   };
 
+  const onScriptFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const fileList = event.target.files;
+    if (!fileList) return;
+
+    let file = fileList[0];
+    setScriptStatus(`Picked script: ${file.name}`);
+
+    let reader = new FileReader();
+
+    reader.onloadend = async () => {
+      const content = reader.result;
+      if (typeof content === "string") {
+        const lines = content.split(/\r?\n/); // split lines
+
+        for (let lineNumber = 0; lineNumber < lines.length; lineNumber++) {
+          await new Promise((resolve) => setTimeout(resolve, 1000)); // the await for write func seems is still too fast. TODO
+          const line = lines[lineNumber];
+          const trimmedLine = line.trim();
+          if (trimmedLine.startsWith("--") || trimmedLine === "") {
+            continue;
+          }
+          const writeMatch = trimmedLine.match(/^write\((.*)\);?$/); // match write command
+          if (writeMatch) {
+            const argsString = writeMatch[1];
+            const argsRegex =
+              /["'](.+?)["']\s*,\s*(true|false)\s*,\s*(true|false)/;
+            /* ^match str surronded by' and "
+                               ^ match bool        ^ match bool   */
+            const argsMatch = argsString.match(argsRegex);
+            if (argsMatch) {
+              const command = argsMatch[1];
+              const updateFrame = argsMatch[2] === "true"; //cast to bool
+              const awaitResponse = argsMatch[3] === "true"; // cast to bool
+
+              setScriptStatus(`sending: ${command}`);
+              await write(command, updateFrame, awaitResponse);
+            } else {
+              setScriptStatus(`script syntax invalid: line ${lineNumber + 1}`);
+              break;
+            }
+          } else {
+            setScriptStatus(`script syntax invalid: line ${lineNumber + 1}`);
+            break;
+          }
+        }
+        setScriptStatus("script execution completed");
+      } else {
+        setScriptStatus("failed to read script file");
+      }
+    };
+
+    reader.onerror = () => {
+      setScriptStatus("error reading script file");
+    };
+
+    if (file) {
+      reader.readAsText(file);
+    }
+  };
+
   return (
     <>
       {setupComplete ? (
@@ -506,6 +571,20 @@ const Controller = () => {
                       onFirmwareFileChange(e, selectedUploadFolder);
                     }}
                   />
+                  <input
+                    ref={scriptFileInputRef}
+                    type="file"
+                    accept=".ppsc"
+                    style={{ display: "none" }}
+                    onClick={() => {
+                      if (scriptFileInputRef.current) {
+                        scriptFileInputRef.current.value = "";
+                      }
+                    }}
+                    onChange={(e) => {
+                      onScriptFileChange(e);
+                    }}
+                  />
                   <div className="flex max-h-96 flex-col overflow-y-auto">
                     <FileBrowser
                       fileInputRef={fileInputRef}
@@ -554,6 +633,21 @@ const Controller = () => {
                       <FontAwesomeIcon icon={faCircleXmark} />
                     </button>
                   </div>
+                  <div className="flex w-full flex-row items-center justify-center gap-1">
+                    <p className="w-full rounded-md bg-blue-700 p-2 text-white font-mono">
+                      {scriptStatus}
+                    </p>
+                    <button
+                      type="button"
+                      className="btn btn-info btn-sm h-10 text-white"
+                      onClick={() => {
+                        scriptFileInputRef.current?.click();
+                      }}
+                    >
+                      <FontAwesomeIcon icon={faCode} />
+                    </button>
+                  </div>
+                  <div className="w-full text-center mt-2"></div>
                 </div>
               </div>
               <div className="m-5 flex w-[20%] flex-col items-center justify-center rounded-md bg-gray-700 p-5">
