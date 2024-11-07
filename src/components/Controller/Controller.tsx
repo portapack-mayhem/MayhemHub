@@ -223,11 +223,11 @@ const Controller = () => {
   ) => {
     const fileList = event.target.files;
     if (!fileList) return;
-    await write(`mkdir /FIRMWARE`, false, true);
     let file = fileList[0];
     let reader = new FileReader();
 
     reader.onloadend = async () => {
+      await write(`mkdir /FIRMWARE`, false, true);
       const arrayBuffer = reader.result;
       if (arrayBuffer instanceof ArrayBuffer) {
         let bytes = new Uint8Array(arrayBuffer);
