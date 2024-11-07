@@ -641,7 +641,7 @@ const Controller = () => {
             <button
               disabled={disableTransmitAction}
               onClick={() => {
-                setSelectedUploadFolder("/FIRMWARE");
+                setSelectedUploadFolder("/FIRMWARE/");
                 firmwareFileInputRef.current?.click();
               }}
               className="rounded bg-blue-400 p-2 text-white disabled:opacity-50"
