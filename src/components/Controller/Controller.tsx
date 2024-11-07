@@ -228,11 +228,11 @@ const Controller = () => {
   ) => {
     const fileList = event.target.files;
     if (!fileList) return;
-
     let file = fileList[0];
     let reader = new FileReader();
 
     reader.onloadend = async () => {
+      await write(`mkdir /FIRMWARE`, false, true);
       const arrayBuffer = reader.result;
       if (arrayBuffer instanceof ArrayBuffer) {
         let bytes = new Uint8Array(arrayBuffer);
@@ -735,7 +735,7 @@ const Controller = () => {
             <button
               disabled={disableTransmitAction}
               onClick={() => {
-                setSelectedUploadFolder("/FIRMWARE");
+                setSelectedUploadFolder("/FIRMWARE/");
                 firmwareFileInputRef.current?.click();
               }}
               className="rounded bg-blue-400 p-2 text-white disabled:opacity-50"
