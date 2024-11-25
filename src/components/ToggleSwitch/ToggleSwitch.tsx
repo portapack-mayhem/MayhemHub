@@ -1,25 +1,27 @@
 type ToggleSwitchProps = {
   isToggle: boolean;
   toggleLabel?: string;
+  modalToggle?: boolean;
   toggleSwitch: () => void;
 };
 
 const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
   isToggle,
   toggleLabel,
+  modalToggle,
   toggleSwitch,
 }) => {
   const handleToggle = () => {
     toggleSwitch()
   }
   return (
-    <label className="flex cursor-pointer items-center">
+    <label className={`flex cursor-pointer ${modalToggle? "w-full justify-between": ""}`}>
       {toggleLabel && 
         <div className="font-medium text-white mr-1">
           {toggleLabel}
         </div>
       }
-      <div className="relative">
+      <div className={`relative ${modalToggle? "right-0": ""}`}>
         <input
           type="checkbox"
           className="hidden"

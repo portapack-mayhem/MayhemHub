@@ -42,8 +42,10 @@ const Controller = () => {
   const [deviceVersion, setDeviceVersion] = useState<string>("");
   const [autoUpdateFrame, setAutoUpdateFrame] = useState<boolean>(true);
   const [firmwarModalOpen, setFirmwarModalOpen] = useState<boolean>(false);
+  const [UIConfigurationOpen, setUIConfigurationOpen] = useState<boolean>(false);
   const [controlDeviceHide, setControlDeviceHide] = useState<boolean>(false);
   const [disableButtonGroup, setDisableButtonGroup] = useState<boolean>(false);
+  const [fileSystemHide, setFileSystemHide] = useState<boolean>(false);
   const [serialConnectionHide, setSerialConnectionHide] = useState<boolean>(false);
   const [firmwareUpdateHide, setFirmwareUpdateHide] = useState<boolean>(false);
 
@@ -64,10 +66,12 @@ const Controller = () => {
   useEffect(() => {
     const cdh = localStorage.getItem('controlDeviceHide')
     const dbg = localStorage.getItem('disableButtonGroup')
+    const fsh = localStorage.getItem('fileSystemHide')
     const sch = localStorage.getItem('serialConnectionHide')
     const fuh = localStorage.getItem('firmwareUpdateHide')
     if (cdh) setControlDeviceHide(Boolean(Number(cdh)))
     if (dbg) setDisableButtonGroup(Boolean(Number(dbg)))
+    if (fsh) setFileSystemHide(Boolean(Number(fsh)))
     if (sch) setSerialConnectionHide(Boolean(Number(sch)))
     if (fuh) setFirmwareUpdateHide(Boolean(Number(fuh)))
   }, [localStorage]);
@@ -103,7 +107,7 @@ const Controller = () => {
           console.log("Mayhem version not found!");
         }
 
-        await fetchFolderStructure();
+        if (!fileSystemHide) await fetchFolderStructure();
 
         write("screenframeshort", false);
 
@@ -325,6 +329,12 @@ const Controller = () => {
     write(button, autoUpdateFrame)
   }
 
+  const handleUpdateUiHide = (value: boolean, lsKey: string, setInState: (stateValue: boolean) => void) => {
+    const updatedValue = !value
+    localStorage.setItem(lsKey, String(Number(updatedValue)))
+    setInState(updatedValue)
+  }
+
   return (
     <>
       {setupComplete ? (
@@ -335,195 +345,167 @@ const Controller = () => {
               className="pl-2 text-green-500"
               icon={faCheckCircle}
             />
-          </h1>
-          <div className="flex flex-col items-center justify-center max-w-[60%] bg-slate-800 rounded-lg outline-none p-4 mb-3 font-medium text-white focus:ring-0 md:items-start">
-            <p className="text-center">Disable UI features:</p>
-            <div className="flex items-center justify-center gap-5">
-            <ToggleSwitch
-                toggleLabel={'Hide Buttons'}
-                isToggle={disableButtonGroup}
-                toggleSwitch={() => {
-                  const updatedValue = !disableButtonGroup
-                  setDisableButtonGroup(updatedValue)
-                  localStorage.setItem('disableButtonGroup', String(Number(updatedValue)))
-                }}
-              />
-              <ToggleSwitch
-                toggleLabel={'Hide screen'}
-                isToggle={controlDeviceHide}
-                toggleSwitch={() => {
-                  const updatedValue = !controlDeviceHide
-                  setControlDeviceHide(updatedValue)
-                  localStorage.setItem('controlDeviceHide', String(Number(updatedValue)))
-                  write("screenframeshort", false)
-                }}
-              />
-              <ToggleSwitch
-                toggleLabel={'Hide Serial widget'}
-                isToggle={serialConnectionHide}
-                toggleSwitch={() => {
-                  const updatedValue = !serialConnectionHide
-                  setSerialConnectionHide(updatedValue)
-                  localStorage.setItem('serialConnectionHide', String(Number(updatedValue)))
-                }}
-              />
-            </div>
-          </div>
+          </h1>          
           {!serial.isReading &&
             "Please enable the console, so the buttons can also be enabled!"}
-          { (controlDeviceHide && disableButtonGroup)? '': <div
-            id="ControllerSection"
-            className="flex h-full max-w-[80%] flex-col items-center justify-center gap-24 rounded-lg bg-slate-800 p-10 outline-none focus:ring-0 md:flex-row md:items-start"
-            onWheel={handleScroll}
-            tabIndex={0}
-            onKeyDown={(e) => {
-              handleKeyDown(e);
-            }}
-          >
-            {!controlDeviceHide && <div
-              className="flex flex-col items-center justify-center gap-5"
-              id="screenGroup"
+          {(controlDeviceHide && disableButtonGroup)? 
+            "" : 
+            <div
+              id="ControllerSection"
+              className="flex h-full max-w-[80%] flex-col items-center justify-center gap-24 rounded-lg bg-slate-800 p-10 outline-none focus:ring-0 md:flex-row md:items-start"
+              onWheel={handleScroll}
+              tabIndex={0}
+              onKeyDown={(e) => {
+                handleKeyDown(e);
+              }}
             >
-              <canvas
-                ref={canvasRef}
-                width={241}
-                height={321}
-                className={`${
-                  !disableTransmitAction && "cursor-pointer"
-                } shadow-glow shadow-neutral-500 outline-none focus:ring-0`}
-                onMouseDown={(
-                  event: React.MouseEvent<HTMLCanvasElement, MouseEvent>
-                ) => {
-                  if (!canvasRef.current || disableTransmitAction) return;
-                  const bounds = canvasRef.current.getBoundingClientRect();
-                  const x = event.clientX - bounds.left;
-                  const y = event.clientY - bounds.top;
+              {!controlDeviceHide && <div
+                className="flex flex-col items-center justify-center gap-5"
+                id="screenGroup"
+              >
+                <canvas
+                  ref={canvasRef}
+                  width={241}
+                  height={321}
+                  className={`${
+                    !disableTransmitAction && "cursor-pointer"
+                  } shadow-glow shadow-neutral-500 outline-none focus:ring-0`}
+                  onMouseDown={(
+                    event: React.MouseEvent<HTMLCanvasElement, MouseEvent>
+                  ) => {
+                    if (!canvasRef.current || disableTransmitAction) return;
+                    const bounds = canvasRef.current.getBoundingClientRect();
+                    const x = event.clientX - bounds.left;
+                    const y = event.clientY - bounds.top;
 
-                  write(`touch ${x} ${y}`, autoUpdateFrame);
-                }}
-              />
-
-              <div className="flex flex-col items-center justify-center rounded-md bg-gray-700 p-3">
-                <p className="pb-4">Live Screen</p>
-                <div className="flex flex-row items-center justify-center gap-5">
-                  <ToggleSwitch
-                    isToggle={autoUpdateFrame}
-                    toggleSwitch={() => {
-                      if (!autoUpdateFrame) write("screenframeshort", false);
-                      setAutoUpdateFrame(!autoUpdateFrame);
-                    }}
-                  />
-                  <HotkeyButton
-                    label={<FontAwesomeIcon icon={faRotate} />}
-                    disabled={disableTransmitAction}
-                    onClickFunction={() => {
-                      if (!disableTransmitAction) {
-                        setLoadingFrame(true);
-                        write("screenframeshort", false);
-                      }
-                    }}
-                    className={"h-6 w-6 rounded-sm bg-green-500"}
-                    shortcutKeys={"mod+R"}
-                  />
-                </div>
-              </div>
-            </div>}
-
-            {/* 
-            
-            Attention!
-            For some reason, when I use <DeviceButtons />, once the buttons are clicked, the 
-            buttons never disable. I have spent hours trying to fix this, but I cannot. So 
-            for now I have moved them back out of their own compoent which "Solves" the problem.
-
-            Basically the issue is it seems to be setting the state of disableTransmitAction, but 
-            not rerendering.
-
-            If someone else could fix this, that would be great <3
-
-            */}
-            {/* <DeviceButtons
-              autoUpdateFrame={autoUpdateFrame}
-              disableTransmitAction={disableTransmitAction}
-            /> */}
-            
-            {!disableButtonGroup && <div
-              className="flex flex-col items-center justify-center gap-4"
-              id="controlGroup"
-            >
-              <div className="flex flex-col items-center justify-center rounded-lg bg-gray-800">
-                <div className="grid grid-flow-col grid-rows-3 gap-4">
-                  <div></div>
-                  <HotkeyButton
-                    label={<FontAwesomeIcon icon={faArrowLeft} />}
-                    disabled={disableTransmitAction}
-                    onClickFunction={() => handleButtonControlClick("button 2")}
-                    className="btn btn-success h-16 w-16"
-                    shortcutKeys={"ArrowLeft"}
-                  />
-                  <button
-                    disabled={disableTransmitAction}
-                    onClick={() => handleButtonControlClick("button 7")}
-                    className="btn btn-info h-12 w-12 self-end justify-self-start"
-                  >
-                    <FontAwesomeIcon icon={faRotateLeft} />
-                  </button>
-                  <HotkeyButton
-                    label={<FontAwesomeIcon icon={faArrowUp} />}
-                    disabled={disableTransmitAction}
-                    onClickFunction={() => handleButtonControlClick('button 4')}
-                    className="btn btn-success h-16 w-16"
-                    shortcutKeys={"ArrowUp"}
-                  />
-                  <HotkeyButton
-                    label={<FontAwesomeIcon icon={faCheckCircle} />}
-                    disabled={disableTransmitAction}
-                    onClickFunction={() => handleButtonControlClick("button 5")}
-                    className="btn btn-info h-16 w-16"
-                    shortcutKeys={"Enter"}
-                  />
-                  <HotkeyButton
-                    label={<FontAwesomeIcon icon={faArrowDown} />}
-                    disabled={disableTransmitAction}
-                    onClickFunction={() => handleButtonControlClick("button 3")}
-                    className="btn btn-success h-16 w-16"
-                    shortcutKeys={"ArrowDown"}
-                  />
-                  <div></div>
-                  <HotkeyButton
-                    label={<FontAwesomeIcon icon={faArrowRight} />}
-                    disabled={disableTransmitAction}
-                    onClickFunction={() => handleButtonControlClick("button 1")}
-                    className="btn btn-success h-16 w-16"
-                    shortcutKeys={"ArrowRight"}
-                  />
-                  <button
-                    disabled={disableTransmitAction}
-                    onClick={() => handleButtonControlClick("button 8")}
-                    className="btn btn-info h-12 w-12 self-end justify-self-end"
-                  >
-                    <FontAwesomeIcon icon={faRotateRight} />
-                  </button>
-                </div>
-              </div>
-              <div className="flex items-center justify-center gap-4 rounded-lg bg-gray-800 p-5">
-                <HotkeyButton
-                  label="DFU"
-                  disabled={disableTransmitAction}
-                  onClickFunction={() => handleButtonControlClick("button 6")}
-                  className="btn btn-warning h-16 w-20"
-                  shortcutKeys={"mod+D"}
+                    write(`touch ${x} ${y}`, autoUpdateFrame);
+                  }}
                 />
-                <button
-                  disabled={disableTransmitAction}
-                  onClick={() => handleButtonControlClick("reboot")}
-                  className="btn btn-error h-16 w-20"
+
+                <div className="flex flex-col items-center justify-center rounded-md bg-gray-700 p-3">
+                  <p className="pb-4">Live Screen</p>
+                  <div className="flex flex-row items-center justify-center gap-5">
+                    <ToggleSwitch
+                      isToggle={autoUpdateFrame}
+                      toggleSwitch={() => {
+                        if (!autoUpdateFrame) write("screenframeshort", false);
+                        setAutoUpdateFrame(!autoUpdateFrame);
+                      }}
+                    />
+                    <HotkeyButton
+                      label={<FontAwesomeIcon icon={faRotate} />}
+                      disabled={disableTransmitAction}
+                      onClickFunction={() => {
+                        if (!disableTransmitAction) {
+                          setLoadingFrame(true);
+                          write("screenframeshort", false);
+                        }
+                      }}
+                      className={"h-6 w-6 rounded-sm bg-green-500"}
+                      shortcutKeys={"mod+R"}
+                    />
+                  </div>
+                </div>
+              </div>}
+
+              {/* 
+              
+              Attention!
+              For some reason, when I use <DeviceButtons />, once the buttons are clicked, the 
+              buttons never disable. I have spent hours trying to fix this, but I cannot. So 
+              for now I have moved them back out of their own compoent which "Solves" the problem.
+
+              Basically the issue is it seems to be setting the state of disableTransmitAction, but 
+              not rerendering.
+
+              If someone else could fix this, that would be great <3
+
+              */}
+              {/* <DeviceButtons
+                autoUpdateFrame={autoUpdateFrame}
+                disableTransmitAction={disableTransmitAction}
+              /> */}
+              
+              {!disableButtonGroup && 
+                <div
+                  className="flex flex-col items-center justify-center gap-4"
+                  id="controlGroup"
                 >
-                  REBOOT
-                </button>
-              </div>
-            </div>}
-          </div>}
+                  <div className="flex flex-col items-center justify-center rounded-lg bg-gray-800">
+                    <div className="grid grid-flow-col grid-rows-3 gap-4">
+                      <div></div>
+                      <HotkeyButton
+                        label={<FontAwesomeIcon icon={faArrowLeft} />}
+                        disabled={disableTransmitAction}
+                        onClickFunction={() => handleButtonControlClick("button 2")}
+                        className="btn btn-success h-16 w-16"
+                        shortcutKeys={"ArrowLeft"}
+                      />
+                      <button
+                        disabled={disableTransmitAction}
+                        onClick={() => handleButtonControlClick("button 7")}
+                        className="btn btn-info h-12 w-12 self-end justify-self-start"
+                      >
+                        <FontAwesomeIcon icon={faRotateLeft} />
+                      </button>
+                      <HotkeyButton
+                        label={<FontAwesomeIcon icon={faArrowUp} />}
+                        disabled={disableTransmitAction}
+                        onClickFunction={() => handleButtonControlClick('button 4')}
+                        className="btn btn-success h-16 w-16"
+                        shortcutKeys={"ArrowUp"}
+                      />
+                      <HotkeyButton
+                        label={<FontAwesomeIcon icon={faCheckCircle} />}
+                        disabled={disableTransmitAction}
+                        onClickFunction={() => handleButtonControlClick("button 5")}
+                        className="btn btn-info h-16 w-16"
+                        shortcutKeys={"Enter"}
+                      />
+                      <HotkeyButton
+                        label={<FontAwesomeIcon icon={faArrowDown} />}
+                        disabled={disableTransmitAction}
+                        onClickFunction={() => handleButtonControlClick("button 3")}
+                        className="btn btn-success h-16 w-16"
+                        shortcutKeys={"ArrowDown"}
+                      />
+                      <div></div>
+                      <HotkeyButton
+                        label={<FontAwesomeIcon icon={faArrowRight} />}
+                        disabled={disableTransmitAction}
+                        onClickFunction={() => handleButtonControlClick("button 1")}
+                        className="btn btn-success h-16 w-16"
+                        shortcutKeys={"ArrowRight"}
+                      />
+                      <button
+                        disabled={disableTransmitAction}
+                        onClick={() => handleButtonControlClick("button 8")}
+                        className="btn btn-info h-12 w-12 self-end justify-self-end"
+                      >
+                        <FontAwesomeIcon icon={faRotateRight} />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-center gap-4 rounded-lg bg-gray-800 p-5">
+                    <HotkeyButton
+                      label="DFU"
+                      disabled={disableTransmitAction}
+                      onClickFunction={() => handleButtonControlClick("button 6")}
+                      className="btn btn-warning h-16 w-20"
+                      shortcutKeys={"mod+D"}
+                    />
+                    <button
+                      disabled={disableTransmitAction}
+                      onClick={() => handleButtonControlClick("reboot")}
+                      className="btn btn-error h-16 w-20"
+                    >
+                      REBOOT
+                    </button>
+                  </div>
+                </div>
+              }
+            </div>
+          }
           
           {!serial.isReading ? (
             <button
@@ -532,96 +514,113 @@ const Controller = () => {
             >
               Start Reading Console
             </button>
-          ) : !serialConnectionHide && (
+          ) : (
             <>
-              <div className="mt-10 flex w-[80%] flex-row items-center justify-center gap-5 rounded-md bg-gray-700 p-5">
-                <div className="flex h-full w-[35%] flex-col gap-1 self-start">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    style={{ display: "none" }}
-                    onClick={() => {
-                      if (fileInputRef.current) {
-                        fileInputRef.current.value = "";
-                      }
-                    }}
-                    onChange={(e) => {
-                      onFileChange(e, selectedUploadFolder);
-                    }}
-                  />
-                  <input
-                    ref={firmwareFileInputRef}
-                    type="file"
-                    accept=".tar"
-                    style={{ display: "none" }}
-                    onClick={() => {
-                      if (fileInputRef.current) {
-                        fileInputRef.current.value = "";
-                      }
-                    }}
-                    onChange={(e) => {
-                      onFirmwareFileChange(e, selectedUploadFolder);
-                    }}
-                  />
-                  <div className="flex max-h-96 flex-col overflow-y-auto">
-                    <FileBrowser
-                      fileInputRef={fileInputRef}
-                      setSelectedUploadFolder={setSelectedUploadFolder}
-                      dirStructure={dirStructure}
-                      setDirStructure={setDirStructure}
-                    />
-                  </div>
+              {(serialConnectionHide && fileSystemHide)? 
+                "": 
+                <div className="mt-10 flex w-[80%] flex-row items-center justify-center gap-5 rounded-md bg-gray-700 p-5">
+                  {!fileSystemHide && 
+                    <div className={`flex h-full flex-col gap-1 self-start ${serialConnectionHide? 'w-full': 'w-[35%]'}`}>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        style={{ display: "none" }}
+                        onClick={() => {
+                          if (fileInputRef.current) {
+                            fileInputRef.current.value = "";
+                          }
+                        }}
+                        onChange={(e) => {
+                          onFileChange(e, selectedUploadFolder);
+                        }}
+                      />
+                      <input
+                        ref={firmwareFileInputRef}
+                        type="file"
+                        accept=".tar"
+                        style={{ display: "none" }}
+                        onClick={() => {
+                          if (fileInputRef.current) {
+                            fileInputRef.current.value = "";
+                          }
+                        }}
+                        onChange={(e) => {
+                          onFirmwareFileChange(e, selectedUploadFolder);
+                        }}
+                      />
+                      <div className="flex max-h-96 flex-col overflow-y-auto">
+                        <FileBrowser
+                          fileInputRef={fileInputRef}
+                          setSelectedUploadFolder={setSelectedUploadFolder}
+                          dirStructure={dirStructure}
+                          setDirStructure={setDirStructure}
+                        />
+                      </div>
+                    </div>
+                  }
+                  {!serialConnectionHide && 
+                    <div className="flex w-full flex-col items-center justify-center gap-1">
+                      <textarea
+                        className="h-[350px] w-full rounded bg-gray-600 p-2 text-white font-mono"
+                        readOnly
+                        value={consoleMessageList}
+                        id="serial_console"
+                      />
+                      <div className="flex w-full flex-row items-center justify-center gap-1">
+                        <input
+                          type="text"
+                          value={command}
+                          onChange={(e) => setCommand(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.preventDefault();
+                              sendCommand();
+                            }
+                          }}
+                          className="w-full rounded-md bg-gray-600 p-2 text-white font-mono"
+                        />
+                        <button
+                          type="submit"
+                          className="btn btn-success btn-sm h-10 text-white"
+                          onClick={() => {
+                            sendCommand();
+                          }}
+                        >
+                          <FontAwesomeIcon icon={faPaperPlane} />
+                        </button>
+                        <button
+                          type="submit"
+                          className="btn btn-error btn-sm h-10 text-white"
+                          onClick={() => {
+                            setConsoleMessageList("");
+                          }}
+                        >
+                          <FontAwesomeIcon icon={faCircleXmark} />
+                        </button>
+                      </div>
+                    </div>
+                  }
                 </div>
-                <div className="flex w-full flex-col items-center justify-center gap-1">
-                  <textarea
-                    className="h-[350px] w-full rounded bg-gray-600 p-2 text-white font-mono"
-                    readOnly
-                    value={consoleMessageList}
-                    id="serial_console"
-                  />
-                  <div className="flex w-full flex-row items-center justify-center gap-1">
-                    <input
-                      type="text"
-                      value={command}
-                      onChange={(e) => setCommand(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          sendCommand();
-                        }
-                      }}
-                      className="w-full rounded-md bg-gray-600 p-2 text-white font-mono"
-                    />
-                    <button
-                      type="submit"
-                      className="btn btn-success btn-sm h-10 text-white"
-                      onClick={() => {
-                        sendCommand();
-                      }}
-                    >
-                      <FontAwesomeIcon icon={faPaperPlane} />
-                    </button>
-                    <button
-                      type="submit"
-                      className="btn btn-error btn-sm h-10 text-white"
-                      onClick={() => {
-                        setConsoleMessageList("");
-                      }}
-                    >
-                      <FontAwesomeIcon icon={faCircleXmark} />
-                    </button>
-                  </div>
+              }
+              {!firmwareUpdateHide && 
+                <div className="m-5 flex w-[20%] flex-col items-center justify-center rounded-md bg-gray-700 p-5">
+                  <p className="pb-5 text-center text-sm">
+                    Firmware Version: {deviceVersion}
+                  </p>
+                  <button
+                    onClick={() => setFirmwarModalOpen(true)}
+                    className="btn btn-info"
+                  >
+                    Manage Firmware
+                  </button>
                 </div>
-              </div>
-              <div className="m-5 flex w-[20%] flex-col items-center justify-center rounded-md bg-gray-700 p-5">
-                <p className="pb-5 text-center text-sm">
-                  Firmware Version: {deviceVersion}
-                </p>
+              }
+              <div className="flex w-[80%] justify-end mt-3">
                 <button
-                  onClick={() => setFirmwarModalOpen(true)}
-                  className="btn btn-info"
+                  onClick={() => setUIConfigurationOpen(true)}
+                  className=" btn btn-warning"
                 >
-                  Manage Firmware
+                  UI Configuration
                 </button>
               </div>
             </>
@@ -708,6 +707,58 @@ const Controller = () => {
             <p>{updateStatus}</p>
           </div>
         )}
+      </Modal>
+      <Modal
+        title="UI Configuration"
+        isModalOpen={UIConfigurationOpen}
+        closeModal={() => setUIConfigurationOpen(false)}
+        className="w-[40%]"
+      >
+        <div className="flex flex-col items-center justify-center rounded-lg outline-none p-4 mb-3 font-medium text-white focus:ring-0 md:items-start">
+          <div className="flex w-full flex-col items-start justify-start gap-5 ">
+            <ToggleSwitch
+              toggleLabel="Hide Buttons"
+              isToggle={disableButtonGroup}
+              toggleSwitch={() => {
+                handleUpdateUiHide(disableButtonGroup, "disableButtonGroup", (updatedValue) => setDisableButtonGroup(updatedValue))
+              }}
+              modalToggle
+            />
+            <ToggleSwitch
+              toggleLabel="Hide Screen"
+              isToggle={controlDeviceHide}
+              toggleSwitch={() => {
+                handleUpdateUiHide(controlDeviceHide, "controlDeviceHide", (updatedValue) => setControlDeviceHide(updatedValue))
+                write("screenframeshort", false)
+              }}
+              modalToggle
+            />
+            <ToggleSwitch
+              toggleLabel="Hide File System"
+              isToggle={fileSystemHide}
+              toggleSwitch={() => {
+                handleUpdateUiHide(fileSystemHide, "fileSystemHide", (updatedValue) => setFileSystemHide(updatedValue))
+              }}
+              modalToggle
+            />
+            <ToggleSwitch
+              toggleLabel="Hide Serial"
+              isToggle={serialConnectionHide}
+              toggleSwitch={() => {
+                handleUpdateUiHide(serialConnectionHide, "serialConnectionHide", (updatedValue) => setSerialConnectionHide(updatedValue))
+              }}
+              modalToggle
+            />
+            <ToggleSwitch
+              toggleLabel="Hide Firmware Update"
+              isToggle={firmwareUpdateHide}
+              toggleSwitch={() => {
+                handleUpdateUiHide(firmwareUpdateHide, "firmwareUpdateHide", (updatedValue) => setFirmwareUpdateHide(updatedValue))
+              }}
+              modalToggle
+            />
+          </div>
+        </div>
       </Modal>
     </>
   );
