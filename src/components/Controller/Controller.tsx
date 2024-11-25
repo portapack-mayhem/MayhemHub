@@ -42,6 +42,11 @@ const Controller = () => {
   const [deviceVersion, setDeviceVersion] = useState<string>("");
   const [autoUpdateFrame, setAutoUpdateFrame] = useState<boolean>(true);
   const [firmwarModalOpen, setFirmwarModalOpen] = useState<boolean>(false);
+  const [controlDeviceHide, setControlDeviceHide] = useState<boolean>(false);
+  const [disableButtonGroup, setDisableButtonGroup] = useState<boolean>(false);
+  const [serialConnectionHide, setSerialConnectionHide] = useState<boolean>(false);
+  const [firmwareUpdateHide, setFirmwareUpdateHide] = useState<boolean>(false);
+
   const [setupComplete, setSetupComplete] = useState<boolean>(false);
   const [dirStructure, setDirStructure] = useState<FileStructure[]>();
   const [latestVersion, setLatestVersion] = useState<LatestVersions>();
@@ -57,9 +62,20 @@ const Controller = () => {
   };
 
   useEffect(() => {
+    const cdh = localStorage.getItem('controlDeviceHide')
+    const dbg = localStorage.getItem('disableButtonGroup')
+    const sch = localStorage.getItem('serialConnectionHide')
+    const fuh = localStorage.getItem('firmwareUpdateHide')
+    if (cdh) setControlDeviceHide(Boolean(Number(cdh)))
+    if (dbg) setDisableButtonGroup(Boolean(Number(dbg)))
+    if (sch) setSerialConnectionHide(Boolean(Number(sch)))
+    if (fuh) setFirmwareUpdateHide(Boolean(Number(fuh)))
+  }, [localStorage]);
+
+  useEffect(() => {
     // We dont add this to the console as its not needed. This may change in the future
     if (consoleMessage.startsWith("screenframe")) {
-      renderFrame();
+      if(!controlDeviceHide)renderFrame();
       setLoadingFrame(false);
     } else {
       setConsoleMessageList(
@@ -122,7 +138,6 @@ const Controller = () => {
       serial_console.scrollTop = serial_console.scrollHeight;
     }
   }, [consoleMessageList]);
-
   const getLatestVersions = async () => {
     const apiResponse = await fetch("https://hackrf.app/api/get_versions");
 
@@ -302,6 +317,14 @@ const Controller = () => {
     // }
   };
 
+  const handleButtonControlClick = (button: string) => {
+    if (controlDeviceHide) {
+      write(button, false)
+      return
+    }
+    write(button, autoUpdateFrame)
+  }
+
   return (
     <>
       {setupComplete ? (
@@ -313,9 +336,42 @@ const Controller = () => {
               icon={faCheckCircle}
             />
           </h1>
+          <div className="flex flex-col items-center justify-center max-w-[60%] bg-slate-800 rounded-lg outline-none p-4 mb-3 font-medium text-white focus:ring-0 md:items-start">
+            <p className="text-center">Disable UI features:</p>
+            <div className="flex items-center justify-center gap-5">
+            <ToggleSwitch
+                toggleLabel={'Hide Buttons'}
+                isToggle={disableButtonGroup}
+                toggleSwitch={() => {
+                  const updatedValue = !disableButtonGroup
+                  setDisableButtonGroup(updatedValue)
+                  localStorage.setItem('disableButtonGroup', String(Number(updatedValue)))
+                }}
+              />
+              <ToggleSwitch
+                toggleLabel={'Hide screen'}
+                isToggle={controlDeviceHide}
+                toggleSwitch={() => {
+                  const updatedValue = !controlDeviceHide
+                  setControlDeviceHide(updatedValue)
+                  localStorage.setItem('controlDeviceHide', String(Number(updatedValue)))
+                  write("screenframeshort", false)
+                }}
+              />
+              <ToggleSwitch
+                toggleLabel={'Hide Serial widget'}
+                isToggle={serialConnectionHide}
+                toggleSwitch={() => {
+                  const updatedValue = !serialConnectionHide
+                  setSerialConnectionHide(updatedValue)
+                  localStorage.setItem('serialConnectionHide', String(Number(updatedValue)))
+                }}
+              />
+            </div>
+          </div>
           {!serial.isReading &&
             "Please enable the console, so the buttons can also be enabled!"}
-          <div
+          { (controlDeviceHide && disableButtonGroup)? '': <div
             id="ControllerSection"
             className="flex h-full max-w-[80%] flex-col items-center justify-center gap-24 rounded-lg bg-slate-800 p-10 outline-none focus:ring-0 md:flex-row md:items-start"
             onWheel={handleScroll}
@@ -324,7 +380,7 @@ const Controller = () => {
               handleKeyDown(e);
             }}
           >
-            <div
+            {!controlDeviceHide && <div
               className="flex flex-col items-center justify-center gap-5"
               id="screenGroup"
             >
@@ -371,7 +427,7 @@ const Controller = () => {
                   />
                 </div>
               </div>
-            </div>
+            </div>}
 
             {/* 
             
@@ -390,7 +446,8 @@ const Controller = () => {
               autoUpdateFrame={autoUpdateFrame}
               disableTransmitAction={disableTransmitAction}
             /> */}
-            <div
+            
+            {!disableButtonGroup && <div
               className="flex flex-col items-center justify-center gap-4"
               id="controlGroup"
             >
@@ -400,13 +457,13 @@ const Controller = () => {
                   <HotkeyButton
                     label={<FontAwesomeIcon icon={faArrowLeft} />}
                     disabled={disableTransmitAction}
-                    onClickFunction={() => write("button 2", autoUpdateFrame)}
+                    onClickFunction={() => handleButtonControlClick("button 2")}
                     className="btn btn-success h-16 w-16"
                     shortcutKeys={"ArrowLeft"}
                   />
                   <button
                     disabled={disableTransmitAction}
-                    onClick={() => write("button 7", autoUpdateFrame)}
+                    onClick={() => handleButtonControlClick("button 7")}
                     className="btn btn-info h-12 w-12 self-end justify-self-start"
                   >
                     <FontAwesomeIcon icon={faRotateLeft} />
@@ -414,21 +471,21 @@ const Controller = () => {
                   <HotkeyButton
                     label={<FontAwesomeIcon icon={faArrowUp} />}
                     disabled={disableTransmitAction}
-                    onClickFunction={() => write("button 4", autoUpdateFrame)}
+                    onClickFunction={() => handleButtonControlClick('button 4')}
                     className="btn btn-success h-16 w-16"
                     shortcutKeys={"ArrowUp"}
                   />
                   <HotkeyButton
                     label={<FontAwesomeIcon icon={faCheckCircle} />}
                     disabled={disableTransmitAction}
-                    onClickFunction={() => write("button 5", autoUpdateFrame)}
+                    onClickFunction={() => handleButtonControlClick("button 5")}
                     className="btn btn-info h-16 w-16"
                     shortcutKeys={"Enter"}
                   />
                   <HotkeyButton
                     label={<FontAwesomeIcon icon={faArrowDown} />}
                     disabled={disableTransmitAction}
-                    onClickFunction={() => write("button 3", autoUpdateFrame)}
+                    onClickFunction={() => handleButtonControlClick("button 3")}
                     className="btn btn-success h-16 w-16"
                     shortcutKeys={"ArrowDown"}
                   />
@@ -436,13 +493,13 @@ const Controller = () => {
                   <HotkeyButton
                     label={<FontAwesomeIcon icon={faArrowRight} />}
                     disabled={disableTransmitAction}
-                    onClickFunction={() => write("button 1", autoUpdateFrame)}
+                    onClickFunction={() => handleButtonControlClick("button 1")}
                     className="btn btn-success h-16 w-16"
                     shortcutKeys={"ArrowRight"}
                   />
                   <button
                     disabled={disableTransmitAction}
-                    onClick={() => write("button 8", autoUpdateFrame)}
+                    onClick={() => handleButtonControlClick("button 8")}
                     className="btn btn-info h-12 w-12 self-end justify-self-end"
                   >
                     <FontAwesomeIcon icon={faRotateRight} />
@@ -453,21 +510,21 @@ const Controller = () => {
                 <HotkeyButton
                   label="DFU"
                   disabled={disableTransmitAction}
-                  onClickFunction={() => write("button 6", autoUpdateFrame)}
+                  onClickFunction={() => handleButtonControlClick("button 6")}
                   className="btn btn-warning h-16 w-20"
                   shortcutKeys={"mod+D"}
                 />
                 <button
                   disabled={disableTransmitAction}
-                  onClick={() => write("reboot", autoUpdateFrame)}
+                  onClick={() => handleButtonControlClick("reboot")}
                   className="btn btn-error h-16 w-20"
                 >
                   REBOOT
                 </button>
               </div>
-            </div>
-          </div>
-
+            </div>}
+          </div>}
+          
           {!serial.isReading ? (
             <button
               className="rounded bg-orange-300 p-2 text-white disabled:opacity-50"
@@ -475,7 +532,7 @@ const Controller = () => {
             >
               Start Reading Console
             </button>
-          ) : (
+          ) : !serialConnectionHide && (
             <>
               <div className="mt-10 flex w-[80%] flex-row items-center justify-center gap-5 rounded-md bg-gray-700 p-5">
                 <div className="flex h-full w-[35%] flex-col gap-1 self-start">
