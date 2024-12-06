@@ -14,7 +14,7 @@ import HotkeyButton from "../HotkeyButton/HotkeyButton";
 interface IDeviceControls {
   disableTransmitAction: boolean;
   autoUpdateFrame: boolean;
-  write: (command: string, updateFrame: boolean) => Promise<void>;
+  write: any;
 }
 
 export const DeviceControls: React.FC<IDeviceControls> = ({

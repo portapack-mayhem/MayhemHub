@@ -3,7 +3,7 @@ import { IDataPacket } from "@/types";
 import { hexToBytes } from "./fileUtils";
 import { useSerial } from "../components/SerialLoader/SerialLoader";
 
-interface DownloadedFile {
+interface IDownloadedFile {
   blob: Blob;
   filename: string;
 }
@@ -167,7 +167,7 @@ const downloadFileFromBytes = (
 
 export const downloadFileFromUrl = async (
   url: string
-): Promise<DownloadedFile> => {
+): Promise<IDownloadedFile> => {
   const response = await fetch(url);
 
   if (!response.ok) {

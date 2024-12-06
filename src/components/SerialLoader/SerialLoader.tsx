@@ -12,7 +12,7 @@ import useWebSerial, {
   ISerialProvider,
 } from "../SerialProvider/SerialProvider";
 
-interface SerialLoaderProps {}
+interface ISerialLoader {}
 
 export const SerialContext = createContext<ISerialContextValue>({
   serial: {} as ISerialProvider,
@@ -22,7 +22,7 @@ export const SerialContext = createContext<ISerialContextValue>({
 // custom hook to use the context
 export const useSerial = () => useContext(SerialContext);
 
-const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
+const SerialLoader = ({ children }: PropsWithChildren<ISerialLoader>) => {
   const pairButtonRef = useRef<HTMLButtonElement>(null);
   const [consoleMessage, setConsoleMessage] = useState<string>();
   const [isLinuxUserModalOpen, setIsLinuxUserModalOpen] =

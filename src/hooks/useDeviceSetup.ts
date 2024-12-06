@@ -17,7 +17,7 @@ interface IDeviceSetup {
   setLatestVersion: (value: ILatestVersions) => void;
 }
 
-interface DeviceSetupReturn {
+interface IDeviceSetupReturn {
   setupComplete: boolean;
   deviceVersion: string;
 }
@@ -28,7 +28,7 @@ export const useDeviceSetup = ({
   setConsoleMessageList,
   setDirStructure,
   setLatestVersion,
-}: IDeviceSetup): DeviceSetupReturn => {
+}: IDeviceSetup): IDeviceSetupReturn => {
   const [setupComplete, setSetupComplete] = useState(false);
   const [deviceVersion, setDeviceVersion] = useState("");
 

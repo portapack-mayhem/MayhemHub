@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { IDataPacket } from "@/types";
 
 // Needing to do this as the typescript definitions for the Web Serial API are not yet complete
-interface WebSerialPort extends SerialPort {
+interface IWebSerialPort extends SerialPort {
   cancelRequested: boolean;
 }
 
@@ -25,12 +25,12 @@ type StopBitsType = 1 | 2;
 
 export type PortState = "closed" | "closing" | "open" | "opening";
 
-interface WebSerialContext {
+interface IWebSerialContext {
   initialized: boolean;
-  ports: WebSerialPort[];
+  ports: IWebSerialPort[];
 }
 
-const webSerialContext: WebSerialContext = {
+const webSerialContext: IWebSerialContext = {
   initialized: false,
   ports: [],
 };
@@ -48,19 +48,19 @@ const useInterval = (callback: () => void, delay: number) => {
 };
 
 export interface ISerialProvider {
-  ports: WebSerialPort[];
+  ports: IWebSerialPort[];
   isOpen: boolean;
   isReading: boolean;
   canUseSerial: boolean;
   portState: PortState;
   hasTriedAutoconnect: boolean;
-  portInfo: (port: WebSerialPort) => {
+  portInfo: (port: IWebSerialPort) => {
     usbVendorId: number;
     usbProductId: number;
     usbId: string;
   } | null;
   manualConnectToPort: (options?: SerialPortRequestOptions) => Promise<boolean>;
-  openPort: (newPort: WebSerialPort) => Promise<void>;
+  openPort: (newPort: IWebSerialPort) => Promise<void>;
   closePort: () => Promise<void>;
   startReading: () => Promise<void>;
   stopReading: () => Promise<void>;
@@ -110,16 +110,16 @@ const useWebSerial = ({
   onDisconnect,
   onData,
 }: {
-  onConnect?: (port: WebSerialPort) => void;
-  onDisconnect?: (port: WebSerialPort) => void;
+  onConnect?: (port: IWebSerialPort) => void;
+  onDisconnect?: (port: IWebSerialPort) => void;
   onData: (data: string) => void;
 }): ISerialProvider => {
   const [hasTriedAutoconnect, setHasTriedAutoconnect] = useState(false);
 
   const [canUseSerial] = useState(() => "serial" in navigator);
   const portState = useRef<PortState>("closed");
-  const portRef = useRef<WebSerialPort | null>(null);
-  const [ports, setPorts] = useState<WebSerialPort[]>(webSerialContext.ports);
+  const portRef = useRef<IWebSerialPort | null>(null);
+  const [ports, setPorts] = useState<IWebSerialPort[]>(webSerialContext.ports);
   const [isOpen, setIsOpen] = useState(false);
   const [isReading, setIsReading] = useState<boolean>(false);
   const isIncomingMessage = useRef<boolean>(false);
@@ -187,7 +187,7 @@ const useWebSerial = ({
 
       try {
         const port = await navigator.serial.requestPort(options);
-        openPort(port as WebSerialPort);
+        openPort(port as IWebSerialPort);
         return true;
       } catch (error) {
         portState.current = "closed";
@@ -204,7 +204,7 @@ const useWebSerial = ({
       const availablePorts = await navigator.serial.getPorts();
       if (availablePorts.length) {
         const port = availablePorts[0];
-        await openPort(port as WebSerialPort);
+        await openPort(port as IWebSerialPort);
         return true;
       } else {
         portState.current = "closed";
@@ -216,9 +216,9 @@ const useWebSerial = ({
 
   /**
    *
-   * @param {WebSerialPort} port
+   * @param {IWebSerialPort} port
    */
-  const portInfo = (port: WebSerialPort) => {
+  const portInfo = (port: IWebSerialPort) => {
     const info = port.getInfo();
     if (info.usbVendorId && info.usbProductId) {
       return {
@@ -234,7 +234,7 @@ const useWebSerial = ({
     return null;
   };
 
-  const openPort = async (newPort: WebSerialPort) => {
+  const openPort = async (newPort: IWebSerialPort) => {
     if (!newPort) {
       throw new Error("useWebSerial: No port selected");
     }
@@ -513,9 +513,9 @@ const useWebSerial = ({
 
     navigator.serial.getPorts().then((ports) => {
       if (ports.length >= 1) {
-        webSerialContext.ports = ports as WebSerialPort[];
-        setPorts(ports as WebSerialPort[]);
-        portRef.current = ports[0] as WebSerialPort;
+        webSerialContext.ports = ports as IWebSerialPort[];
+        setPorts(ports as IWebSerialPort[]);
+        portRef.current = ports[0] as IWebSerialPort;
       }
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
