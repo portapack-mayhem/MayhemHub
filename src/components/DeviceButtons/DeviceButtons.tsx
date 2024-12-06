@@ -1,7 +1,7 @@
 import { faRotateLeft, faRotateRight } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import HotkeyButton from "@/components/HotkeyButton/HotkeyButton";
 import { useWriteCommand } from "@/utils/serialUtils";
-import HotkeyButton from "../HotkeyButton/HotkeyButton";
 
 export const DeviceButtons = ({
   autoUpdateFrame,

@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
+import { useSerial } from "@/components/SerialLoader/SerialLoader";
 import { IDataPacket } from "@/types";
 import { hexToBytes } from "./fileUtils";
-import { useSerial } from "../components/SerialLoader/SerialLoader";
 
 interface IDownloadedFile {
   blob: Blob;

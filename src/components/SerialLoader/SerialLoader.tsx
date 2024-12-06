@@ -6,11 +6,11 @@ import {
   useRef,
   useState,
 } from "react";
-import { ISerialContextValue } from "@/types";
-import Modal from "../Modal/Modal";
+import Modal from "@/components/Modal/Modal";
 import useWebSerial, {
   ISerialProvider,
-} from "../SerialProvider/SerialProvider";
+} from "@/components/SerialProvider/SerialProvider";
+import { ISerialContextValue } from "@/types";
 
 interface ISerialLoader {}
 

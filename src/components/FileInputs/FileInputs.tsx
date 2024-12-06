@@ -1,5 +1,8 @@
 import { ChangeEvent, Dispatch, SetStateAction } from "react";
-import { FileBrowser, FileStructure } from "../FileBrowser/FileBrowser";
+import {
+  FileBrowser,
+  FileStructure,
+} from "@/components/FileBrowser/FileBrowser";
 
 interface IFileInputs {
   fileInputRef: React.RefObject<HTMLInputElement>;

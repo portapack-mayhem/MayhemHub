@@ -3,6 +3,17 @@
 import { faRotate, faCheckCircle } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
+import { Console } from "@/components/Console/Console";
+import { DeviceControls } from "@/components/DeviceControls/DeviceControls";
+import { FileStructure } from "@/components/FileBrowser/FileBrowser";
+import { FileInputs } from "@/components/FileInputs/FileInputs";
+import { FirmwareManager } from "@/components/FirmwareManager/FirmwareManager";
+import HotkeyButton from "@/components/HotkeyButton/HotkeyButton";
+import { Loader } from "@/components/Loader/Loader";
+import Modal from "@/components/Modal/Modal";
+import { Screen } from "@/components/Screen/Screen";
+import { useSerial } from "@/components/SerialLoader/SerialLoader";
+import ToggleSwitch from "@/components/ToggleSwitch/ToggleSwitch";
 import { useDeviceSetup } from "@/hooks/useDeviceSetup";
 import { useScreenFrame } from "@/hooks/useScreenFrame";
 import { ILatestVersions } from "@/types";
@@ -12,17 +23,6 @@ import {
   nightlyVersionFormat,
   stableVersionFormat,
 } from "@/utils/versionUtils";
-import { Console } from "../Console/Console";
-import { DeviceControls } from "../DeviceControls/DeviceControls";
-import { FileStructure } from "../FileBrowser/FileBrowser";
-import { FileInputs } from "../FileInputs/FileInputs";
-import { FirmwareManager } from "../FirmwareManager/FirmwareManager";
-import HotkeyButton from "../HotkeyButton/HotkeyButton";
-import { Loader } from "../Loader/Loader";
-import Modal from "../Modal/Modal";
-import { Screen } from "../Screen/Screen";
-import { useSerial } from "../SerialLoader/SerialLoader";
-import ToggleSwitch from "../ToggleSwitch/ToggleSwitch";
 
 const Controller = () => {
   const [consoleMessageList, setConsoleMessageList] = useState<string>("");

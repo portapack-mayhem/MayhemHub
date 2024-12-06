@@ -1,4 +1,4 @@
-import { FileStructure } from "../components/FileBrowser/FileBrowser";
+import { FileStructure } from "@/components/FileBrowser/FileBrowser";
 
 export const hexToBytes = (hex: string) => {
   let bytes = new Uint8Array(Math.ceil(hex.length / 2));
