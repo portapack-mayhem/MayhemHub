@@ -1,0 +1,5 @@
+-- Mayhem script go to capture, set freq to 433.92 and capture
+-- This is Lua syntax but based on regex, so no Lua run time support yet
+write("appstart capture",true,true)
+write("setfreq 433920000",true,true)
+write("touch 7 57",true,true)

@@ -11,6 +11,7 @@ import {
   faCheckCircle,
   faPaperPlane,
   faCircleXmark,
+  faCode,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
@@ -48,6 +49,11 @@ const Controller = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const firmwareFileInputRef = useRef<HTMLInputElement>(null);
+  const scriptFileInputRef = useRef<HTMLInputElement>(null);
+  const [scriptStatus, setScriptStatus] = useState<string>(
+    "Type single command above or pick a script"
+  );
+  const [scriptRunning, setScriptRunning] = useState<boolean>(false);
 
   const started = useRef<boolean>(false);
 
@@ -302,6 +308,69 @@ const Controller = () => {
     // }
   };
 
+  const onScriptFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const fileList = event.target.files;
+    if (!fileList) return;
+
+    let file = fileList[0];
+    setScriptStatus(`Picked script: ${file.name}`);
+
+    let reader = new FileReader();
+
+    reader.onloadend = async () => {
+      setScriptRunning(true);
+      const content = reader.result;
+      if (typeof content === "string") {
+        const lines = content.split(/\r?\n/); // split lines
+
+        for (let lineNumber = 0; lineNumber < lines.length; lineNumber++) {
+          await new Promise((resolve) => setTimeout(resolve, 1000)); // the await for write func seems is still too fast. TODO
+          const line = lines[lineNumber];
+          const trimmedLine = line.trim();
+          if (trimmedLine.startsWith("--") || trimmedLine === "") {
+            continue;
+          }
+          const writeMatch = trimmedLine.match(/^write\((.*)\);?$/); // match write command
+          if (writeMatch) {
+            const argsString = writeMatch[1];
+            const argsRegex =
+              /["'](.+?)["']\s*,\s*(true|false)\s*,\s*(true|false)/;
+            /* ^match str surronded by' and "
+                               ^ match bool        ^ match bool   */
+            const argsMatch = argsString.match(argsRegex);
+            if (argsMatch) {
+              const command = argsMatch[1];
+              const updateFrame = argsMatch[2] === "true"; //cast to bool
+              const awaitResponse = argsMatch[3] === "true"; // cast to bool
+
+              setScriptStatus(`sending: ${command}`);
+              await write(command, updateFrame, awaitResponse);
+            } else {
+              setScriptStatus(`script syntax invalid: line ${lineNumber + 1}`);
+              break;
+            }
+          } else {
+            setScriptStatus(`script syntax invalid: line ${lineNumber + 1}`);
+            break;
+          }
+        }
+        setScriptStatus("script execution completed");
+      } else {
+        setScriptStatus("failed to read script file");
+      }
+      setScriptRunning(false);
+    };
+
+    reader.onerror = () => {
+      setScriptStatus("error reading script file");
+      setScriptRunning(false);
+    };
+
+    if (file) {
+      reader.readAsText(file);
+    }
+  };
+
   return (
     <>
       {setupComplete ? (
@@ -477,8 +546,8 @@ const Controller = () => {
             </button>
           ) : (
             <>
-              <div className="mt-10 flex w-[80%] flex-row items-center justify-center gap-5 rounded-md bg-gray-700 p-5">
-                <div className="flex h-full w-[35%] flex-col gap-1 self-start">
+              <div className="mt-10 flex h-[434px] w-[80%] flex-row items-start justify-center gap-5 rounded-md bg-gray-700 p-5">
+                <div className="flex h-full w-[35%] flex-col gap-1">
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -506,7 +575,21 @@ const Controller = () => {
                       onFirmwareFileChange(e, selectedUploadFolder);
                     }}
                   />
-                  <div className="flex max-h-96 flex-col overflow-y-auto">
+                  <input
+                    ref={scriptFileInputRef}
+                    type="file"
+                    accept=".ppsc"
+                    style={{ display: "none" }}
+                    onClick={() => {
+                      if (scriptFileInputRef.current) {
+                        scriptFileInputRef.current.value = "";
+                      }
+                    }}
+                    onChange={(e) => {
+                      onScriptFileChange(e);
+                    }}
+                  />
+                  <div className="flex h-full flex-col overflow-y-auto">
                     <FileBrowser
                       fileInputRef={fileInputRef}
                       setSelectedUploadFolder={setSelectedUploadFolder}
@@ -517,11 +600,18 @@ const Controller = () => {
                 </div>
                 <div className="flex w-full flex-col items-center justify-center gap-1">
                   <textarea
-                    className="h-[350px] w-full rounded bg-gray-600 p-2 text-white font-mono"
+                    className="h-[350px] w-full rounded bg-gray-600 p-2 font-mono text-white"
                     readOnly
                     value={consoleMessageList}
                     id="serial_console"
                   />
+                  {scriptRunning && (
+                    <div className="flex w-full flex-row items-center justify-center gap-1">
+                      <p className="w-full rounded-md bg-blue-700 p-2 font-mono text-white">
+                        {scriptStatus}
+                      </p>
+                    </div>
+                  )}
                   <div className="flex w-full flex-row items-center justify-center gap-1">
                     <input
                       type="text"
@@ -533,11 +623,12 @@ const Controller = () => {
                           sendCommand();
                         }
                       }}
-                      className="w-full rounded-md bg-gray-600 p-2 text-white font-mono"
+                      placeholder="Enter command"
+                      className="w-full rounded-md bg-gray-600 p-2 font-mono text-white"
                     />
                     <button
                       type="submit"
-                      className="btn btn-success btn-sm h-10 text-white"
+                      className="btn btn-success btn-sm size-10 text-white"
                       onClick={() => {
                         sendCommand();
                       }}
@@ -546,12 +637,21 @@ const Controller = () => {
                     </button>
                     <button
                       type="submit"
-                      className="btn btn-error btn-sm h-10 text-white"
+                      className="btn btn-error btn-sm size-10 text-white"
                       onClick={() => {
                         setConsoleMessageList("");
                       }}
                     >
                       <FontAwesomeIcon icon={faCircleXmark} />
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-info btn-sm size-10 text-white"
+                      onClick={() => {
+                        scriptFileInputRef.current?.click();
+                      }}
+                    >
+                      <FontAwesomeIcon icon={faCode} />
                     </button>
                   </div>
                 </div>
