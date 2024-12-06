@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { DataPacket } from "@/components/SerialProvider/SerialProvider";
+import { IDataPacket } from "@/types";
 import { hexToBytes } from "./fileUtils";
 import { useSerial } from "../components/SerialLoader/SerialLoader";
 
@@ -26,7 +26,7 @@ export const useWriteCommand = () => {
     updateFrame: boolean,
     awaitResponse: boolean = true
   ) => {
-    let data: DataPacket = {
+    let data: IDataPacket = {
       id: 0,
       command: "",
       response: null,
