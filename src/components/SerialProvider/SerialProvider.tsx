@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { IDataPacket } from "@/types";
 
 // Needing to do this as the typescript definitions for the Web Serial API are not yet complete
 interface WebSerialPort extends SerialPort {
@@ -34,12 +35,6 @@ const webSerialContext: WebSerialContext = {
   ports: [],
 };
 
-export interface DataPacket {
-  id: number;
-  command: string;
-  response: string | null;
-}
-
 /**
  *
  * @param {() => void} callback
@@ -52,7 +47,7 @@ const useInterval = (callback: () => void, delay: number) => {
   }, [callback, delay]);
 };
 
-export interface UseWebSerialReturn {
+export interface ISerialProvider {
   ports: WebSerialPort[];
   isOpen: boolean;
   isReading: boolean;
@@ -71,9 +66,9 @@ export interface UseWebSerialReturn {
   stopReading: () => Promise<void>;
   write: () => Promise<void>;
   queueWrite: (message: string) => number;
-  queueWriteAndResponse: (message: string) => Promise<DataPacket>;
-  queueWriteAndResponseBinary: (message: Uint8Array) => Promise<DataPacket>;
-  commandResponseMap: DataPacket[];
+  queueWriteAndResponse: (message: string) => Promise<IDataPacket>;
+  queueWriteAndResponseBinary: (message: Uint8Array) => Promise<IDataPacket>;
+  commandResponseMap: IDataPacket[];
   options: {
     baudRate: BaudRatesType;
     bufferSize: number;
@@ -118,7 +113,7 @@ const useWebSerial = ({
   onConnect?: (port: WebSerialPort) => void;
   onDisconnect?: (port: WebSerialPort) => void;
   onData: (data: string) => void;
-}): UseWebSerialReturn => {
+}): ISerialProvider => {
   const [hasTriedAutoconnect, setHasTriedAutoconnect] = useState(false);
 
   const [canUseSerial] = useState(() => "serial" in navigator);
@@ -143,7 +138,7 @@ const useWebSerial = ({
   const [ringIndicator, setRingIndicator] = useState(false);
 
   const [messageQueue, setMessageQueue] = useState<Array<Uint8Array>>([]);
-  const commandResponseMap = useRef<DataPacket[]>([]);
+  const commandResponseMap = useRef<IDataPacket[]>([]);
   const commandCounter = useRef(0);
 
   useInterval(() => {

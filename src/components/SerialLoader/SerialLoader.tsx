@@ -6,19 +6,16 @@ import {
   useRef,
   useState,
 } from "react";
+import { ISerialContextValue } from "@/types";
 import Modal from "../Modal/Modal";
 import useWebSerial, {
-  UseWebSerialReturn,
+  ISerialProvider,
 } from "../SerialProvider/SerialProvider";
 
 interface SerialLoaderProps {}
 
-export interface SerialContextValue {
-  serial: UseWebSerialReturn;
-  consoleMessage: string;
-}
-export const SerialContext = createContext<SerialContextValue>({
-  serial: {} as UseWebSerialReturn,
+export const SerialContext = createContext<ISerialContextValue>({
+  serial: {} as ISerialProvider,
   consoleMessage: "",
 });
 
@@ -31,7 +28,7 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
   const [isLinuxUserModalOpen, setIsLinuxUserModalOpen] =
     useState<boolean>(false);
 
-  const serial: UseWebSerialReturn = useWebSerial({
+  const serial: ISerialProvider = useWebSerial({
     onConnect: (data: any) => {
       // ToDo: Auto connect when its connected (But have a select toggle to be able to turn this off)
       console.log("onConnect", data);
@@ -112,7 +109,7 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
           </button>
           <div className="pt-5">
             <i>No device found or cannot connect? </i>
-            <ul className="list-disc list-inside">
+            <ul className="list-inside list-disc">
               <li>
                 Keep your PortaPack in normal mode (instead of HackRF mode)
               </li>
@@ -124,7 +121,7 @@ const SerialLoader = ({ children }: PropsWithChildren<SerialLoaderProps>) => {
                 <li>
                   Linux user?{" "}
                   <span
-                    className="text-blue-600 cursor-pointer"
+                    className="cursor-pointer text-blue-600"
                     onClick={toggleLinuxUserModal}
                   >
                     Permission help
