@@ -1,12 +1,9 @@
-type ToggleSwitchProps = {
+type IToggleSwitch = {
   isToggle: boolean;
   toggleSwitch: () => void;
 };
 
-const ToggleSwitch: React.FC<ToggleSwitchProps> = ({
-  isToggle,
-  toggleSwitch,
-}) => {
+const ToggleSwitch: React.FC<IToggleSwitch> = ({ isToggle, toggleSwitch }) => {
   return (
     <label className="flex cursor-pointer items-center">
       <div className="relative">

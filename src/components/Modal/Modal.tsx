@@ -1,15 +1,7 @@
 import { faRectangleXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect } from "react";
-
-export interface IModal {
-  title?: string;
-  footer?: React.ReactNode;
-  isModalOpen?: boolean;
-  closeModal: () => void;
-  children: React.ReactNode;
-  className?: string;
-}
+import { IModal } from "@/types";
 
 const Modal = ({
   title,

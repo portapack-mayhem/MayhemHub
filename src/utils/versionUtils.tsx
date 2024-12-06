@@ -1,3 +1,5 @@
+import { ILatestVersions } from "@/types";
+
 type Version = "stable" | "nightly" | "custom" | "unknown";
 
 export const nightlyVersionFormat = (input: string): number => {
@@ -49,4 +51,10 @@ export const getVersionLink = (versionString: string = ""): string => {
     return `https://github.com/portapack-mayhem/mayhem-firmware/commit/${versionString}`;
   }
   return "";
+};
+
+export const getLatestVersions = async (): Promise<ILatestVersions> => {
+  const apiResponse = await fetch("https://hackrf.app/api/get_versions");
+  if (!apiResponse.ok) throw new Error("Failed to fetch versions");
+  return await apiResponse.json();
 };
