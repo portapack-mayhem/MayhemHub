@@ -546,8 +546,8 @@ const Controller = () => {
             </button>
           ) : (
             <>
-              <div className="mt-10 flex w-[80%] flex-row items-center justify-center gap-5 rounded-md bg-gray-700 p-5">
-                <div className="flex h-full w-[35%] flex-col gap-1 self-start">
+              <div className="mt-10 flex h-[434px] w-[80%] flex-row items-start justify-center gap-5 rounded-md bg-gray-700 p-5">
+                <div className="flex h-full w-[35%] flex-col gap-1">
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -589,7 +589,7 @@ const Controller = () => {
                       onScriptFileChange(e);
                     }}
                   />
-                  <div className="flex max-h-96 flex-col overflow-y-auto">
+                  <div className="flex h-full flex-col overflow-y-auto">
                     <FileBrowser
                       fileInputRef={fileInputRef}
                       setSelectedUploadFolder={setSelectedUploadFolder}
