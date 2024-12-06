@@ -53,6 +53,7 @@ const Controller = () => {
   const [scriptStatus, setScriptStatus] = useState<string>(
     "Type single command above or pick a script"
   );
+  const [scriptRunning, setScriptRunning] = useState<boolean>(false);
 
   const started = useRef<boolean>(false);
 
@@ -317,6 +318,7 @@ const Controller = () => {
     let reader = new FileReader();
 
     reader.onloadend = async () => {
+      setScriptRunning(true);
       const content = reader.result;
       if (typeof content === "string") {
         const lines = content.split(/\r?\n/); // split lines
@@ -356,10 +358,12 @@ const Controller = () => {
       } else {
         setScriptStatus("failed to read script file");
       }
+      setScriptRunning(false);
     };
 
     reader.onerror = () => {
       setScriptStatus("error reading script file");
+      setScriptRunning(false);
     };
 
     if (file) {
@@ -596,11 +600,18 @@ const Controller = () => {
                 </div>
                 <div className="flex w-full flex-col items-center justify-center gap-1">
                   <textarea
-                    className="h-[350px] w-full rounded bg-gray-600 p-2 text-white font-mono"
+                    className="h-[350px] w-full rounded bg-gray-600 p-2 font-mono text-white"
                     readOnly
                     value={consoleMessageList}
                     id="serial_console"
                   />
+                  {scriptRunning && (
+                    <div className="flex w-full flex-row items-center justify-center gap-1">
+                      <p className="w-full rounded-md bg-blue-700 p-2 font-mono text-white">
+                        {scriptStatus}
+                      </p>
+                    </div>
+                  )}
                   <div className="flex w-full flex-row items-center justify-center gap-1">
                     <input
                       type="text"
@@ -612,11 +623,12 @@ const Controller = () => {
                           sendCommand();
                         }
                       }}
-                      className="w-full rounded-md bg-gray-600 p-2 text-white font-mono"
+                      placeholder="Enter command"
+                      className="w-full rounded-md bg-gray-600 p-2 font-mono text-white"
                     />
                     <button
                       type="submit"
-                      className="btn btn-success btn-sm h-10 text-white"
+                      className="btn btn-success btn-sm size-10 text-white"
                       onClick={() => {
                         sendCommand();
                       }}
@@ -625,21 +637,16 @@ const Controller = () => {
                     </button>
                     <button
                       type="submit"
-                      className="btn btn-error btn-sm h-10 text-white"
+                      className="btn btn-error btn-sm size-10 text-white"
                       onClick={() => {
                         setConsoleMessageList("");
                       }}
                     >
                       <FontAwesomeIcon icon={faCircleXmark} />
                     </button>
-                  </div>
-                  <div className="flex w-full flex-row items-center justify-center gap-1">
-                    <p className="w-full rounded-md bg-blue-700 p-2 text-white font-mono">
-                      {scriptStatus}
-                    </p>
                     <button
                       type="button"
-                      className="btn btn-info btn-sm h-10 text-white"
+                      className="btn btn-info btn-sm size-10 text-white"
                       onClick={() => {
                         scriptFileInputRef.current?.click();
                       }}
@@ -647,7 +654,6 @@ const Controller = () => {
                       <FontAwesomeIcon icon={faCode} />
                     </button>
                   </div>
-                  <div className="w-full text-center mt-2"></div>
                 </div>
               </div>
               <div className="m-5 flex w-[20%] flex-col items-center justify-center rounded-md bg-gray-700 p-5">
