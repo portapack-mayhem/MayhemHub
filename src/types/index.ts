@@ -29,3 +29,11 @@ export interface ISerialContextValue {
   serial: ISerialProvider;
   consoleMessage: string;
 }
+
+export interface IUIConfig {
+  controlDeviceHide: boolean;
+  disableButtonGroup: boolean;
+  fileSystemHide: boolean;
+  serialConnectionHide: boolean;
+  firmwareUpdateHide: boolean;
+}
