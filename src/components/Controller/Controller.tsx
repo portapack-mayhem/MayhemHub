@@ -419,9 +419,9 @@ const Controller = () => {
               <div className="mt-3 flex w-[80%] justify-end">
                 <button
                   onClick={() => setUIConfigurationOpen(true)}
-                  className=" btn btn-secondary"
+                  className="btn btn-primary"
                 >
-                  UI Configuration
+                  UI Config
                 </button>
               </div>
             </>
