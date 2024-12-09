@@ -3,7 +3,6 @@
 import {
   faRotate,
   faCheckCircle,
-  faGears,
   faGear,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -21,13 +20,15 @@ import { useSerial } from "@/components/SerialLoader/SerialLoader";
 import ToggleSwitch from "@/components/ToggleSwitch/ToggleSwitch";
 import { useDeviceSetup } from "@/hooks/useDeviceSetup";
 import { useScreenFrame } from "@/hooks/useScreenFrame";
-import { ConfigItem, ILatestVersions, IUIConfig } from "@/types";
+import { useUIConfig } from "@/hooks/useUIConfig";
+import { ILatestVersions } from "@/types";
 import { downloadFileFromUrl, useWriteCommand } from "@/utils/serialUtils";
 import {
   getVersionType,
   nightlyVersionFormat,
   stableVersionFormat,
 } from "@/utils/versionUtils";
+import UIConfigurationModal from "../UIConfigurationModal/UIConfigurationModal";
 
 const Controller = () => {
   const [consoleMessageList, setConsoleMessageList] = useState<string>("");
@@ -49,37 +50,6 @@ const Controller = () => {
 
   const [UIConfigurationOpen, setUIConfigurationOpen] =
     useState<boolean>(false);
-  const [UIConfig, setUiConfig] = useState<IUIConfig>({
-    screenHide: false,
-    controlButtonsHide: false,
-    fileSystemHide: false,
-    serialConsoleHide: false,
-    firmwareManagerHide: false,
-  });
-
-  const uiConfigItems: ConfigItem[] = [
-    {
-      key: "controlButtonsHide",
-      label: "Hide Control Buttons",
-    },
-    {
-      key: "screenHide",
-      label: "Hide Screen",
-      onToggle: () => toggleLiveScreen(!UIConfig.screenHide),
-    },
-    {
-      key: "fileSystemHide",
-      label: "Hide File System",
-    },
-    {
-      key: "serialConsoleHide",
-      label: "Hide Serial Console",
-    },
-    {
-      key: "firmwareManagerHide",
-      label: "Hide Firmware Manager",
-    },
-  ];
 
   const { serial, consoleMessage } = useSerial();
   const { write, uploadFile, disableTransmitAction, setLoadingFrame } =
@@ -92,6 +62,7 @@ const Controller = () => {
     setLatestVersion,
   });
   const { canvasRef, renderFrame } = useScreenFrame();
+  const { UIConfig, setUiConfig, handleUpdateUiHide } = useUIConfig();
 
   const sendCommand = async () => {
     await write(command, false);
@@ -282,17 +253,6 @@ const Controller = () => {
     }
   };
 
-  const handleUpdateUiHide = (
-    value: boolean,
-    key: keyof IUIConfig,
-    setInState: (stateValue: boolean) => void
-  ) => {
-    const updatedValue = !value;
-    const newConfig = { ...UIConfig, [key]: updatedValue };
-    localStorage.setItem("uiConfig", JSON.stringify(newConfig));
-    setInState(updatedValue);
-  };
-
   const toggleLiveScreen = (shouldUpdate: boolean) => {
     if (!shouldUpdate) write("screenframeshort", false);
     setAutoUpdateFrame(!shouldUpdate);
@@ -320,13 +280,6 @@ const Controller = () => {
       serial_console.scrollTop = serial_console.scrollHeight;
     }
   }, [consoleMessageList]);
-
-  useEffect(() => {
-    const storedConfig = localStorage.getItem("uiConfig");
-    if (storedConfig) {
-      setUiConfig(JSON.parse(storedConfig));
-    }
-  }, []);
 
   return (
     <>
@@ -493,34 +446,14 @@ const Controller = () => {
           />
         )}
       </Modal>
-      <Modal
-        title="UI Configuration"
-        isModalOpen={UIConfigurationOpen}
-        closeModal={() => setUIConfigurationOpen(false)}
-        className="w-[20%]"
-      >
-        <div className="mb-3 flex flex-col items-center justify-center rounded-lg p-4 font-medium text-white outline-none focus:ring-0 md:items-start">
-          <div className="flex w-full flex-col items-start justify-start gap-5">
-            {uiConfigItems.map((item) => (
-              <ToggleSwitch
-                key={item.key}
-                toggleLabel={item.label}
-                isToggle={UIConfig[item.key]}
-                toggleSwitch={() => {
-                  handleUpdateUiHide(
-                    UIConfig[item.key],
-                    item.key,
-                    (updatedValue) => {
-                      setUiConfig({ ...UIConfig, [item.key]: updatedValue });
-                      item.onToggle?.();
-                    }
-                  );
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      </Modal>
+      <UIConfigurationModal
+        isOpen={UIConfigurationOpen}
+        onClose={() => setUIConfigurationOpen(false)}
+        UIConfig={UIConfig}
+        setUiConfig={setUiConfig}
+        handleUpdateUiHide={handleUpdateUiHide}
+        toggleLiveScreen={toggleLiveScreen}
+      />
     </>
   );
 };
