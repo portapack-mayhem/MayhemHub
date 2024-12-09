@@ -1,6 +1,11 @@
 "use client";
 
-import { faRotate, faCheckCircle } from "@fortawesome/free-solid-svg-icons";
+import {
+  faRotate,
+  faCheckCircle,
+  faGears,
+  faGear,
+} from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import { Console } from "@/components/Console/Console";
@@ -42,14 +47,46 @@ const Controller = () => {
   const firmwareFileInputRef = useRef<HTMLInputElement>(null);
   const scriptFileInputRef = useRef<HTMLInputElement>(null);
 
-  const [UIConfigurationOpen, setUIConfigurationOpen] = useState<boolean>(false);
+  const [UIConfigurationOpen, setUIConfigurationOpen] =
+    useState<boolean>(false);
   const [UIConfig, setUiConfig] = useState<IUIConfig>({
     controlDeviceHide: false,
     disableButtonGroup: false,
     fileSystemHide: false,
     serialConnectionHide: false,
-    firmwareUpdateHide: false
+    firmwareUpdateHide: false,
   });
+
+  type ConfigItem = {
+    key: keyof IUIConfig;
+    label: string;
+    onToggle?: () => void;
+  };
+
+  // Create the configuration array
+  const uiConfigItems: ConfigItem[] = [
+    {
+      key: "disableButtonGroup",
+      label: "Hide Buttons",
+    },
+    {
+      key: "controlDeviceHide",
+      label: "Hide Screen",
+      onToggle: () => write("screenframeshort", !UIConfig.controlDeviceHide),
+    },
+    {
+      key: "fileSystemHide",
+      label: "Hide File System",
+    },
+    {
+      key: "serialConnectionHide",
+      label: "Hide Serial",
+    },
+    {
+      key: "firmwareUpdateHide",
+      label: "Hide Firmware Update",
+    },
+  ];
 
   const { serial, consoleMessage } = useSerial();
   const { write, uploadFile, disableTransmitAction, setLoadingFrame } =
@@ -69,25 +106,16 @@ const Controller = () => {
   };
 
   useEffect(() => {
-    const cdh = localStorage.getItem('controlDeviceHide')
-    const dbg = localStorage.getItem('disableButtonGroup')
-    const fsh = localStorage.getItem('fileSystemHide')
-    const sch = localStorage.getItem('serialConnectionHide')
-    const fuh = localStorage.getItem('firmwareUpdateHide')
-    const newConfig: IUIConfig = {
-      controlDeviceHide: cdh? Boolean(Number(cdh)): false,
-      disableButtonGroup: dbg? Boolean(Number(dbg)): false,
-      fileSystemHide: fsh? Boolean(Number(fsh)): false,
-      serialConnectionHide: sch? Boolean(Number(sch)): false,
-      firmwareUpdateHide: fuh? Boolean(Number(fuh)): false,
+    const storedConfig = localStorage.getItem("uiConfig");
+    if (storedConfig) {
+      setUiConfig(JSON.parse(storedConfig));
     }
-    if (cdh || dbg || fsh || sch || fuh) setUiConfig(newConfig)
   }, []);
 
   useEffect(() => {
     // We dont add this to the console as its not needed. This may change in the future
     if (consoleMessage.startsWith("screenframe")) {
-      if(!UIConfig.controlDeviceHide) renderFrame(consoleMessage);
+      if (!UIConfig.controlDeviceHide) renderFrame(consoleMessage);
       setLoadingFrame(false);
     } else {
       setConsoleMessageList(
@@ -293,17 +321,22 @@ const Controller = () => {
 
   const handleButtonControlClick = (button: string) => {
     if (UIConfig.controlDeviceHide) {
-      write(button, false)
-      return
+      write(button, false);
+      return;
     }
-    write(button, autoUpdateFrame)
-  }
+    write(button, autoUpdateFrame);
+  };
 
-  const handleUpdateUiHide = (value: boolean, lsKey: string, setInState: (stateValue: boolean) => void) => {
-    const updatedValue = !value
-    localStorage.setItem(lsKey, String(Number(updatedValue)))
-    setInState(updatedValue)
-  }
+  const handleUpdateUiHide = (
+    value: boolean,
+    key: keyof IUIConfig,
+    setInState: (stateValue: boolean) => void
+  ) => {
+    const updatedValue = !value;
+    const newConfig = { ...UIConfig, [key]: updatedValue };
+    localStorage.setItem("uiConfig", JSON.stringify(newConfig));
+    setInState(updatedValue);
+  };
 
   return (
     <>
@@ -315,10 +348,11 @@ const Controller = () => {
               className="pl-2 text-green-500"
               icon={faCheckCircle}
             />
-          </h1>          
+          </h1>
           {!serial.isReading &&
             "Please enable the console, so the buttons can also be enabled!"}
-            {(!UIConfig.controlDeviceHide || !UIConfig.disableButtonGroup) && <div
+          {(!UIConfig.controlDeviceHide || !UIConfig.disableButtonGroup) && (
+            <div
               id="ControllerSection"
               className="flex h-full max-w-[80%] flex-col items-center justify-center gap-24 rounded-lg bg-slate-800 p-10 outline-none focus:ring-0 md:flex-row md:items-start"
               onWheel={handleScroll}
@@ -327,51 +361,57 @@ const Controller = () => {
                 handleKeyDown(e);
               }}
             >
-            {!UIConfig.controlDeviceHide && <div
-                className="flex flex-col items-center justify-center gap-5"
-                id="screenGroup"
-              >
-              <Screen
-                canvasRef={canvasRef}
-                disableTransmitAction={disableTransmitAction}
-                autoUpdateFrame={autoUpdateFrame}
-                write={write}
-                />
+              {!UIConfig.controlDeviceHide && (
+                <div
+                  className="flex flex-col items-center justify-center gap-5"
+                  id="screenGroup"
+                >
+                  <Screen
+                    canvasRef={canvasRef}
+                    disableTransmitAction={disableTransmitAction}
+                    autoUpdateFrame={autoUpdateFrame}
+                    write={write}
+                  />
 
-                <div className="flex flex-col items-center justify-center rounded-md bg-gray-700 p-3">
-                  <p className="pb-4">Live Screen</p>
-                  <div className="flex flex-row items-center justify-center gap-5">
-                    <ToggleSwitch
-                      isToggle={autoUpdateFrame}
-                      toggleSwitch={() => {
-                        if (!autoUpdateFrame) write("screenframeshort", false);
-                        setAutoUpdateFrame(!autoUpdateFrame);
-                      }}
-                    />
-                    <HotkeyButton
-                      label={<FontAwesomeIcon icon={faRotate} />}
-                      disabled={disableTransmitAction}
-                      onClickFunction={() => {
-                        if (!disableTransmitAction) {
-                          setLoadingFrame(true);
-                          write("screenframeshort", false);
-                        }
-                      }}
-                      className={"h-6 w-6 rounded-sm bg-green-500"}
-                      shortcutKeys={"mod+R"}
-                    />
+                  <div className="flex flex-col items-center justify-center rounded-md bg-gray-700 p-3">
+                    <p className="pb-4">Live Screen</p>
+                    <div className="flex flex-row items-center justify-center gap-5">
+                      <ToggleSwitch
+                        isToggle={autoUpdateFrame}
+                        toggleSwitch={() => {
+                          if (!autoUpdateFrame)
+                            write("screenframeshort", false);
+                          setAutoUpdateFrame(!autoUpdateFrame);
+                        }}
+                      />
+                      <HotkeyButton
+                        label={<FontAwesomeIcon icon={faRotate} />}
+                        disabled={disableTransmitAction}
+                        onClickFunction={() => {
+                          if (!disableTransmitAction) {
+                            setLoadingFrame(true);
+                            write("screenframeshort", false);
+                          }
+                        }}
+                        className={"h-6 w-6 rounded-sm bg-green-500"}
+                        shortcutKeys={"mod+R"}
+                      />
+                    </div>
                   </div>
                 </div>
-            </div>}
+              )}
 
-            {!UIConfig.disableButtonGroup && <DeviceControls
-                disableTransmitAction={disableTransmitAction}
-              write={write}
-              autoUpdateFrame={autoUpdateFrame}
-              handleButtonClick={handleButtonControlClick}
-            />}
-            </div>}
-          
+              {!UIConfig.disableButtonGroup && (
+                <DeviceControls
+                  disableTransmitAction={disableTransmitAction}
+                  write={write}
+                  autoUpdateFrame={autoUpdateFrame}
+                  handleButtonClick={handleButtonControlClick}
+                />
+              )}
+            </div>
+          )}
+
           {!serial.isReading ? (
             <button
               className="rounded bg-orange-300 p-2 text-white disabled:opacity-50"
@@ -381,31 +421,38 @@ const Controller = () => {
             </button>
           ) : (
             <>
-              {(!UIConfig.fileSystemHide || !UIConfig.serialConnectionHide) && <div className="mt-10 flex h-[434px] max-w-[80%] flex-row items-start justify-center gap-5 rounded-md bg-gray-700 p-5">
-                {!UIConfig.fileSystemHide && <FileInputs
-                          fileInputRef={fileInputRef}
-                  firmwareFileInputRef={firmwareFileInputRef}
-                  scriptFileInputRef={scriptFileInputRef}
-                  selectedUploadFolder={selectedUploadFolder}
-                          dirStructure={dirStructure}
-                          setDirStructure={setDirStructure}
-                  setSelectedUploadFolder={setSelectedUploadFolder}
-                  onFileChange={onFileChange}
-                  onFirmwareFileChange={onFirmwareFileChange}
-                  onScriptFileChange={onScriptFileChange}
-                />}
-                {!UIConfig.serialConnectionHide && <Console
-                  consoleMessageList={consoleMessageList}
-                  command={command}
-                  setCommand={setCommand}
-                  setConsoleMessageList={setConsoleMessageList}
-                  sendCommand={sendCommand}
-                  scriptStatus={scriptStatus}
-                  scriptRunning={scriptRunning}
-                  scriptFileInputRef={scriptFileInputRef}
-                        />}
-                </div>}
-                {!UIConfig.firmwareUpdateHide && <div className="m-5 flex w-[20%] flex-col items-center justify-center rounded-md bg-gray-700 p-5">
+              {(!UIConfig.fileSystemHide || !UIConfig.serialConnectionHide) && (
+                <div className="mt-10 flex h-[434px] max-w-[80%] flex-row items-start justify-center gap-5 rounded-md bg-gray-700 p-5">
+                  {!UIConfig.fileSystemHide && (
+                    <FileInputs
+                      fileInputRef={fileInputRef}
+                      firmwareFileInputRef={firmwareFileInputRef}
+                      scriptFileInputRef={scriptFileInputRef}
+                      selectedUploadFolder={selectedUploadFolder}
+                      dirStructure={dirStructure}
+                      setDirStructure={setDirStructure}
+                      setSelectedUploadFolder={setSelectedUploadFolder}
+                      onFileChange={onFileChange}
+                      onFirmwareFileChange={onFirmwareFileChange}
+                      onScriptFileChange={onScriptFileChange}
+                    />
+                  )}
+                  {!UIConfig.serialConnectionHide && (
+                    <Console
+                      consoleMessageList={consoleMessageList}
+                      command={command}
+                      setCommand={setCommand}
+                      setConsoleMessageList={setConsoleMessageList}
+                      sendCommand={sendCommand}
+                      scriptStatus={scriptStatus}
+                      scriptRunning={scriptRunning}
+                      scriptFileInputRef={scriptFileInputRef}
+                    />
+                  )}
+                </div>
+              )}
+              {!UIConfig.firmwareUpdateHide && (
+                <div className="m-5 flex w-[20%] flex-col items-center justify-center rounded-md bg-gray-700 p-5">
                   <p className="pb-5 text-center text-sm">
                     Firmware Version: {deviceVersion}
                   </p>
@@ -415,13 +462,14 @@ const Controller = () => {
                   >
                     Manage Firmware
                   </button>
-                </div>}
+                </div>
+              )}
               <div className="mt-3 flex w-[80%] justify-end">
                 <button
                   onClick={() => setUIConfigurationOpen(true)}
-                  className="btn btn-primary"
+                  className="btn btn-primary btn-sm size-10"
                 >
-                  UI Config
+                  <FontAwesomeIcon icon={faGear} />
                 </button>
               </div>
             </>
@@ -462,51 +510,28 @@ const Controller = () => {
         title="UI Configuration"
         isModalOpen={UIConfigurationOpen}
         closeModal={() => setUIConfigurationOpen(false)}
-        className="w-[40%]"
+        className="w-[20%]"
       >
         <div className="mb-3 flex flex-col items-center justify-center rounded-lg p-4 font-medium text-white outline-none focus:ring-0 md:items-start">
-          <div className="flex w-full flex-col items-start justify-start gap-5 ">
-            <ToggleSwitch
-              toggleLabel="Hide Buttons"
-              isToggle={UIConfig.disableButtonGroup}
-              toggleSwitch={() => {
-                handleUpdateUiHide(UIConfig.disableButtonGroup, "disableButtonGroup", (updatedValue) => setUiConfig({...UIConfig, disableButtonGroup: updatedValue}))
-              }}
-              modalToggle
-            />
-            <ToggleSwitch
-              toggleLabel="Hide Screen"
-              isToggle={UIConfig.controlDeviceHide}
-              toggleSwitch={() => {
-                handleUpdateUiHide(UIConfig.controlDeviceHide, "controlDeviceHide", (updatedValue) => setUiConfig({...UIConfig, controlDeviceHide: updatedValue}))
-                write("screenframeshort", false)
-              }}
-              modalToggle
-            />
-            <ToggleSwitch
-              toggleLabel="Hide File System"
-              isToggle={UIConfig.fileSystemHide}
-              toggleSwitch={() => {
-                handleUpdateUiHide(UIConfig.fileSystemHide, "fileSystemHide", (updatedValue) => setUiConfig({...UIConfig, fileSystemHide: updatedValue}))
-              }}
-              modalToggle
-            />
-            <ToggleSwitch
-              toggleLabel="Hide Serial"
-              isToggle={UIConfig.serialConnectionHide}
-              toggleSwitch={() => {
-                handleUpdateUiHide(UIConfig.serialConnectionHide, "serialConnectionHide", (updatedValue) => setUiConfig({...UIConfig, serialConnectionHide: updatedValue}))
-              }}
-              modalToggle
-            />
-            <ToggleSwitch
-              toggleLabel="Hide Firmware Update"
-              isToggle={UIConfig.firmwareUpdateHide}
-              toggleSwitch={() => {
-                handleUpdateUiHide(UIConfig.firmwareUpdateHide, "firmwareUpdateHide", (updatedValue) => setUiConfig({...UIConfig, firmwareUpdateHide: updatedValue}))
-              }}
-              modalToggle
-            />
+          <div className="flex w-full flex-col items-start justify-start gap-5">
+            {uiConfigItems.map((item) => (
+              <ToggleSwitch
+                key={item.key}
+                toggleLabel={item.label}
+                isToggle={UIConfig[item.key]}
+                toggleSwitch={() => {
+                  handleUpdateUiHide(
+                    UIConfig[item.key],
+                    item.key,
+                    (updatedValue) => {
+                      setUiConfig({ ...UIConfig, [item.key]: updatedValue });
+                      item.onToggle?.();
+                    }
+                  );
+                }}
+                modalToggle
+              />
+            ))}
           </div>
         </div>
       </Modal>
