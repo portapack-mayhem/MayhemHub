@@ -29,3 +29,17 @@ export interface ISerialContextValue {
   serial: ISerialProvider;
   consoleMessage: string;
 }
+
+export interface IUIConfig {
+  screenHide: boolean;
+  controlButtonsHide: boolean;
+  fileSystemHide: boolean;
+  serialConsoleHide: boolean;
+  firmwareManagerHide: boolean;
+}
+
+export type ConfigItem = {
+  key: keyof IUIConfig;
+  label: string;
+  onToggle?: () => void;
+};
