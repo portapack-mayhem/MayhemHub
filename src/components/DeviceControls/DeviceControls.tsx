@@ -15,14 +15,12 @@ interface IDeviceControls {
   disableTransmitAction: boolean;
   autoUpdateFrame: boolean;
   write: any;
-  handleButtonClick:(button: string) => void;
 }
 
 export const DeviceControls: React.FC<IDeviceControls> = ({
   disableTransmitAction,
   autoUpdateFrame,
   write,
-  handleButtonClick,
 }) => {
   /* 
 
@@ -53,13 +51,13 @@ export const DeviceControls: React.FC<IDeviceControls> = ({
           <HotkeyButton
             label={<FontAwesomeIcon icon={faArrowLeft} />}
             disabled={disableTransmitAction}
-            onClickFunction={() => handleButtonClick("button 2")}
+            onClickFunction={() => write("button 2", autoUpdateFrame)}
             className="btn btn-success h-16 w-16"
             shortcutKeys={"ArrowLeft"}
           />
           <button
             disabled={disableTransmitAction}
-            onClick={() => handleButtonClick("button 7")}
+            onClick={() => write("button 7", autoUpdateFrame)}
             className="btn btn-info h-12 w-12 self-end justify-self-start"
           >
             <FontAwesomeIcon icon={faRotateLeft} />
@@ -67,21 +65,21 @@ export const DeviceControls: React.FC<IDeviceControls> = ({
           <HotkeyButton
             label={<FontAwesomeIcon icon={faArrowUp} />}
             disabled={disableTransmitAction}
-            onClickFunction={() => handleButtonClick("button 4")}
+            onClickFunction={() => write("button 4", autoUpdateFrame)}
             className="btn btn-success h-16 w-16"
             shortcutKeys={"ArrowUp"}
           />
           <HotkeyButton
             label={<FontAwesomeIcon icon={faCheckCircle} />}
             disabled={disableTransmitAction}
-            onClickFunction={() => handleButtonClick("button 5")}
+            onClickFunction={() => write("button 5", autoUpdateFrame)}
             className="btn btn-info h-16 w-16"
             shortcutKeys={"Enter"}
           />
           <HotkeyButton
             label={<FontAwesomeIcon icon={faArrowDown} />}
             disabled={disableTransmitAction}
-            onClickFunction={() => handleButtonClick("button 3")}
+            onClickFunction={() => write("button 3", autoUpdateFrame)}
             className="btn btn-success h-16 w-16"
             shortcutKeys={"ArrowDown"}
           />
@@ -89,13 +87,13 @@ export const DeviceControls: React.FC<IDeviceControls> = ({
           <HotkeyButton
             label={<FontAwesomeIcon icon={faArrowRight} />}
             disabled={disableTransmitAction}
-            onClickFunction={() => handleButtonClick("button 1")}
+            onClickFunction={() => write("button 1", autoUpdateFrame)}
             className="btn btn-success h-16 w-16"
             shortcutKeys={"ArrowRight"}
           />
           <button
             disabled={disableTransmitAction}
-            onClick={() => handleButtonClick("button 8")}
+            onClick={() => write("button 8", autoUpdateFrame)}
             className="btn btn-info h-12 w-12 self-end justify-self-end"
           >
             <FontAwesomeIcon icon={faRotateRight} />

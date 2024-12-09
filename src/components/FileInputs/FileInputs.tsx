@@ -33,7 +33,7 @@ export const FileInputs: React.FC<IFileInputs> = ({
   onScriptFileChange,
 }) => {
   return (
-    <div className="flex h-full flex-col gap-1">
+    <div className="flex h-full w-[35%] flex-col gap-1">
       <input
         ref={fileInputRef}
         type="file"

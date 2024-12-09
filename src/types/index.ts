@@ -31,9 +31,15 @@ export interface ISerialContextValue {
 }
 
 export interface IUIConfig {
-  controlDeviceHide: boolean;
-  disableButtonGroup: boolean;
+  screenHide: boolean;
+  controlButtonsHide: boolean;
   fileSystemHide: boolean;
-  serialConnectionHide: boolean;
-  firmwareUpdateHide: boolean;
+  serialConsoleHide: boolean;
+  firmwareManagerHide: boolean;
 }
+
+export type ConfigItem = {
+  key: keyof IUIConfig;
+  label: string;
+  onToggle?: () => void;
+};

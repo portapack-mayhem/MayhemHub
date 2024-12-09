@@ -21,7 +21,7 @@ import { useSerial } from "@/components/SerialLoader/SerialLoader";
 import ToggleSwitch from "@/components/ToggleSwitch/ToggleSwitch";
 import { useDeviceSetup } from "@/hooks/useDeviceSetup";
 import { useScreenFrame } from "@/hooks/useScreenFrame";
-import { ILatestVersions, IUIConfig } from "@/types";
+import { ConfigItem, ILatestVersions, IUIConfig } from "@/types";
 import { downloadFileFromUrl, useWriteCommand } from "@/utils/serialUtils";
 import {
   getVersionType,
@@ -50,41 +50,34 @@ const Controller = () => {
   const [UIConfigurationOpen, setUIConfigurationOpen] =
     useState<boolean>(false);
   const [UIConfig, setUiConfig] = useState<IUIConfig>({
-    controlDeviceHide: false,
-    disableButtonGroup: false,
+    screenHide: false,
+    controlButtonsHide: false,
     fileSystemHide: false,
-    serialConnectionHide: false,
-    firmwareUpdateHide: false,
+    serialConsoleHide: false,
+    firmwareManagerHide: false,
   });
 
-  type ConfigItem = {
-    key: keyof IUIConfig;
-    label: string;
-    onToggle?: () => void;
-  };
-
-  // Create the configuration array
   const uiConfigItems: ConfigItem[] = [
     {
-      key: "disableButtonGroup",
-      label: "Hide Buttons",
+      key: "controlButtonsHide",
+      label: "Hide Control Buttons",
     },
     {
-      key: "controlDeviceHide",
+      key: "screenHide",
       label: "Hide Screen",
-      onToggle: () => write("screenframeshort", !UIConfig.controlDeviceHide),
+      onToggle: () => toggleLiveScreen(!UIConfig.screenHide),
     },
     {
       key: "fileSystemHide",
       label: "Hide File System",
     },
     {
-      key: "serialConnectionHide",
-      label: "Hide Serial",
+      key: "serialConsoleHide",
+      label: "Hide Serial Console",
     },
     {
-      key: "firmwareUpdateHide",
-      label: "Hide Firmware Update",
+      key: "firmwareManagerHide",
+      label: "Hide Firmware Manager",
     },
   ];
 
@@ -104,36 +97,6 @@ const Controller = () => {
     await write(command, false);
     setCommand("");
   };
-
-  useEffect(() => {
-    const storedConfig = localStorage.getItem("uiConfig");
-    if (storedConfig) {
-      setUiConfig(JSON.parse(storedConfig));
-    }
-  }, []);
-
-  useEffect(() => {
-    // We dont add this to the console as its not needed. This may change in the future
-    if (consoleMessage.startsWith("screenframe")) {
-      if (!UIConfig.controlDeviceHide) renderFrame(consoleMessage);
-      setLoadingFrame(false);
-    } else {
-      setConsoleMessageList(
-        (prevConsoleMessageList) => prevConsoleMessageList + consoleMessage
-      );
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [consoleMessage]);
-
-  useEffect(() => {
-    let serial_console = document.getElementById(
-      "serial_console"
-    ) as HTMLElement;
-
-    if (!!serial_console) {
-      serial_console.scrollTop = serial_console.scrollHeight;
-    }
-  }, [consoleMessageList]);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (
@@ -319,14 +282,6 @@ const Controller = () => {
     }
   };
 
-  const handleButtonControlClick = (button: string) => {
-    if (UIConfig.controlDeviceHide) {
-      write(button, false);
-      return;
-    }
-    write(button, autoUpdateFrame);
-  };
-
   const handleUpdateUiHide = (
     value: boolean,
     key: keyof IUIConfig,
@@ -337,6 +292,41 @@ const Controller = () => {
     localStorage.setItem("uiConfig", JSON.stringify(newConfig));
     setInState(updatedValue);
   };
+
+  const toggleLiveScreen = (shouldUpdate: boolean) => {
+    if (!shouldUpdate) write("screenframeshort", false);
+    setAutoUpdateFrame(!shouldUpdate);
+  };
+
+  useEffect(() => {
+    // We dont add this to the console as its not needed. This may change in the future
+    if (consoleMessage.startsWith("screenframe")) {
+      if (!UIConfig.screenHide) renderFrame(consoleMessage);
+      setLoadingFrame(false);
+    } else {
+      setConsoleMessageList(
+        (prevConsoleMessageList) => prevConsoleMessageList + consoleMessage
+      );
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [consoleMessage]);
+
+  useEffect(() => {
+    let serial_console = document.getElementById(
+      "serial_console"
+    ) as HTMLElement;
+
+    if (!!serial_console) {
+      serial_console.scrollTop = serial_console.scrollHeight;
+    }
+  }, [consoleMessageList]);
+
+  useEffect(() => {
+    const storedConfig = localStorage.getItem("uiConfig");
+    if (storedConfig) {
+      setUiConfig(JSON.parse(storedConfig));
+    }
+  }, []);
 
   return (
     <>
@@ -351,7 +341,7 @@ const Controller = () => {
           </h1>
           {!serial.isReading &&
             "Please enable the console, so the buttons can also be enabled!"}
-          {(!UIConfig.controlDeviceHide || !UIConfig.disableButtonGroup) && (
+          {(!UIConfig.screenHide || !UIConfig.controlButtonsHide) && (
             <div
               id="ControllerSection"
               className="flex h-full max-w-[80%] flex-col items-center justify-center gap-24 rounded-lg bg-slate-800 p-10 outline-none focus:ring-0 md:flex-row md:items-start"
@@ -361,7 +351,7 @@ const Controller = () => {
                 handleKeyDown(e);
               }}
             >
-              {!UIConfig.controlDeviceHide && (
+              {!UIConfig.screenHide && (
                 <div
                   className="flex flex-col items-center justify-center gap-5"
                   id="screenGroup"
@@ -379,9 +369,7 @@ const Controller = () => {
                       <ToggleSwitch
                         isToggle={autoUpdateFrame}
                         toggleSwitch={() => {
-                          if (!autoUpdateFrame)
-                            write("screenframeshort", false);
-                          setAutoUpdateFrame(!autoUpdateFrame);
+                          toggleLiveScreen(autoUpdateFrame);
                         }}
                       />
                       <HotkeyButton
@@ -401,12 +389,11 @@ const Controller = () => {
                 </div>
               )}
 
-              {!UIConfig.disableButtonGroup && (
+              {!UIConfig.controlButtonsHide && (
                 <DeviceControls
                   disableTransmitAction={disableTransmitAction}
                   write={write}
                   autoUpdateFrame={autoUpdateFrame}
-                  handleButtonClick={handleButtonControlClick}
                 />
               )}
             </div>
@@ -421,8 +408,8 @@ const Controller = () => {
             </button>
           ) : (
             <>
-              {(!UIConfig.fileSystemHide || !UIConfig.serialConnectionHide) && (
-                <div className="mt-10 flex h-[434px] max-w-[80%] flex-row items-start justify-center gap-5 rounded-md bg-gray-700 p-5">
+              {(!UIConfig.fileSystemHide || !UIConfig.serialConsoleHide) && (
+                <div className="mt-10 flex h-[434px] w-[80%] flex-row items-start justify-center gap-5 rounded-md bg-gray-700 p-5">
                   {!UIConfig.fileSystemHide && (
                     <FileInputs
                       fileInputRef={fileInputRef}
@@ -437,7 +424,7 @@ const Controller = () => {
                       onScriptFileChange={onScriptFileChange}
                     />
                   )}
-                  {!UIConfig.serialConnectionHide && (
+                  {!UIConfig.serialConsoleHide && (
                     <Console
                       consoleMessageList={consoleMessageList}
                       command={command}
@@ -451,7 +438,7 @@ const Controller = () => {
                   )}
                 </div>
               )}
-              {!UIConfig.firmwareUpdateHide && (
+              {!UIConfig.firmwareManagerHide && (
                 <div className="m-5 flex w-[20%] flex-col items-center justify-center rounded-md bg-gray-700 p-5">
                   <p className="pb-5 text-center text-sm">
                     Firmware Version: {deviceVersion}
