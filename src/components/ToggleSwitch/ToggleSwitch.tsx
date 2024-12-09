@@ -1,27 +1,25 @@
 type IToggleSwitch = {
   isToggle: boolean;
   toggleLabel?: string;
-  modalToggle?: boolean;
   toggleSwitch: () => void;
 };
 
 const ToggleSwitch: React.FC<IToggleSwitch> = ({
   isToggle,
   toggleLabel,
-  modalToggle,
   toggleSwitch,
 }) => {
   const handleToggle = () => {
-    toggleSwitch()
-  }
+    toggleSwitch();
+  };
   return (
-    <label className={`flex cursor-pointer ${modalToggle? "w-full justify-between": ""}`}>
-      {toggleLabel && 
-        <div className="mr-1 font-medium text-white">
-          {toggleLabel}
-        </div>
-      }
-      <div className={`relative ${modalToggle? "right-0": ""}`}>
+    <label
+      className={`flex w-full cursor-pointer flex-row justify-between gap-4`}
+    >
+      {toggleLabel && (
+        <div className="font-medium text-white">{toggleLabel}</div>
+      )}
+      <div className="relative">
         <input
           type="checkbox"
           className="hidden"
@@ -39,9 +37,9 @@ const ToggleSwitch: React.FC<IToggleSwitch> = ({
           }`}
         ></div>
       </div>
-      {!toggleLabel  && <div className="ml-4 font-medium text-white">
-        {isToggle ? "On" : "Off"}
-      </div>}
+      {!toggleLabel && (
+        <div className="font-medium text-white">{isToggle ? "On" : "Off"}</div>
+      )}
     </label>
   );
 };

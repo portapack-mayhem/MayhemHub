@@ -381,7 +381,7 @@ const Controller = () => {
                             write("screenframeshort", false);
                           }
                         }}
-                        className={"h-6 w-6 rounded-sm bg-green-500"}
+                        className={"size-6 min-w-6 rounded-sm bg-green-500"}
                         shortcutKeys={"mod+R"}
                       />
                     </div>
@@ -516,7 +516,6 @@ const Controller = () => {
                     }
                   );
                 }}
-                modalToggle
               />
             ))}
           </div>
