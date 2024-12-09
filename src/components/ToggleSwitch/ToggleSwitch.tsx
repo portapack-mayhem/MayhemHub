@@ -9,9 +9,6 @@ const ToggleSwitch: React.FC<IToggleSwitch> = ({
   toggleLabel,
   toggleSwitch,
 }) => {
-  const handleToggle = () => {
-    toggleSwitch();
-  };
   return (
     <label
       className={`flex w-full cursor-pointer flex-row justify-between gap-4`}
@@ -24,7 +21,9 @@ const ToggleSwitch: React.FC<IToggleSwitch> = ({
           type="checkbox"
           className="hidden"
           checked={isToggle}
-          onChange={handleToggle}
+          onChange={() => {
+            toggleSwitch();
+          }}
         />
         <div
           className={`h-6 w-10 rounded-full bg-gray-400 shadow-inner ${
