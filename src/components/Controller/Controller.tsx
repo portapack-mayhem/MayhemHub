@@ -43,10 +43,12 @@ const Controller = () => {
   const [scriptRunning, setScriptRunning] = useState<boolean>(false);
   const [dirStructure, setDirStructure] = useState<FileStructure[]>();
   const [latestVersion, setLatestVersion] = useState<ILatestVersions>();
+  const [remoteUploadPath, setRemoteUploadPath] = useState<string>("");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const firmwareFileInputRef = useRef<HTMLInputElement>(null);
   const scriptFileInputRef = useRef<HTMLInputElement>(null);
+  const remoteFileInputRef = useRef<HTMLInputElement>(null);
 
   const [UIConfigurationOpen, setUIConfigurationOpen] =
     useState<boolean>(false);
@@ -63,6 +65,17 @@ const Controller = () => {
   });
   const { canvasRef, renderFrame } = useScreenFrame();
   const { UIConfig, setUiConfig, handleUpdateUiHide } = useUIConfig();
+
+  const normalizePath = (path: string): string => {
+    let normalized = path.trim();
+    if (!normalized.startsWith("/")) {
+      normalized = "/" + normalized;
+    }
+    if (!normalized.endsWith("/")) {
+      normalized += "/";
+    }
+    return normalized;
+  };
 
   const sendCommand = async () => {
     await write(command, false);
@@ -118,6 +131,7 @@ const Controller = () => {
       await write(`mkdir /FIRMWARE`, false, true);
       const arrayBuffer = reader.result;
       if (arrayBuffer instanceof ArrayBuffer) {
+        const finalPath = normalizePath(path);
         let bytes = new Uint8Array(arrayBuffer);
         await uploadFile(path + file.name, bytes, setUpdateStatus); // ToDo: This should possibly be some sort of callback
         await write(`flash ${path + file.name}`, false, true);
@@ -426,15 +440,52 @@ const Controller = () => {
                   >
                     Manage Firmware
                   </button> */}
-                  <button
+
+                  <div className="flex w-full flex-row items-center justify-center gap-1">
+                    <p>Flash Local Firmware:</p>
+                    <button
+                      onClick={() => {
+                        setSelectedUploadFolder("/FIRMWARE/");
+                        firmwareFileInputRef.current?.click();
+                      }}
+                      className="btn btn-info"
+                    >
+                      Flash Local Firmware
+                    </button>
+                  </div>
+                  <div className="flex w-full flex-row items-center justify-center gap-1">
+                    <p>Upload Local File:</p>
+                    <input
+                      type="text"
+                      placeholder="Remote Upload File Path"
+                      value={remoteUploadPath}
+                      onChange={(e) => setRemoteUploadPath(e.target.value)}
+                      className="w-full rounded-md bg-gray-600 p-2 font-mono text-white"
+                    />
+                    <button
+                      className="btn btn-info"
+                      onClick={() => {
+                        remoteFileInputRef.current?.click();
+                      }}
+                    >
+                      Upload
+                    </button>
+                  </div>
+
+                  <input
+                    ref={remoteFileInputRef}
+                    type="file"
+                    style={{ display: "none" }}
                     onClick={() => {
-                      setSelectedUploadFolder("/FIRMWARE/");
-                      firmwareFileInputRef.current?.click();
+                      if (remoteFileInputRef.current) {
+                        remoteFileInputRef.current.value = "";
+                      }
                     }}
-                    className="btn btn-info"
-                  >
-                    Flash Local Firmware
-                  </button>
+                    onChange={(e) => {
+                      const finalPath = normalizePath(remoteUploadPath);
+                      onFileChange(e, finalPath);
+                    }}
+                  />
                 </div>
                 /// ^ debug mode modification
               )}
