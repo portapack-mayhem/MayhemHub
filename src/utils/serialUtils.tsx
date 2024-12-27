@@ -133,7 +133,7 @@ export const useWriteCommand = () => {
       // reset start time for next iteration
       startTime = Date.now();
     }
-    console.log("FILE DONE 1");
+    console.log("FILE DONE");
     setUpdateStatus(`File upload complete!`);
 
     await write("fclose", false);
