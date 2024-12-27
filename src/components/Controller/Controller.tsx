@@ -254,8 +254,10 @@ const Controller = () => {
   };
 
   const toggleLiveScreen = (shouldUpdate: boolean) => {
-    if (!shouldUpdate) write("screenframeshort", false);
-    setAutoUpdateFrame(!shouldUpdate);
+    /// v debug mode modification, left me for easier merge conflict
+    // if (!shouldUpdate) write("screenframeshort", false);
+    // setAutoUpdateFrame(!shouldUpdate);
+    /// ^ debug mode modification
   };
 
   useEffect(() => {
@@ -286,7 +288,14 @@ const Controller = () => {
       {setupComplete ? (
         <div className="flex h-full w-full flex-col items-center justify-center">
           <h1 className="m-6 p-2">
-            HackRF Connected
+            HackRF Connected, if you are not developer, please{" "}
+            <a
+              href="https://hackrf.app"
+              target="_blank"
+              className="text-blue-500"
+            >
+              click here.
+            </a>
             <FontAwesomeIcon
               className="pl-2 text-green-500"
               icon={faCheckCircle}
@@ -294,7 +303,10 @@ const Controller = () => {
           </h1>
           {!serial.isReading &&
             "Please enable the console, so the buttons can also be enabled!"}
-          {(!UIConfig.screenHide || !UIConfig.controlButtonsHide) && (
+          {/* v debug mode modification, left me for easier merge conflict */}
+          {/* {(!UIConfig.screenHide || !UIConfig.controlButtonsHide) && ( */}
+          {false && (
+            /// ^ debug mode modification
             <div
               id="ControllerSection"
               className="flex h-full max-w-[80%] flex-col items-center justify-center gap-24 rounded-lg bg-slate-800 p-10 outline-none focus:ring-0 md:flex-row md:items-start"
@@ -330,8 +342,10 @@ const Controller = () => {
                         disabled={disableTransmitAction}
                         onClickFunction={() => {
                           if (!disableTransmitAction) {
-                            setLoadingFrame(true);
-                            write("screenframeshort", false);
+                            /// v debug mode modification, left me for easier merge conflict
+                            // setLoadingFrame(true);
+                            // write("screenframeshort", false);
+                            /// ^ debug mode modification
                           }
                         }}
                         className={"size-6 min-w-6 rounded-sm bg-green-500"}
@@ -342,7 +356,10 @@ const Controller = () => {
                 </div>
               )}
 
-              {!UIConfig.controlButtonsHide && (
+              {/* v debug mode modification, left me for easier merge conflict */}
+              {false && (
+                // {!UIConfig.controlButtonsHide && (
+                /// ^ debug mode modification
                 <DeviceControls
                   disableTransmitAction={disableTransmitAction}
                   write={write}
@@ -361,9 +378,15 @@ const Controller = () => {
             </button>
           ) : (
             <>
-              {(!UIConfig.fileSystemHide || !UIConfig.serialConsoleHide) && (
+              {/* v debug mode modification, left me for easier merge conflict */}
+              {/* {(!UIConfig.fileSystemHide || !UIConfig.serialConsoleHide) && ( */}
+              {true && (
+                /// ^ debug mode modification
                 <div className="mt-10 flex h-[434px] w-[80%] flex-row items-start justify-center gap-5 rounded-md bg-gray-700 p-5">
-                  {!UIConfig.fileSystemHide && (
+                  {/* v debug mode modification, left me for easier merge conflict */}
+                  {/* {!UIConfig.fileSystemHide && ( */}
+                  {false && (
+                    /// ^ debug mode modification
                     <FileInputs
                       fileInputRef={fileInputRef}
                       firmwareFileInputRef={firmwareFileInputRef}
@@ -404,14 +427,16 @@ const Controller = () => {
                   </button>
                 </div>
               )}
-              <div className="mt-3 flex w-[80%] justify-end">
+              {/* v debug mode modification, left me for easier merge conflict */}
+              {/* <div className="mt-3 flex w-[80%] justify-end">
                 <button
                   onClick={() => setUIConfigurationOpen(true)}
                   className="btn btn-primary btn-sm size-10"
                 >
                   <FontAwesomeIcon icon={faGear} />
                 </button>
-              </div>
+              </div> */}
+              {/* /// ^ debug mode modification */}
             </>
           )}
         </div>
@@ -424,7 +449,14 @@ const Controller = () => {
         closeModal={() => setFirmwarModalOpen(false)}
         className="w-[40%]"
       >
+        {/* v debug mode modification, left me for easier merge conflict */}
+        {/*{(nightlyVersionFormat(deviceVersion) < 240114 &&
+          getVersionType(deviceVersion) == "nightly") ||
+        (stableVersionFormat(deviceVersion) < 200 &&
+          getVersionType(deviceVersion) == "stable") ||
+        deviceVersion === "" ? (*/}
         {false ? (
+          /// ^ debug mode modification
           <p>
             Sorry, your firmware version is too old to support this feature.
             Please manually update to the latest stable or nightly build!

@@ -6,7 +6,7 @@ export const NavBar = () => {
       <input type="checkbox" id="nav-check" />
       <div className="nav-header">
         <div className="nav-title p-3 text-3xl text-neutral-content">
-          Mayhem Hub
+          Mayhem Hub - Debug Mode
         </div>
       </div>
       <div className="nav-btn">

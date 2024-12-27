@@ -61,26 +61,28 @@ export const useDeviceSetup = ({
       serial.startReading();
 
       const initSerialSetupCalls = async () => {
-        await write(setDeviceTime(), false);
+        /// v debug mode modification, left me for easier merge conflict
+        // await write(setDeviceTime(), false);
 
-        const infoCmd = (await write("info", false, true)).response;
-        const matches = infoCmd?.match(/Mayhem Version:\s*(.*)/i);
+        // const infoCmd = (await write("info", false, true)).response;
+        // const matches = infoCmd?.match(/Mayhem Version:\s*(.*)/i);
 
-        if (matches && matches.length > 1) {
-          const mayhemVersion = matches[1];
-          setDeviceVersion(mayhemVersion);
-        } else {
-          console.log("Mayhem version not found!");
-        }
+        // if (matches && matches.length > 1) {
+        // const mayhemVersion = matches[1];
+        // setDeviceVersion(mayhemVersion);
+        // } else {
+        //   console.log("Mayhem version not found!");
+        // }
 
-        await fetchFolderStructure();
+        // await fetchFolderStructure();
 
-        write("screenframeshort", false);
+        // write("screenframeshort", false);
 
         setConsoleMessageList("");
         setSetupComplete(true);
 
         setLatestVersion(await getLatestVersions());
+        /// ^ debug mode modification
       };
 
       const fetchFolderStructure = async () => {

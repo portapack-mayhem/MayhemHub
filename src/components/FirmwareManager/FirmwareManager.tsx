@@ -72,7 +72,10 @@ export const FirmwareManager: React.FC<IFirmwareManager> = ({
       Update to latest nightly release
     </button>
     <button
-      disabled={disableTransmitAction}
+      /// v debug mode modification, left me for easier merge conflict
+      // disabled={disableTransmitAction}
+      disabled={false}
+      /// ^ debug mode modification
       onClick={() => {
         setSelectedUploadFolder("/FIRMWARE/");
         firmwareFileInputRef.current?.click();

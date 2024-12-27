@@ -4,6 +4,9 @@ export const useScreenFrame = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   const renderFrame = (consoleMessage: string) => {
+    /// v debug mode modification, left me for easier merge conflict
+    return;
+    /*
     if (!consoleMessage.includes("screenframe")) return;
 
     const lines = consoleMessage.split("\r\n");
@@ -28,6 +31,8 @@ export const useScreenFrame = () => {
         }
       }
     }
+    */
+    /// ^ debug mode modification
   };
 
   return { canvasRef, renderFrame };

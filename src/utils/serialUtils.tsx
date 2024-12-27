@@ -34,8 +34,10 @@ export const useWriteCommand = () => {
     if (awaitResponse) data = await serial.queueWriteAndResponse(command);
     else serial.queueWrite(command);
     if (updateFrame) {
-      serial.queueWrite("screenframeshort");
-      setLoadingFrame(true);
+      /// v debug mode modification, left me for easier merge conflict
+      // serial.queueWrite("screenframeshort");
+      // setLoadingFrame(true);
+      /// ^ debug mode modification
     }
 
     return data;

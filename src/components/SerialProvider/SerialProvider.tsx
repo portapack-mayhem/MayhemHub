@@ -314,7 +314,9 @@ const useWebSerial = ({
             done ||
             completeString.endsWith("ch> ") ||
             completeString.endsWith(" bytes\r\n") || // This is to handle fwb as it ends with "send x bytes"
+            /// v debug mode modification, left me for easier merge conflict
             completeString.endsWith("\n")
+            /// ^ debug mode modification
           ) {
             onData(completeString);
 
