@@ -358,7 +358,6 @@ const Controller = () => {
 
               {/* v debug mode modification, left me for easier merge conflict */}
               {false && (
-                // {!UIConfig.controlButtonsHide && (
                 /// ^ debug mode modification
                 <DeviceControls
                   disableTransmitAction={disableTransmitAction}
@@ -414,18 +413,30 @@ const Controller = () => {
                   )}
                 </div>
               )}
-              {!UIConfig.firmwareManagerHide && (
-                <div className="m-5 flex w-[20%] flex-col items-center justify-center rounded-md bg-gray-700 p-5">
-                  <p className="pb-5 text-center text-sm">
+              {/* v debug mode modification, left me for easier merge conflict */}
+              {/* {!UIConfig.firmwareManagerHide && ( */}
+              {true && (
+                <div className="m-5 flex w-[80%] flex-col items-center justify-center rounded-md bg-gray-700 p-5">
+                  {/* <p className="pb-5 text-center text-sm">
                     Firmware Version: {deviceVersion}
-                  </p>
-                  <button
+                  </p> */}
+                  {/* <button
                     onClick={() => setFirmwarModalOpen(true)}
                     className="btn btn-info"
                   >
                     Manage Firmware
+                  </button> */}
+                  <button
+                    onClick={() => {
+                      setSelectedUploadFolder("/FIRMWARE/");
+                      firmwareFileInputRef.current?.click();
+                    }}
+                    className="btn btn-info"
+                  >
+                    Flash Local Firmware
                   </button>
                 </div>
+                /// ^ debug mode modification
               )}
               {/* v debug mode modification, left me for easier merge conflict */}
               {/* <div className="mt-3 flex w-[80%] justify-end">
@@ -481,6 +492,20 @@ const Controller = () => {
         setUiConfig={setUiConfig}
         handleUpdateUiHide={handleUpdateUiHide}
         toggleLiveScreen={toggleLiveScreen}
+      />
+      <input
+        ref={firmwareFileInputRef}
+        type="file"
+        accept=".tar"
+        style={{ display: "none" }}
+        onClick={() => {
+          if (firmwareFileInputRef.current) {
+            firmwareFileInputRef.current.value = "";
+          }
+        }}
+        onChange={(e) => {
+          onFirmwareFileChange(e, "/FIRMWARE/");
+        }}
       />
     </>
   );
