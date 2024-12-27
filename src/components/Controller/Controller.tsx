@@ -452,6 +452,14 @@ const Controller = () => {
                     >
                       Flash Local Firmware
                     </button>
+                    <button
+                      onClick={() => {
+                        window.location.reload();
+                      }}
+                      className="btn btn-info"
+                    >
+                      Reconnect Device
+                    </button>
                   </div>
                   <div className="flex w-full flex-row items-center justify-center gap-1">
                     <p>Upload Local File:</p>
