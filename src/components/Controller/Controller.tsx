@@ -424,11 +424,7 @@ const Controller = () => {
         closeModal={() => setFirmwarModalOpen(false)}
         className="w-[40%]"
       >
-        {(nightlyVersionFormat(deviceVersion) < 240114 &&
-          getVersionType(deviceVersion) == "nightly") ||
-        (stableVersionFormat(deviceVersion) < 200 &&
-          getVersionType(deviceVersion) == "stable") ||
-        deviceVersion === "" ? (
+        {false ? (
           <p>
             Sorry, your firmware version is too old to support this feature.
             Please manually update to the latest stable or nightly build!

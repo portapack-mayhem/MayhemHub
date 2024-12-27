@@ -313,7 +313,8 @@ const useWebSerial = ({
           if (
             done ||
             completeString.endsWith("ch> ") ||
-            completeString.endsWith(" bytes\r\n") // This is to handle fwb as it ends with "send x bytes"
+            completeString.endsWith(" bytes\r\n") || // This is to handle fwb as it ends with "send x bytes"
+            completeString.endsWith("\n")
           ) {
             onData(completeString);
 
