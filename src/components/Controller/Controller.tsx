@@ -254,14 +254,18 @@ const Controller = () => {
   };
 
   const toggleLiveScreen = (shouldUpdate: boolean) => {
-    if (!shouldUpdate) write("screenframeshort", false);
+    if (!shouldUpdate && !UIConfig.allowAsyncMsg && !UIConfig.screenHide)
+      write("screenframeshort", false);
+    console.log("toggleLiveScreen 259");
     setAutoUpdateFrame(!shouldUpdate);
   };
 
   useEffect(() => {
     // We dont add this to the console as its not needed. This may change in the future
     if (consoleMessage.startsWith("screenframe")) {
-      if (!UIConfig.screenHide) renderFrame(consoleMessage);
+      if (!UIConfig.screenHide || UIConfig.allowAsyncMsg)
+        // cannot use screen if it allows asyncmsg to prevent chaotic
+        renderFrame(consoleMessage);
       setLoadingFrame(false);
     } else {
       setConsoleMessageList(
@@ -304,7 +308,7 @@ const Controller = () => {
                 handleKeyDown(e);
               }}
             >
-              {!UIConfig.screenHide && (
+              {!UIConfig.screenHide && !UIConfig.allowAsyncMsg && (
                 <div
                   className="flex flex-col items-center justify-center gap-5"
                   id="screenGroup"
@@ -332,6 +336,7 @@ const Controller = () => {
                           if (!disableTransmitAction) {
                             setLoadingFrame(true);
                             write("screenframeshort", false);
+                            console.log("screenframeshort 340");
                           }
                         }}
                         className={"size-6 min-w-6 rounded-sm bg-green-500"}
@@ -342,7 +347,7 @@ const Controller = () => {
                 </div>
               )}
 
-              {!UIConfig.controlButtonsHide && (
+              {!UIConfig.controlButtonsHide && !UIConfig.allowAsyncMsg && (
                 <DeviceControls
                   disableTransmitAction={disableTransmitAction}
                   write={write}
@@ -363,7 +368,7 @@ const Controller = () => {
             <>
               {(!UIConfig.fileSystemHide || !UIConfig.serialConsoleHide) && (
                 <div className="mt-10 flex h-[434px] w-[80%] flex-row items-start justify-center gap-5 rounded-md bg-gray-700 p-5">
-                  {!UIConfig.fileSystemHide && (
+                  {!UIConfig.fileSystemHide && !UIConfig.allowAsyncMsg && (
                     <FileInputs
                       fileInputRef={fileInputRef}
                       firmwareFileInputRef={firmwareFileInputRef}
@@ -392,7 +397,7 @@ const Controller = () => {
                 </div>
               )}
               {!UIConfig.firmwareManagerHide && (
-                <div className="m-5 flex w-[20%] flex-col items-center justify-center rounded-md bg-gray-700 p-5">
+                <div className="m-5 flex w-1/5 flex-col items-center justify-center rounded-md bg-gray-700 p-5">
                   <p className="pb-5 text-center text-sm">
                     Firmware Version: {deviceVersion}
                   </p>
@@ -404,7 +409,7 @@ const Controller = () => {
                   </button>
                 </div>
               )}
-              <div className="mt-3 flex w-[80%] justify-end">
+              <div className="mt-3 flex w-4/5 justify-end">
                 <button
                   onClick={() => setUIConfigurationOpen(true)}
                   className="btn btn-primary btn-sm size-10"

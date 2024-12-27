@@ -1,5 +1,6 @@
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useSerial } from "@/components/SerialLoader/SerialLoader";
+import { useUIConfig } from "@/hooks/useUIConfig";
 import { IDataPacket } from "@/types";
 import { hexToBytes } from "./fileUtils";
 
@@ -10,6 +11,7 @@ interface IDownloadedFile {
 
 export const useWriteCommand = () => {
   const { serial } = useSerial();
+  const { UIConfig } = useUIConfig();
   const [loadingFrame, setLoadingFrame] = useState<boolean>(true);
   const [fileUploadBlocker, setFileUploadBlocker] = useState<boolean>(false);
   const [disableTransmitAction, setDisableTransmitAction] =
@@ -33,8 +35,9 @@ export const useWriteCommand = () => {
     };
     if (awaitResponse) data = await serial.queueWriteAndResponse(command);
     else serial.queueWrite(command);
-    if (updateFrame) {
+    if (updateFrame && !UIConfig.screenHide && !UIConfig.allowAsyncMsg) {
       serial.queueWrite("screenframeshort");
+      console.log("screenframeshort 40");
       setLoadingFrame(true);
     }
 

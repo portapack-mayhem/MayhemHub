@@ -37,7 +37,7 @@ const SerialLoader = ({ children }: PropsWithChildren<ISerialLoader>) => {
       console.log("onDisconnect", data);
     },
     onData: (data: string) => {
-      // console.log(data);
+      console.log(data);
       setConsoleMessage(data);
     },
   });

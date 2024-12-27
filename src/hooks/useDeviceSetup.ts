@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { FileStructure } from "@/components/FileBrowser/FileBrowser";
 import { ISerialProvider } from "@/components/SerialProvider/SerialProvider";
+import { useUIConfig } from "@/hooks/useUIConfig";
 import { ILatestVersions } from "@/types";
 import { parseDirectories } from "@/utils/fileUtils";
 import { getLatestVersions } from "@/utils/versionUtils";
@@ -31,7 +32,7 @@ export const useDeviceSetup = ({
 }: IDeviceSetup): IDeviceSetupReturn => {
   const [setupComplete, setSetupComplete] = useState(false);
   const [deviceVersion, setDeviceVersion] = useState("");
-
+  const { UIConfig } = useUIConfig();
   const started = useRef<boolean>(false);
 
   const setDeviceTime = () => {
@@ -75,7 +76,10 @@ export const useDeviceSetup = ({
 
         await fetchFolderStructure();
 
-        write("screenframeshort", false);
+        if (UIConfig.screenHide || UIConfig.allowAsyncMsg) {
+          write("screenframeshort", false);
+          console.log("screenframeshort 81");
+        }
 
         setConsoleMessageList("");
         setSetupComplete(true);
@@ -84,11 +88,10 @@ export const useDeviceSetup = ({
       };
 
       const fetchFolderStructure = async () => {
+        console.log("Fetching folder structure...");
         const rootStructure = await write(`ls /`, false, true); // get the children directories
-
         if (rootStructure.response) {
           const rootItems = rootStructure.response.split("\r\n").slice(1, -1);
-
           const fileStructures = parseDirectories(rootItems);
           setDirStructure(fileStructures);
         }

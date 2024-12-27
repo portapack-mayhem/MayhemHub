@@ -8,6 +8,7 @@ export const useUIConfig = () => {
     fileSystemHide: false,
     serialConsoleHide: false,
     firmwareManagerHide: false,
+    allowAsyncMsg: false,
   });
 
   const handleUpdateUiHide = (

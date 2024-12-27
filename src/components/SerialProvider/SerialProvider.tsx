@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { IDataPacket } from "@/types";
+import { useUIConfig } from "@/hooks/useUIConfig";
 
 // Needing to do this as the typescript definitions for the Web Serial API are not yet complete
 interface IWebSerialPort extends SerialPort {
@@ -114,6 +115,8 @@ const useWebSerial = ({
   onDisconnect?: (port: IWebSerialPort) => void;
   onData: (data: string) => void;
 }): ISerialProvider => {
+  const { UIConfig } = useUIConfig();
+
   const [hasTriedAutoconnect, setHasTriedAutoconnect] = useState(false);
 
   const [canUseSerial] = useState(() => "serial" in navigator);
@@ -313,7 +316,8 @@ const useWebSerial = ({
           if (
             done ||
             completeString.endsWith("ch> ") ||
-            completeString.endsWith(" bytes\r\n") // This is to handle fwb as it ends with "send x bytes"
+            completeString.endsWith(" bytes\r\n") || // This is to handle fwb as it ends with "send x bytes"
+            (UIConfig.allowAsyncMsg && completeString.endsWith("\r\n")) // allow asyncmsg that sent from pp
           ) {
             onData(completeString);
 

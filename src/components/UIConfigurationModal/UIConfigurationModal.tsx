@@ -45,6 +45,10 @@ const UIConfigurationModal: React.FC<IUIConfigurationModal> = ({
       key: "firmwareManagerHide",
       label: "Hide Firmware Manager",
     },
+    {
+      key: "allowAsyncMsg",
+      label: "Allow Receiving Async Messages",
+    },
   ];
 
   return (
@@ -52,7 +56,7 @@ const UIConfigurationModal: React.FC<IUIConfigurationModal> = ({
       title="UI Configuration"
       isModalOpen={isOpen}
       closeModal={onClose}
-      className="w-[20%]"
+      className="w-1/2"
     >
       <div className="mb-3 flex flex-col items-center justify-center rounded-lg p-4 font-medium text-white outline-none focus:ring-0 md:items-start">
         <div className="flex w-full flex-col items-start justify-start gap-5">

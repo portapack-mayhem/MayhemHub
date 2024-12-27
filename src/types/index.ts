@@ -36,6 +36,7 @@ export interface IUIConfig {
   fileSystemHide: boolean;
   serialConsoleHide: boolean;
   firmwareManagerHide: boolean;
+  allowAsyncMsg: boolean;
 }
 
 export type ConfigItem = {
