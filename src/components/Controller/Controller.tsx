@@ -430,7 +430,7 @@ const Controller = () => {
           stableVersionFormat(deviceVersion) !== 2) ||
         (getVersionType(deviceVersion) === "stable" &&
           stableVersionFormat(deviceVersion) < 200 &&
-          stableVersionFormat(deviceVersion) !== 2) ? (
+          stableVersionFormat(deviceVersion) !== 2) ? ( // This check is for the shipping firmware version
           <p>
             Sorry, your firmware version is too old to support this feature.
             Please manually update to the latest stable or nightly build!
