@@ -75,7 +75,7 @@ const Modal = ({
   return (
     <>
       {isModalOpen && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center">
+        <div className="fixed inset-0 z-40 flex items-start justify-center pt-[5vh]">
           <div className="fixed inset-0 bg-black opacity-50"></div>
           <div
             style={{
@@ -83,27 +83,34 @@ const Modal = ({
               cursor: isDragging ? "grabbing" : "grab",
               userSelect: "none",
             }}
-            className={`z-50 overflow-auto rounded-lg border border-gray-900 bg-gray-500 shadow-xl ${className}`}
+            className={`z-50 mx-auto overflow-auto rounded-lg border border-gray-900 bg-gray-500/70 shadow-xl ${className}`}
             {...props}
           >
             {title && (
               <div
-                className="flex gap-4 border-b border-gray-500 p-4 cursor-grab select-none"
+                className="flex gap-4 border-b border-gray-500 p-4 cursor-grab select-none bg-gray-500"
                 onMouseDown={handleMouseDown}
                 onDragStart={(e) => e.preventDefault()}
               >
-                <button onClick={closeModal} className="pr-3">
+                <button
+                  onClick={closeModal}
+                  className="pr-3 bg-gray-500 hover:bg-gray-600"
+                >
                   <FontAwesomeIcon
                     icon={faRectangleXmark}
                     className="text-2xl text-white"
                   />
                 </button>
-                <p>{title}</p>
+                <p className="text-white">{title}</p>
               </div>
             )}
-            <div className={`h-full w-full ${title && "p-4"}`}>{children}</div>
+            <div className={`h-full w-full bg-gray-500/70 ${title && "p-4"}`}>
+              {children}
+            </div>
             {footer && (
-              <div className="border-t border-gray-500 p-4">{footer}</div>
+              <div className="border-t border-gray-500 p-4 bg-gray-500">
+                {footer}
+              </div>
             )}
           </div>
         </div>
