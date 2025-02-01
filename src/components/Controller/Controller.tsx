@@ -297,7 +297,7 @@ const Controller = () => {
           {(!UIConfig.screenHide || !UIConfig.controlButtonsHide) && (
             <div
               id="ControllerSection"
-              className="flex h-full max-w-[80%] flex-col items-center justify-center gap-24 rounded-lg bg-slate-800 p-10 outline-none focus:ring-0 md:flex-row md:items-start"
+              className="alert flex h-full max-w-[80%] flex-col items-center justify-center gap-24 rounded-lg p-10 outline-none focus:ring-0 md:flex-row md:items-start"
               onWheel={handleScroll}
               tabIndex={0}
               onKeyDown={(e) => {
@@ -392,7 +392,7 @@ const Controller = () => {
                 </div>
               )}
               {!UIConfig.firmwareManagerHide && (
-                <div className="m-5 flex w-[20%] flex-col items-center justify-center rounded-md bg-gray-700 p-5">
+                <div className="m-5 flex w-[20%] flex-col items-center justify-center rounded-md bg-[rgba(23,35,52,0.45)] p-5">
                   <p className="pb-5 text-center text-sm">
                     Firmware Version: {deviceVersion}
                   </p>

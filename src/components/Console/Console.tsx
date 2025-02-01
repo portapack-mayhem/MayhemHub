@@ -29,14 +29,14 @@ export const Console: React.FC<IConsole> = ({
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-1">
       <textarea
-        className="h-full w-full rounded bg-gray-600 p-2 font-mono text-white"
+        className="h-full w-full rounded bg-[rgba(23,35,52,0.45)] p-2 font-mono text-white"
         readOnly
         value={consoleMessageList}
         id="serial_console"
       />
       {scriptRunning && (
         <div className="flex w-full flex-row items-center justify-center gap-1">
-          <p className="w-full rounded-md bg-blue-700 p-2 font-mono text-white">
+          <p className="w-full rounded-md bg-[rgba(23,35,52,0.45)] p-2 font-mono text-white">
             {scriptStatus}
           </p>
         </div>
@@ -53,7 +53,7 @@ export const Console: React.FC<IConsole> = ({
             }
           }}
           placeholder="Enter command"
-          className="w-full rounded-md bg-gray-600 p-2 font-mono text-white"
+          className="w-full rounded-md bg-[rgba(23,35,52,0.45)] p-2 font-mono text-white"
         />
         <button
           type="submit"
