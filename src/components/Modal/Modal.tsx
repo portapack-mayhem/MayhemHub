@@ -70,7 +70,14 @@ const Modal = ({
       window.removeEventListener("blur", stopDragging);
       window.removeEventListener("keydown", stopDragging);
     };
-  }, [isDragging, dragStart.x, dragStart.y, position.x, position.y]);
+  }, [
+    isDragging,
+    dragStart.x,
+    dragStart.y,
+    position.x,
+    position.y,
+    handleMouseMove,
+  ]);
 
   return (
     <>
@@ -88,17 +95,17 @@ const Modal = ({
           >
             {title && (
               <div
-                className="flex gap-4 border-b border-gray-700/50 p-4 cursor-grab select-none bg-[rgba(31,41,55,0.8)]"
+                className="flex cursor-grab select-none gap-4 border-b border-gray-700/50 bg-[rgba(31,41,55,0.8)] p-4"
                 onMouseDown={handleMouseDown}
                 onDragStart={(e) => e.preventDefault()}
               >
                 <button
                   onClick={closeModal}
-                  className="pr-3 transition-colors duration-200 rounded-sm"
+                  className="rounded-sm pr-3 transition-colors duration-200"
                 >
                   <FontAwesomeIcon
                     icon={faRectangleXmark}
-                    className="text-2xl text-white/80 hover:text-white hover:glow-sm"
+                    className="hover:glow-sm text-2xl text-white/80 hover:text-white"
                   />
                 </button>
                 <p className="text-white">{title}</p>
@@ -112,7 +119,7 @@ const Modal = ({
               {children}
             </div>
             {footer && (
-              <div className="border-t border-gray-700/50 p-4 bg-[rgba(31,41,55,0.8)]">
+              <div className="border-t border-gray-700/50 bg-[rgba(31,41,55,0.8)] p-4">
                 {footer}
               </div>
             )}
