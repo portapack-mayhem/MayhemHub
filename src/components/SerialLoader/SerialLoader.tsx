@@ -92,7 +92,7 @@ const SerialLoader = ({ children }: PropsWithChildren<ISerialLoader>) => {
 
     return (
       <div className="flex flex-1 flex-col items-center justify-center px-5 text-center text-neutral">
-        <div className="flex w-full max-w-4xl flex-col rounded-3xl bg-[rgba(23,35,52,0.45)] p-10 text-white">
+        <div className="flex w-full max-w-4xl flex-col rounded-3xl bg-component-bg p-10 text-white">
           <p className="mb-10 text-3xl leading-snug">
             Connect your HackRF/Portapack via USB to get started.
           </p>
@@ -136,7 +136,7 @@ const SerialLoader = ({ children }: PropsWithChildren<ISerialLoader>) => {
   };
 
   const TitleMessage = () => (
-    <div className="mt-7 flex flex-col justify-center rounded-3xl bg-[rgba(23,35,52,0.45)] p-5">
+    <div className="mt-7 flex flex-col justify-center rounded-3xl bg-component-bg p-5">
       <h1 className="text-center text-2xl font-semibold">
         Welcome to the Mayhem Hub!
         <br />

@@ -1,5 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable tailwindcss/no-custom-classname */
 import { faRectangleXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React, { useEffect, useState, MouseEvent } from "react";
@@ -72,14 +70,7 @@ const Modal = ({
       window.removeEventListener("blur", stopDragging);
       window.removeEventListener("keydown", stopDragging);
     };
-  }, [
-    isDragging,
-    dragStart.x,
-    dragStart.y,
-    position.x,
-    position.y,
-    handleMouseMove,
-  ]);
+  }, [isDragging, dragStart.x, dragStart.y, position.x, position.y]);
 
   return (
     <>
@@ -92,36 +83,32 @@ const Modal = ({
               cursor: isDragging ? "grabbing" : "grab",
               userSelect: "none",
             }}
-            className={`z-50 mx-auto overflow-auto rounded-lg border border-gray-700/50 bg-[rgba(31,41,55,0.8)] shadow-[0_0_15px_rgba(31,41,55,0.4)] ${className}`}
+            className={`z-50 mx-auto overflow-auto rounded-lg border border-gray-900 bg-gray-500/70 shadow-xl ${className}`}
             {...props}
           >
             {title && (
               <div
-                className="flex cursor-grab select-none gap-4 border-b border-gray-700/50 bg-[rgba(31,41,55,0.8)] p-4"
+                className="flex gap-4 border-b border-gray-500 p-4 cursor-grab select-none bg-gray-500"
                 onMouseDown={handleMouseDown}
                 onDragStart={(e) => e.preventDefault()}
               >
                 <button
                   onClick={closeModal}
-                  className="rounded-sm pr-3 transition-colors duration-200"
+                  className="pr-3 bg-gray-500 hover:bg-gray-600"
                 >
                   <FontAwesomeIcon
                     icon={faRectangleXmark}
-                    className="hover:glow-sm text-2xl text-white/80 hover:text-white"
+                    className="text-2xl text-white"
                   />
                 </button>
                 <p className="text-white">{title}</p>
               </div>
             )}
-            <div
-              className={`h-full w-full bg-[rgba(31,41,55,0.8)] ${
-                title && "p-4"
-              }`}
-            >
+            <div className={`h-full w-full bg-gray-500/70 ${title && "p-4"}`}>
               {children}
             </div>
             {footer && (
-              <div className="border-t border-gray-700/50 bg-[rgba(31,41,55,0.8)] p-4">
+              <div className="border-t border-gray-500 p-4 bg-gray-500">
                 {footer}
               </div>
             )}
