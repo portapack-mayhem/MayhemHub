@@ -66,13 +66,13 @@ const SerialLoader = ({ children }: PropsWithChildren<ISerialLoader>) => {
   };
 
   const ErrorMessage = () => (
-    <div className="flex flex-1 flex-col items-center justify-center text-black">
-      <div className="flex w-full max-w-lg flex-col rounded-xl bg-white p-6">
+    <div className="flex flex-1 flex-col items-center justify-center text-white">
+      <div className="flex w-full max-w-lg flex-col rounded-xl bg-component-bg p-6">
         <h1 className="-mt-1 mb-2 text-xl font-medium">😔 Uh oh... </h1>
         <p className="mb-1 pb-5">
           Looks like your browser doesn&apos;t support the{" "}
           <a
-            className="text-green-800 underline"
+            className="text-blue-400 underline hover:text-blue-300"
             href="https://caniuse.com/web-serial"
             target="_blank"
             rel="noopener noreferrer"
@@ -148,7 +148,7 @@ const SerialLoader = ({ children }: PropsWithChildren<ISerialLoader>) => {
   );
 
   const AboutMessage = () => (
-    <div className="collapse collapse-arrow max-w-[80%] bg-neutral">
+    <div className="collapse collapse-arrow max-w-[80%] bg-component-bg">
       <input type="checkbox" />
       <div className="collapse-title text-xl font-medium">
         What is the Mayhem Hub?
