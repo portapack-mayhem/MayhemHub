@@ -5,16 +5,82 @@
 :root {
   color-scheme: dark;
   --foreground-rgb: 255, 255, 255;
-  --background-start-rgb: 72, 72, 99;
-  --background-end-rgb: 44, 8, 60;
+  --background-primary: #0a0b11;
+  --background-secondary: #12141c;
+  --background-pattern: #181b26;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
+  background-color: var(--background-primary);
+  background-image: linear-gradient(
+      45deg,
+      var(--background-secondary) 25%,
+      transparent 25%,
+      transparent 75%,
+      var(--background-secondary) 75%
+    ),
+    linear-gradient(
+      45deg,
+      var(--background-secondary) 25%,
+      transparent 25%,
+      transparent 75%,
+      var(--background-secondary) 75%
+    );
+  background-size: 60px 60px;
+  background-position: 0 0, 30px 30px;
+  margin: 0;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
+    180deg,
+    rgba(10, 11, 17, 0.8) 0%,
+    rgba(18, 20, 28, 0.2) 50%,
+    rgba(10, 11, 17, 0.8) 100%
+  );
+  pointer-events: none;
+  z-index: 1;
+}
+
+body > div {
+  position: relative;
+  z-index: 2;
+}
+
+.bg-neutral {
+  background-color: rgba(38, 38, 48, 0.95) !important;
+}
+
+.bg-white {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+}
+
+.bg-slate-800 {
+  background-color: rgba(30, 41, 59, 0.95) !important;
+}
+
+.bg-gray-700 {
+  background-color: rgba(55, 65, 81, 0.95) !important;
+}
+
+.alert,
+#ControllerSection {
+  background-color: rgba(23, 35, 52, 0.45) !important;
+}
+
+.hover\:glow-sm:hover {
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.4));
+}
+
+.bg-gray-800 {
+  background-color: rgba(23, 35, 52, 0) !important;
 }
