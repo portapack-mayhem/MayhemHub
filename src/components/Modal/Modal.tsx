@@ -76,39 +76,39 @@ const Modal = ({
     <>
       {isModalOpen && (
         <div className="fixed inset-0 z-40 flex items-start justify-center pt-[5vh]">
-          <div className="fixed inset-0 bg-black opacity-50"></div>
+          <div className="fixed inset-0 bg-overlay"></div>
           <div
             style={{
               transform: `translate(${position.x}px, ${position.y}px)`,
               cursor: isDragging ? "grabbing" : "grab",
               userSelect: "none",
             }}
-            className={`z-50 mx-auto overflow-auto rounded-lg border border-gray-900 bg-gray-500/70 shadow-xl ${className}`}
+            className={`z-50 mx-auto overflow-auto rounded-lg border border-modal-border bg-component-bg shadow-[0_0_15px_rgba(31,41,55,0.4)] ${className}`}
             {...props}
           >
             {title && (
               <div
-                className="flex gap-4 border-b border-gray-500 p-4 cursor-grab select-none bg-gray-500"
+                className="flex cursor-grab select-none gap-4 border-b border-modal-border bg-component-bg p-4"
                 onMouseDown={handleMouseDown}
                 onDragStart={(e) => e.preventDefault()}
               >
                 <button
                   onClick={closeModal}
-                  className="pr-3 bg-gray-500 hover:bg-gray-600"
+                  className="rounded-sm pr-3 transition-colors duration-200"
                 >
                   <FontAwesomeIcon
                     icon={faRectangleXmark}
-                    className="text-2xl text-white"
+                    className="hover:glow-sm text-2xl text-white/80 hover:text-white"
                   />
                 </button>
                 <p className="text-white">{title}</p>
               </div>
             )}
-            <div className={`h-full w-full bg-gray-500/70 ${title && "p-4"}`}>
+            <div className={`h-full w-full bg-component-bg ${title && "p-4"}`}>
               {children}
             </div>
             {footer && (
-              <div className="border-t border-gray-500 p-4 bg-gray-500">
+              <div className="border-t border-modal-border bg-component-bg p-4">
                 {footer}
               </div>
             )}
