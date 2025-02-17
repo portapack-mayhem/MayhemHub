@@ -248,6 +248,15 @@ const useWebSerial = ({
     }
 
     try {
+      console.log("Opening port with settings:", {
+        baudRate,
+        bufferSize,
+        dataBits,
+        flowControl,
+        parity,
+        stopBits,
+      });
+
       await newPort.open({
         baudRate,
         bufferSize,
@@ -259,11 +268,13 @@ const useWebSerial = ({
       portRef.current = newPort;
       portState.current = "open";
       setIsOpen(true);
-    } catch (error) {
+    } catch (error: unknown) {
       portState.current = "closed";
       setIsOpen(false);
-      console.error("Could not open port");
-      throw new Error("Could not open port");
+      const errorMessage =
+        error instanceof Error ? error.message : "Unknown error";
+      console.error("Could not open port:", errorMessage);
+      throw new Error(`Could not open port: ${errorMessage}`);
     }
   };
 
