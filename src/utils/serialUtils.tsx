@@ -79,63 +79,134 @@ export const useWriteCommand = () => {
     await write("fclose", false);
   };
 
+  const isMac = () => {
+    if (typeof window !== "undefined") {
+      const userAgent = window.navigator.userAgent;
+      return userAgent.includes("Mac");
+    }
+    return false;
+  };
+
+  const formatTime = (seconds: number): string => {
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+
+    const parts = [];
+    if (hours > 0) parts.push(`${hours}h`);
+    if (minutes > 0) parts.push(`${minutes}m`);
+    parts.push(`${remainingSeconds}s`);
+
+    return parts.join(" ");
+  };
+
   const uploadFile = async (
     filePath: string,
     bytes: Uint8Array,
     setUpdateStatus: Dispatch<SetStateAction<string>>
   ) => {
+    const logDebug = (message: string) => {
+      console.log(message);
+    };
+
     setFileUploadBlocker(true);
-    await write("fclose", false);
-    await write(`fopen ${filePath}`, false);
+    logDebug(`Starting upload for ${filePath}`);
+    const uploadStartTime = Date.now();
 
-    await write(`fseek 0`, false);
+    try {
+      await write("fclose", false);
+      await write(`fopen ${filePath}`, false);
+      await write(`fseek 0`, false);
 
-    let blob = new Blob([bytes]);
-    const arrayBuffer = await blob.arrayBuffer();
+      const blob = new Blob([bytes]);
+      const arrayBuffer = await blob.arrayBuffer();
+      const chunkSize = isMac() ? 64 : 100000;
+      const totalChunks = Math.ceil(arrayBuffer.byteLength / chunkSize);
 
-    const chunkSize = 100000;
+      let position = 0;
+      let startTime = Date.now();
+      let totalTime = 0;
+      let successfulChunks = 0;
+      let failedChunks = 0;
 
-    console.log("Total length: ", arrayBuffer.byteLength);
-
-    let startTime = Date.now();
-    let totalTime = 0;
-
-    for (let i = 0; i < arrayBuffer.byteLength; i += chunkSize) {
-      const chunk = arrayBuffer.slice(i, i + chunkSize);
-
-      await write(`fwb ${chunk.byteLength}`, false, true);
-      await serial.queueWriteAndResponseBinary(new Uint8Array(chunk));
-
-      // calculate elapsed time and average time per chunk
-      let elapsed = Date.now() - startTime;
-      totalTime += elapsed;
-      let avgTimePerChunk = totalTime / (i / chunkSize + 1);
-
-      // estimate remaining time in seconds
-      let remainingChunks = (arrayBuffer.byteLength - i) / chunkSize;
-      let estRemainingTime = (remainingChunks * avgTimePerChunk) / 1000;
-
-      console.log(
-        "Chunk done",
-        i,
-        arrayBuffer.byteLength,
-        ((i / arrayBuffer.byteLength) * 100).toFixed(2) + "%",
-        "Estimated time remaining: " + estRemainingTime.toFixed(0) + " seconds"
+      logDebug(
+        `Starting transfer of ${totalChunks} chunks with chunk size ${chunkSize}`
       );
+
+      while (position < arrayBuffer.byteLength) {
+        const chunk = new Uint8Array(
+          arrayBuffer.slice(position, position + chunkSize)
+        );
+
+        try {
+          await write(`fwb ${chunk.length}`, false, true);
+          await serial.queueWriteAndResponseBinary(chunk);
+
+          position += chunk.length;
+          successfulChunks++;
+
+          const elapsed = Date.now() - startTime;
+          totalTime += elapsed;
+          const avgTimePerByte = totalTime / position;
+          const remainingBytes = arrayBuffer.byteLength - position;
+          const estRemainingTime = (remainingBytes * avgTimePerByte) / 1000;
+          const percentComplete = (position / arrayBuffer.byteLength) * 100;
+          const transferSpeed = (position / totalTime) * 1000;
+          const totalElapsed = (Date.now() - uploadStartTime) / 1000;
+
+          if (successfulChunks % 10 === 0) {
+            logDebug(
+              `Transfer status: ${percentComplete.toFixed(2)}% complete, ${(
+                transferSpeed / 1024
+              ).toFixed(2)} KB/s`
+            );
+          }
+
+          setUpdateStatus(
+            `📊 Upload Progress\n` +
+              `━━━━━━━━━━━━━━━━━━━━━\n` +
+              `⚡ Progress: ${percentComplete.toFixed(1)}%\n` +
+              `📦 Chunks: ${successfulChunks} of ${totalChunks}\n` +
+              `🚀 Speed: ${(transferSpeed / 1024).toFixed(1)} KB/s\n` +
+              `⏱️ Time Elapsed: ${formatTime(totalElapsed)}\n` +
+              `⌛ Time Remaining: ${formatTime(estRemainingTime)}\n` +
+              `📈 Transferred: ${(position / 1024).toFixed(1)}KB / ${(
+                arrayBuffer.byteLength / 1024
+              ).toFixed(1)}KB`
+          );
+        } catch (error) {
+          failedChunks++;
+          logDebug(
+            `Error at chunk ${successfulChunks + 1}/${totalChunks}: ${error}`
+          );
+          await new Promise((resolve) => setTimeout(resolve, 100));
+          continue;
+        }
+
+        startTime = Date.now();
+      }
+
+      const totalElapsed = (Date.now() - uploadStartTime) / 1000;
+      await write("fclose", false);
       setUpdateStatus(
-        `${((i / arrayBuffer.byteLength) * 100).toFixed(
-          2
-        )}% Estimated time remaining: ${estRemainingTime.toFixed(0)} seconds`
+        `✅ Upload Complete!\n` +
+          `━━━━━━━━━━━━━━━━━━━━━\n` +
+          `📦 Total Size: ${(arrayBuffer.byteLength / 1024).toFixed(1)}KB\n` +
+          `⏱️ Total Time: ${formatTime(totalElapsed)}\n` +
+          `🔄 Total Chunks: ${totalChunks}\n` +
+          `❌ Failed Attempts: ${failedChunks}`
       );
 
-      // reset start time for next iteration
-      startTime = Date.now();
+      logDebug(
+        `Upload finished. Successful chunks: ${successfulChunks}, Failed attempts: ${failedChunks}`
+      );
+    } catch (error) {
+      logDebug(`Upload failed: ${error}`);
+      await write("fclose", false).catch(() => {});
+      throw error;
+    } finally {
+      setFileUploadBlocker(false);
     }
-    console.log("FILE DONE");
-    setUpdateStatus(`File upload complete!`);
-
-    await write("fclose", false);
-    setFileUploadBlocker(false);
   };
 
   return {

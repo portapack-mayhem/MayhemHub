@@ -104,7 +104,11 @@ const Modal = ({
                 <p className="text-white">{title}</p>
               </div>
             )}
-            <div className={`h-full w-full bg-gray-500/70 ${title && "p-4"}`}>
+            <div
+              className={`h-full w-full bg-gray-500/70 ${
+                title && "p-4"
+              } whitespace-pre-line`}
+            >
               {children}
             </div>
             {footer && (

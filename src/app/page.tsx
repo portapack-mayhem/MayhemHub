@@ -41,8 +41,11 @@ const Home = () => {
                 <FontAwesomeIcon icon={faTriangleExclamation} />
                 <span>
                   <p>
-                    Looks like you are using a Mac! If you come across any
-                    issues, please let us know{" "}
+                    It looks like youre using a Mac! Due to Web Serial API
+                    limitations on macOS, file transfers will be significantly
+                    slower than on Windows/Linux. Like an hour slow! For faster
+                    firmware updates, consider using a Windows or Linux system.
+                    If you encounter any issues, please report them{" "}
                     <a
                       className="text-blue-400 underline"
                       href="https://github.com/portapack-mayhem/MayhemHub/issues/43"
