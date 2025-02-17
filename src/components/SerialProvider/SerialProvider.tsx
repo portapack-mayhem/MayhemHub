@@ -271,10 +271,14 @@ const useWebSerial = ({
     } catch (error: unknown) {
       portState.current = "closed";
       setIsOpen(false);
-      const errorMessage =
-        error instanceof Error ? error.message : "Unknown error";
-      console.error("Could not open port:", errorMessage);
-      throw new Error(`Could not open port: ${errorMessage}`);
+
+      let errorMsg = "Could not open port. Please try:";
+      errorMsg += "\n1. Unplug and reconnect your device";
+      errorMsg += "\n2. Close other applications that might be using the port";
+      errorMsg += "\n3. If on Linux, check port permissions";
+
+      console.error("Port open error:", error);
+      throw new Error(errorMsg);
     }
   };
 
