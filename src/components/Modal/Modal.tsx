@@ -83,12 +83,12 @@ const Modal = ({
               cursor: isDragging ? "grabbing" : "grab",
               userSelect: "none",
             }}
-            className={`z-50 mx-auto overflow-auto rounded-lg border border-modal-border bg-component-bg shadow-[0_0_15px_rgba(31,41,55,0.4)] ${className}`}
+            className={`z-50 mx-auto overflow-auto rounded-lg border border-modal-border bg-component shadow-[0_0_15px_rgba(31,41,55,0.4)] ${className}`}
             {...props}
           >
             {title && (
               <div
-                className="flex cursor-grab select-none gap-4 border-b border-modal-border bg-component-bg p-4"
+                className="flex cursor-grab select-none gap-4 border-b border-modal-border bg-component p-4"
                 onMouseDown={handleMouseDown}
                 onDragStart={(e) => e.preventDefault()}
               >
@@ -104,11 +104,11 @@ const Modal = ({
                 <p className="text-white">{title}</p>
               </div>
             )}
-            <div className={`h-full w-full bg-component-bg ${title && "p-4"}`}>
+            <div className={`h-full w-full bg-component ${title && "p-4"}`}>
               {children}
             </div>
             {footer && (
-              <div className="border-t border-modal-border bg-component-bg p-4">
+              <div className="border-t border-modal-border bg-component p-4">
                 {footer}
               </div>
             )}

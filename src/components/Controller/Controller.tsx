@@ -303,7 +303,7 @@ const Controller = () => {
           {(!UIConfig.screenHide || !UIConfig.controlButtonsHide) && (
             <div
               id="ControllerSection"
-              className="alert flex h-full max-w-[80%] flex-col items-center justify-center gap-24 rounded-lg p-10 outline-none focus:ring-0 md:flex-row md:items-start"
+              className="bg-component flex h-full max-w-[80%] flex-col items-center justify-center gap-24 rounded-lg p-10 outline-none focus:ring-0 md:flex-row md:items-start"
               onWheel={handleScroll}
               tabIndex={0}
               onKeyDown={(e) => {
@@ -322,8 +322,8 @@ const Controller = () => {
                     write={write}
                   />
 
-                  <div className="flex flex-col items-center justify-center rounded-md bg-component-bg p-3">
-                    <p className="pb-4">Live Screen</p>
+                  <div className="flex flex-col items-center justify-center rounded-md bg-opacity-20 bg-slate-800 p-3 backdrop-blur-sm">
+                    <p className="pb-4 text-white font-medium drop-shadow-[0_0_4px_rgba(255,255,255,0.4)]">Live Screen</p>
                     <div className="flex flex-row items-center justify-center gap-5">
                       <ToggleSwitch
                         isToggle={autoUpdateFrame}
@@ -340,7 +340,7 @@ const Controller = () => {
                             write("screenframeshort", false);
                           }
                         }}
-                        className={"size-6 min-w-6 rounded-sm bg-component-bg"}
+                        className={"size-6 min-w-6 rounded-sm bg-slate-700 hover:bg-slate-600 text-white p-1 transition-colors duration-150 hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.4)] flex items-center justify-center"}
                         shortcutKeys={"mod+R"}
                       />
                     </div>
@@ -360,7 +360,7 @@ const Controller = () => {
 
           {!serial.isReading ? (
             <button
-              className="rounded bg-component-bg p-2 text-white disabled:opacity-50"
+              className="rounded bg-component p-2 text-white disabled:opacity-50"
               onClick={() => serial.startReading()}
             >
               Start Reading Console
@@ -368,7 +368,7 @@ const Controller = () => {
           ) : (
             <>
               {(!UIConfig.fileSystemHide || !UIConfig.serialConsoleHide) && (
-                <div className="mt-10 flex h-[434px] w-4/5 flex-row items-start justify-center gap-5 rounded-md bg-component-bg p-5">
+                <div className="mt-10 flex h-[434px] w-4/5 flex-row items-start justify-center gap-5 rounded-md bg-component p-5">
                   {!UIConfig.fileSystemHide && (
                     <FileInputs
                       fileInputRef={fileInputRef}
@@ -398,7 +398,7 @@ const Controller = () => {
                 </div>
               )}
               {!UIConfig.firmwareManagerHide && (
-                <div className="m-5 flex w-[20%] flex-col items-center justify-center rounded-md bg-component-bg p-5">
+                <div className="m-5 flex w-[20%] flex-col items-center justify-center rounded-md bg-component p-5">
                   <p className="pb-5 text-center text-sm">
                     Firmware Version: {deviceVersion}
                   </p>

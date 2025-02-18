@@ -45,7 +45,7 @@ export const DeviceControls: React.FC<IDeviceControls> = ({
       className="flex flex-col items-center justify-center gap-4"
       id="controlGroup"
     >
-      <div className="flex flex-col items-center justify-center rounded-lg bg-gray-800">
+      <div className="flex flex-col items-center justify-center rounded-lg">
         <div className="grid grid-flow-col grid-rows-3 gap-4">
           <div></div>
           <HotkeyButton
