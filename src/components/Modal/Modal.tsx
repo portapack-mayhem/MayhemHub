@@ -75,7 +75,7 @@ const Modal = ({
  return (
    <>
      {isModalOpen && (
-       <div className="fixed inset-0 z-40 flex items-start justify-center pt-[5vh]">
+       <div className="fixed inset-0 z-40 flex items-center justify-center">
          <div className="fixed inset-0 bg-overlay"></div>
          <div
            style={{
@@ -83,7 +83,7 @@ const Modal = ({
              cursor: isDragging ? "grabbing" : "grab",
              userSelect: "none",
            }}
-           className={`z-50 mx-auto overflow-auto rounded-lg border border-modal-border bg-component shadow-[0_0_15px_rgba(31,41,55,0.4)] ${className}`}
+           className={`z-50 mx-auto overflow-auto rounded-lg border border-modal-border bg-component modal-glow ${className}`}
            {...props}
          >
            {title && (
