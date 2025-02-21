@@ -76,16 +76,15 @@ const Modal = ({
    <>
      {isModalOpen && (
        <div className="fixed inset-0 z-40 flex items-center justify-center">
-         <div className="fixed inset-0 bg-overlay"></div>
-         <div
-           style={{
-             transform: `translate(${position.x}px, ${position.y}px)`,
-             cursor: isDragging ? "grabbing" : "grab",
-             userSelect: "none",
-           }}
-           className={`z-50 mx-auto overflow-auto rounded-lg border border-modal-border bg-component modal-glow ${className}`}
-           {...props}
-         >
+        <div
+          style={{
+            transform: `translate(${position.x}px, ${position.y}px)`,
+            cursor: isDragging ? "grabbing" : "grab",
+            userSelect: "none",
+          }}
+          className={`z-50 mx-auto overflow-auto rounded-lg border border-modal-border bg-component ${isDragging ? 'modal-glow-dragging' : 'modal-glow'} ${className}`}
+          {...props}
+        >
            {title && (
              <div
                className="flex cursor-grab select-none gap-4 border-b border-modal-border bg-component p-4"

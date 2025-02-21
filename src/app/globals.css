@@ -60,4 +60,9 @@ body>div {
 
 .modal-glow {
   box-shadow: 0 0 20px rgba(100, 116, 248, 0.4), 0 0 40px rgba(59, 130, 246, 0.2);
+  transition: box-shadow 0.3s ease;
+}
+
+.modal-glow-dragging {
+  box-shadow: 0 0 30px rgba(129, 140, 248, 0.7), 0 0 60px rgba(59, 130, 246, 0.4);
 }
