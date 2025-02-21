@@ -57,9 +57,7 @@ body > div {
 }
 
 .bg-component {
-  background-color: rgba(23, 35, 52, 0.60) !important;
-  backdrop-filter: blur(9px);
-  -webkit-backdrop-filter: blur(5px);
+  background-color: rgb(23, 35, 52) !important;
 }
 
 .bg-alert {

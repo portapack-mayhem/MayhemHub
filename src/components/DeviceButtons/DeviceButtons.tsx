@@ -102,12 +102,12 @@ export const DeviceButtons = ({
          </button>
        </div>
      </div>
-     <div className="flex items-center justify-center gap-4">
+     <div className="flex bg-component items-center justify-center gap-4">
        <HotkeyButton
          label="DFU"
          disabled={disableTransmitAction}
          onClickFunction={() => write("button 6", autoUpdateFrame)}
-         className="h-16 w-16 bg-component hover:bg-slate-600 text-white transition-colors duration-150"
+         className="h-16 w-16 bg-component hover:bg- text-white transition-colors duration-150"
          shortcutKeys={"mod+D"}
        />
        <button

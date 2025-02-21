@@ -56,7 +56,7 @@ export const Console: React.FC<IConsole> = ({
             }
           }}
           placeholder="Enter command"
-          className="w-full rounded-md bg-component p-2 font-mono text-white"
+          className="w-full rounded-md bg-component p-2 font-mono text-white shadow-[0_0_10px_rgba(255,255,255,0.3)] focus:shadow-[0_0_15px_rgba(255,255,255,0.5)] outline-none transition-shadow duration-300"
         />
         <button
           type="submit"

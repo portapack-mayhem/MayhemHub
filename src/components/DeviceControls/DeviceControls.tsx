@@ -100,21 +100,21 @@ export const DeviceControls: React.FC<IDeviceControls> = ({
           </button>
         </div>
       </div>
-      <div className="flex items-center justify-center gap-4 rounded-lg bg-gray-800 p-5">
-        <HotkeyButton
-          label="DFU"
-          disabled={disableTransmitAction}
-          onClickFunction={() => write("button 6", autoUpdateFrame)}
-          className="btn btn-warning h-16 w-20"
-          shortcutKeys={"mod+D"}
-        />
-        <button
-          disabled={disableTransmitAction}
-          onClick={() => write("reboot", autoUpdateFrame)}
-          className="btn btn-error h-16 w-20"
-        >
-          REBOOT
-        </button>
+        <div className="flex items-center justify-center gap-4 rounded-lg p-5">
+          <HotkeyButton
+            label="DFU"
+            disabled={disableTransmitAction}
+            onClickFunction={() => write("button 6", autoUpdateFrame)}
+            className="btn btn-warning h-16 w-20"
+            shortcutKeys={"mod+D"}
+          />
+          <button
+            disabled={disableTransmitAction}
+            onClick={() => write("reboot", autoUpdateFrame)}
+            className="btn btn-error h-16 w-20"
+          >
+            REBOOT
+          </button>
       </div>
     </div>
   );
