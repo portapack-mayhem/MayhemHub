@@ -8,27 +8,17 @@
   --background-primary: #0a0b11;
   --background-secondary: #12141c;
   --background-pattern: #181b26;
+  --accent-color: #1d4ed8;
 }
 
 body {
   color: rgb(var(--foreground-rgb));
   background-color: var(--background-primary);
-  background-image: linear-gradient(
-      45deg,
-      var(--background-secondary) 25%,
-      transparent 25%,
-      transparent 75%,
-      var(--background-secondary) 75%
-    ),
-    linear-gradient(
-      45deg,
-      var(--background-secondary) 25%,
-      transparent 25%,
-      transparent 75%,
-      var(--background-secondary) 75%
-    );
-  background-size: 60px 60px;
-  background-position: 0 0, 30px 30px;
+
+  background-image:
+    radial-gradient(circle at 25% 25%, rgba(29, 78, 216, 0.15) 0%, transparent 50%),
+    radial-gradient(circle at 75% 75%, rgba(124, 58, 237, 0.15) 0%, transparent 50%);
+
   margin: 0;
   min-height: 100vh;
   overflow-x: hidden;
@@ -41,17 +31,15 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    180deg,
-    rgba(10, 11, 17, 0.8) 0%,
-    rgba(18, 20, 28, 0.2) 50%,
-    rgba(10, 11, 17, 0.8) 100%
-  );
+  background: linear-gradient(180deg,
+      rgba(10, 11, 17, 0.8) 0%,
+      rgba(18, 20, 28, 0.2) 50%,
+      rgba(10, 11, 17, 0.8) 100%);
   pointer-events: none;
   z-index: 1;
 }
 
-body > div {
+body>div {
   position: relative;
   z-index: 2;
 }
