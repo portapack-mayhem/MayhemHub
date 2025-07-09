@@ -32,7 +32,7 @@ export const Console: React.FC<IConsole> = ({
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-1">
       <textarea
-        className="h-full w-full rounded-md bg-component p-2 font-mono text-white"
+        className="h-full w-full rounded-md bg-component p-2 font-mono text-white resize-none"
         readOnly
         value={consoleMessageList}
         id="serial_console"

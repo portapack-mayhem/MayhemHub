@@ -322,8 +322,10 @@ const Controller = () => {
                     write={write}
                   />
 
-                  <div className="flex flex-col items-center justify-center rounded-md bg-opacity-20 bg-slate-800 p-3 backdrop-blur-sm">
-                    <p className="pb-4 text-white font-medium drop-shadow-[0_0_4px_rgba(255,255,255,0.4)]">Live Screen</p>
+                  <div className="flex flex-col items-center justify-center rounded-md bg-opacity-20 bg-slate-600 p-3 backdrop-blur-sm">
+                    <p className="pb-4 text-white font-medium drop-shadow-[0_0_4px_rgba(255,255,255,0.4)]">
+                      Live Screen
+                    </p>
                     <div className="flex flex-row items-center justify-center gap-5">
                       <ToggleSwitch
                         isToggle={autoUpdateFrame}
@@ -340,7 +342,9 @@ const Controller = () => {
                             write("screenframeshort", false);
                           }
                         }}
-                        className={"size-6 min-w-6 rounded-sm bg-slate-700 hover:bg-slate-600 text-white p-1 transition-colors duration-150 hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.4)] flex items-center justify-center"}
+                        className={
+                          "size-6 min-w-6 rounded-sm bg-slate-700 hover:bg-slate-600 text-white p-1 transition-colors duration-150 hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.4)] flex items-center justify-center"
+                        }
                         shortcutKeys={"mod+R"}
                       />
                     </div>
