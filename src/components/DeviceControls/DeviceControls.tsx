@@ -45,7 +45,7 @@ export const DeviceControls: React.FC<IDeviceControls> = ({
       className="flex flex-col items-center justify-center gap-4"
       id="controlGroup"
     >
-      <div className="flex flex-col items-center justify-center rounded-lg bg-gray-800">
+      <div className="flex flex-col items-center justify-center rounded-lg">
         <div className="grid grid-flow-col grid-rows-3 gap-4">
           <div></div>
           <HotkeyButton
@@ -100,21 +100,21 @@ export const DeviceControls: React.FC<IDeviceControls> = ({
           </button>
         </div>
       </div>
-      <div className="flex items-center justify-center gap-4 rounded-lg bg-gray-800 p-5">
-        <HotkeyButton
-          label="DFU"
-          disabled={disableTransmitAction}
-          onClickFunction={() => write("button 6", autoUpdateFrame)}
-          className="btn btn-warning h-16 w-20"
-          shortcutKeys={"mod+D"}
-        />
-        <button
-          disabled={disableTransmitAction}
-          onClick={() => write("reboot", autoUpdateFrame)}
-          className="btn btn-error h-16 w-20"
-        >
-          REBOOT
-        </button>
+        <div className="flex items-center justify-center gap-4 rounded-lg p-5">
+          <HotkeyButton
+            label="DFU"
+            disabled={disableTransmitAction}
+            onClickFunction={() => write("button 6", autoUpdateFrame)}
+            className="btn btn-warning h-16 w-20"
+            shortcutKeys={"mod+D"}
+          />
+          <button
+            disabled={disableTransmitAction}
+            onClick={() => write("reboot", autoUpdateFrame)}
+            className="btn btn-error h-16 w-20"
+          >
+            REBOOT
+          </button>
       </div>
     </div>
   );

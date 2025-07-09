@@ -1,5 +1,9 @@
 "use client";
 
+// ToDo: Auto connect when its connected (But have a select toggle to be able to turn this off)
+// Can identify the vendor and product IDs by plugging in the device and visiting: chrome://device-log/
+// the IDs will be labeled `vid` and `pid`, respectively
+
 import {
   faRotate,
   faCheckCircle,
@@ -92,7 +96,8 @@ const Controller = () => {
       const arrayBuffer = reader.result;
       if (arrayBuffer instanceof ArrayBuffer) {
         let bytes = new Uint8Array(arrayBuffer);
-        await uploadFile(path + file.name, bytes, setUpdateStatus); // ToDo: This should possibly be some sort of callback
+        // ToDo: This should possibly be some sort of callback
+        await uploadFile(path + file.name, bytes, setUpdateStatus);
       }
     };
 
@@ -119,7 +124,7 @@ const Controller = () => {
       const arrayBuffer = reader.result;
       if (arrayBuffer instanceof ArrayBuffer) {
         let bytes = new Uint8Array(arrayBuffer);
-        await uploadFile(path + file.name, bytes, setUpdateStatus); // ToDo: This should possibly be some sort of callback
+        await uploadFile(path + file.name, bytes, setUpdateStatus);
         await write(`flash ${path + file.name}`, false, true);
         console.log("DONE! firmware complete. Rebooting...");
         alert(
@@ -151,12 +156,12 @@ const Controller = () => {
       setUpdateStatus
     );
 
-    await write(`mkdir /APPS`, false, true); // not necessary after #2155 in main repo. (but not harmful)
+    // not necessary after #2155 in main repo. (but not harmful)
+    await write(`mkdir /APPS`, false, true);
     await write(`flash /FIRMWARE/${fileBlob.filename}`, false, true);
     console.log("DONE! firmware complete. Rebooting...");
     alert("Firmware update complete! Please wait for your device to reboot.");
   };
-
   const flashLatestStableFirmware = async () => {
     const fileBlob = await downloadFileFromUrl(
       "https://hackrf.app/api/fetch_stable_firmware"
@@ -203,16 +208,17 @@ const Controller = () => {
       setScriptRunning(true);
       const content = reader.result;
       if (typeof content === "string") {
-        const lines = content.split(/\r?\n/); // split lines
+        const lines = content.split(/\r?\n/);
 
         for (let lineNumber = 0; lineNumber < lines.length; lineNumber++) {
-          await new Promise((resolve) => setTimeout(resolve, 1000)); // the await for write func seems is still too fast. TODO
+          // the await for write func seems is still too fast. TODO
+          await new Promise((resolve) => setTimeout(resolve, 1000));
           const line = lines[lineNumber];
           const trimmedLine = line.trim();
           if (trimmedLine.startsWith("--") || trimmedLine === "") {
             continue;
           }
-          const writeMatch = trimmedLine.match(/^write\((.*)\);?$/); // match write command
+          const writeMatch = trimmedLine.match(/^write\((.*)\);?$/);
           if (writeMatch) {
             const argsString = writeMatch[1];
             const argsRegex =
@@ -222,8 +228,8 @@ const Controller = () => {
             const argsMatch = argsString.match(argsRegex);
             if (argsMatch) {
               const command = argsMatch[1];
-              const updateFrame = argsMatch[2] === "true"; //cast to bool
-              const awaitResponse = argsMatch[3] === "true"; // cast to bool
+              const updateFrame = argsMatch[2] === "true";
+              const awaitResponse = argsMatch[3] === "true";
 
               setScriptStatus(`sending: ${command}`);
               await write(command, updateFrame, awaitResponse);
@@ -284,7 +290,7 @@ const Controller = () => {
   return (
     <>
       {setupComplete ? (
-        <div className="flex h-full w-full flex-col items-center justify-center">
+        <div className="flex size-full flex-col items-center justify-center">
           <h1 className="m-6 p-2">
             HackRF Connected
             <FontAwesomeIcon
@@ -297,7 +303,7 @@ const Controller = () => {
           {(!UIConfig.screenHide || !UIConfig.controlButtonsHide) && (
             <div
               id="ControllerSection"
-              className="flex h-full max-w-[80%] flex-col items-center justify-center gap-24 rounded-lg bg-slate-800 p-10 outline-none focus:ring-0 md:flex-row md:items-start"
+              className="bg-component flex h-full max-w-[80%] flex-col items-center justify-center gap-24 rounded-lg p-10 outline-none focus:ring-0 md:flex-row md:items-start"
               onWheel={handleScroll}
               tabIndex={0}
               onKeyDown={(e) => {
@@ -316,8 +322,8 @@ const Controller = () => {
                     write={write}
                   />
 
-                  <div className="flex flex-col items-center justify-center rounded-md bg-gray-700 p-3">
-                    <p className="pb-4">Live Screen</p>
+                  <div className="flex flex-col items-center justify-center rounded-md bg-opacity-20 bg-slate-800 p-3 backdrop-blur-sm">
+                    <p className="pb-4 text-white font-medium drop-shadow-[0_0_4px_rgba(255,255,255,0.4)]">Live Screen</p>
                     <div className="flex flex-row items-center justify-center gap-5">
                       <ToggleSwitch
                         isToggle={autoUpdateFrame}
@@ -334,7 +340,7 @@ const Controller = () => {
                             write("screenframeshort", false);
                           }
                         }}
-                        className={"size-6 min-w-6 rounded-sm bg-green-500"}
+                        className={"size-6 min-w-6 rounded-sm bg-slate-700 hover:bg-slate-600 text-white p-1 transition-colors duration-150 hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.4)] flex items-center justify-center"}
                         shortcutKeys={"mod+R"}
                       />
                     </div>
@@ -354,7 +360,7 @@ const Controller = () => {
 
           {!serial.isReading ? (
             <button
-              className="rounded bg-orange-300 p-2 text-white disabled:opacity-50"
+              className="rounded bg-component p-2 text-white disabled:opacity-50"
               onClick={() => serial.startReading()}
             >
               Start Reading Console
@@ -362,7 +368,7 @@ const Controller = () => {
           ) : (
             <>
               {(!UIConfig.fileSystemHide || !UIConfig.serialConsoleHide) && (
-                <div className="mt-10 flex h-[434px] w-[80%] flex-row items-start justify-center gap-5 rounded-md bg-gray-700 p-5">
+                <div className="mt-10 flex h-[434px] w-4/5 flex-row items-start justify-center gap-5 rounded-md bg-component p-5">
                   {!UIConfig.fileSystemHide && (
                     <FileInputs
                       fileInputRef={fileInputRef}
@@ -392,7 +398,7 @@ const Controller = () => {
                 </div>
               )}
               {!UIConfig.firmwareManagerHide && (
-                <div className="m-5 flex w-[20%] flex-col items-center justify-center rounded-md bg-gray-700 p-5">
+                <div className="m-5 flex w-[20%] flex-col items-center justify-center rounded-md bg-component p-5">
                   <p className="pb-5 text-center text-sm">
                     Firmware Version: {deviceVersion}
                   </p>
@@ -404,7 +410,7 @@ const Controller = () => {
                   </button>
                 </div>
               )}
-              <div className="mt-3 flex w-[80%] justify-end">
+              <div className="mt-3 flex w-4/5 justify-end">
                 <button
                   onClick={() => setUIConfigurationOpen(true)}
                   className="btn btn-primary btn-sm size-10"
@@ -422,7 +428,7 @@ const Controller = () => {
         title="Firmware Update"
         isModalOpen={firmwarModalOpen}
         closeModal={() => setFirmwarModalOpen(false)}
-        className="w-[40%]"
+        className="w-2/5"
       >
         {deviceVersion === "" ||
         (getVersionType(deviceVersion) === "nightly" &&

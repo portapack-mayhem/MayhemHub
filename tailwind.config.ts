@@ -8,6 +8,12 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      colors: {
+        "component-bg": "rgba(23, 35, 52, 0.45)",
+        "modal-bg": "rgba(23, 35, 52, 0.45)",
+        "modal-border": "rgb(17, 24, 39)",
+        overlay: "rgba(0, 0, 0, 0.5)",
+      },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":

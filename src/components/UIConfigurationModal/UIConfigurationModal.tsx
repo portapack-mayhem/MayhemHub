@@ -52,9 +52,9 @@ const UIConfigurationModal: React.FC<IUIConfigurationModal> = ({
       title="UI Configuration"
       isModalOpen={isOpen}
       closeModal={onClose}
-      className="w-[20%]"
+      className="w-[20%] modal-glow"
     >
-      <div className="mb-3 flex flex-col items-center justify-center rounded-lg p-4 font-medium text-white outline-none focus:ring-0 md:items-start">
+      <div className="flex flex-col items-center justify-center p-4 font-medium text-white outline-none focus:ring-0 md:items-start">
         <div className="flex w-full flex-col items-start justify-start gap-5">
           {uiConfigItems.map((item) => (
             <ToggleSwitch

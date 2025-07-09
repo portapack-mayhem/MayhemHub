@@ -66,13 +66,13 @@ const SerialLoader = ({ children }: PropsWithChildren<ISerialLoader>) => {
   };
 
   const ErrorMessage = () => (
-    <div className="flex flex-1 flex-col items-center justify-center text-black">
-      <div className="flex w-full max-w-lg flex-col rounded-xl bg-white p-6">
+    <div className="flex flex-1 flex-col items-center justify-center text-white">
+      <div className="flex w-full max-w-lg flex-col rounded-xl bg-component p-6">
         <h1 className="-mt-1 mb-2 text-xl font-medium">😔 Uh oh... </h1>
         <p className="mb-1 pb-5">
           Looks like your browser doesn&apos;t support the{" "}
           <a
-            className="text-green-800 underline"
+            className="text-blue-400 underline hover:text-blue-300"
             href="https://caniuse.com/web-serial"
             target="_blank"
             rel="noopener noreferrer"
@@ -92,7 +92,7 @@ const SerialLoader = ({ children }: PropsWithChildren<ISerialLoader>) => {
 
     return (
       <div className="flex flex-1 flex-col items-center justify-center px-5 text-center text-neutral">
-        <div className="flex w-full max-w-4xl flex-col rounded-3xl bg-white p-10">
+        <div className="flex w-full max-w-4xl flex-col rounded-3xl bg-component p-10 text-white">
           <p className="mb-10 text-3xl leading-snug">
             Connect your HackRF/Portapack via USB to get started.
           </p>
@@ -136,7 +136,7 @@ const SerialLoader = ({ children }: PropsWithChildren<ISerialLoader>) => {
   };
 
   const TitleMessage = () => (
-    <div className="mt-7 flex flex-col justify-center rounded-3xl bg-neutral p-5">
+    <div className="mt-7 flex flex-col justify-center rounded-3xl bg-component p-5">
       <h1 className="text-center text-2xl font-semibold">
         Welcome to the Mayhem Hub!
         <br />
@@ -148,7 +148,7 @@ const SerialLoader = ({ children }: PropsWithChildren<ISerialLoader>) => {
   );
 
   const AboutMessage = () => (
-    <div className="collapse collapse-arrow max-w-[80%] bg-neutral">
+    <div className="collapse collapse-arrow max-w-[80%] bg-component">
       <input type="checkbox" />
       <div className="collapse-title text-xl font-medium">
         What is the Mayhem Hub?

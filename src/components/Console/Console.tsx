@@ -1,9 +1,12 @@
+"use client";
+
 import {
   faPaperPlane,
   faCircleXmark,
   faCode,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import React from "react";
 
 interface IConsole {
   consoleMessageList: string;
@@ -29,14 +32,14 @@ export const Console: React.FC<IConsole> = ({
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-1">
       <textarea
-        className="h-full w-full rounded bg-gray-600 p-2 font-mono text-white"
+        className="h-full w-full rounded-md bg-component p-2 font-mono text-white"
         readOnly
         value={consoleMessageList}
         id="serial_console"
       />
       {scriptRunning && (
         <div className="flex w-full flex-row items-center justify-center gap-1">
-          <p className="w-full rounded-md bg-blue-700 p-2 font-mono text-white">
+          <p className="w-full rounded-md bg-component p-2 font-mono text-white">
             {scriptStatus}
           </p>
         </div>
@@ -53,7 +56,7 @@ export const Console: React.FC<IConsole> = ({
             }
           }}
           placeholder="Enter command"
-          className="w-full rounded-md bg-gray-600 p-2 font-mono text-white"
+          className="w-full rounded-md bg-component p-2 font-mono text-white shadow-[0_0_10px_rgba(255,255,255,0.3)] focus:shadow-[0_0_15px_rgba(255,255,255,0.5)] outline-none transition-shadow duration-300"
         />
         <button
           type="submit"
@@ -86,3 +89,5 @@ export const Console: React.FC<IConsole> = ({
     </div>
   );
 };
+
+export default Console;
