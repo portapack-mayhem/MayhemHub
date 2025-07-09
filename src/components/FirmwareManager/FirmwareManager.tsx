@@ -81,6 +81,18 @@ export const FirmwareManager: React.FC<IFirmwareManager> = ({
     >
       Flash custom firmware
     </button>
-    <p>{updateStatus}</p>
+    <div className="space-y-2">
+      {updateStatus.includes("Progress") && (
+        <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+          <div 
+            className="bg-blue-400 h-2.5 rounded-full transition-all duration-300" 
+            style={{ 
+              width: `${updateStatus.split('Progress: ')[1]?.split('%')[0] || 0}%` 
+            }}
+          ></div>
+        </div>
+      )}
+      <p className="whitespace-pre-wrap">{updateStatus}</p>
+    </div>
   </div>
 );
