@@ -1,8 +1,12 @@
 import { ChangeEvent, Dispatch, SetStateAction } from "react";
+import { faRotate } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   FileBrowser,
   FileStructure,
 } from "@/components/FileBrowser/FileBrowser";
+import { useWriteCommand } from "@/utils/serialUtils";
+import { parseDirectories } from "@/utils/fileUtils";
 
 interface IFileInputs {
   fileInputRef: React.RefObject<HTMLInputElement>;
@@ -32,6 +36,17 @@ export const FileInputs: React.FC<IFileInputs> = ({
   onFirmwareFileChange,
   onScriptFileChange,
 }) => {
+  const { write } = useWriteCommand();
+
+  const refreshFileSystem = async () => {
+    const rootDirs = await write(`ls /`, false, true);
+    if (rootDirs.response) {
+      const rootItems = rootDirs.response.split("\r\n").slice(1, -1);
+      const fileStructures = parseDirectories(rootItems, "/");
+      setDirStructure(fileStructures);
+    }
+  };
+
   return (
     <div className="flex h-full w-[35%] flex-col gap-1">
       <input
@@ -75,6 +90,16 @@ export const FileInputs: React.FC<IFileInputs> = ({
           onScriptFileChange(e);
         }}
       />
+      <div className="mb-2 flex justify-between">
+        <h3 className="text-white font-semibold">File System</h3>
+        <button
+          onClick={refreshFileSystem}
+          className="rounded bg-gray-700 px-2 py-1 text-white hover:bg-gray-600"
+          title="Refresh file system"
+        >
+          <FontAwesomeIcon icon={faRotate} className="text-sm" />
+        </button>
+      </div>
       <div className="flex h-full flex-col overflow-y-auto">
         <FileBrowser
           fileInputRef={fileInputRef}
