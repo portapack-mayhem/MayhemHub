@@ -1,6 +1,6 @@
-import { ChangeEvent, Dispatch, SetStateAction } from "react";
 import { faRotate } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { ChangeEvent, Dispatch, SetStateAction } from "react";
 import {
   FileBrowser,
   FileStructure,
