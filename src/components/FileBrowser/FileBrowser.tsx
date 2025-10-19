@@ -6,9 +6,9 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Dispatch, RefObject, SetStateAction, useState } from "react";
+import Modal from "@/components/Modal/Modal";
 import { parseDirectories, hexToBytes } from "@/utils/fileUtils";
 import { useWriteCommand } from "@/utils/serialUtils";
-import Modal from "@/components/Modal/Modal";
 
 // Define FileType
 export type FileType = "file" | "folder";
@@ -324,3 +324,4 @@ export const FileBrowser = ({
     </>
   );
 };
+
