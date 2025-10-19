@@ -5,8 +5,8 @@ import {
   FileBrowser,
   FileStructure,
 } from "@/components/FileBrowser/FileBrowser";
-import { useWriteCommand } from "@/utils/serialUtils";
 import { parseDirectories } from "@/utils/fileUtils";
+import { useWriteCommand } from "@/utils/serialUtils";
 
 interface IFileInputs {
   fileInputRef: React.RefObject<HTMLInputElement>;
@@ -91,7 +91,7 @@ export const FileInputs: React.FC<IFileInputs> = ({
         }}
       />
       <div className="mb-2 flex justify-between">
-        <h3 className="text-white font-semibold">File System</h3>
+        <h3 className="font-semibold text-white">File System</h3>
         <button
           onClick={refreshFileSystem}
           className="rounded bg-gray-700 px-2 py-1 text-white hover:bg-gray-600"
