@@ -47,6 +47,11 @@ const Controller = () => {
   const [scriptRunning, setScriptRunning] = useState<boolean>(false);
   const [dirStructure, setDirStructure] = useState<FileStructure[]>();
   const [latestVersion, setLatestVersion] = useState<ILatestVersions>();
+  
+  // Upload progress state for file manager
+  const [uploadStatus, setUploadStatus] = useState<string>("");
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [currentUploadFileName, setCurrentUploadFileName] = useState<string>("");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const firmwareFileInputRef = useRef<HTMLInputElement>(null);
@@ -65,7 +70,7 @@ const Controller = () => {
     setDirStructure,
     setLatestVersion,
   });
-  const { canvasRef, renderFrame } = useScreenFrame();
+  const { canvasRef, renderFrame, screenDimensions, needsRefresh, setNeedsRefresh } = useScreenFrame();
   const { UIConfig, setUiConfig, handleUpdateUiHide } = useUIConfig();
 
   const sendCommand = async () => {
@@ -88,23 +93,41 @@ const Controller = () => {
   const onFileChange = (event: ChangeEvent<HTMLInputElement>, path: string) => {
     const fileList = event.target.files;
     if (!fileList) return;
-
+  
     let file = fileList[0];
+    setCurrentUploadFileName(file.name);
+    setIsUploading(true);
+    // Don't set initial status - let uploadFile handle all status updates
+    
     let reader = new FileReader();
-
+  
     reader.onloadend = async () => {
       const arrayBuffer = reader.result;
       if (arrayBuffer instanceof ArrayBuffer) {
         let bytes = new Uint8Array(arrayBuffer);
-        // ToDo: This should possibly be some sort of callback
-        await uploadFile(path + file.name, bytes, setUpdateStatus);
+        
+        // uploadFile will handle all status updates through setUploadStatus
+        await uploadFile(path + file.name, bytes, setUploadStatus);
+        
+        // Wait a bit after upload completes before closing modal
+        setTimeout(() => {
+          setIsUploading(false);
+          setUploadStatus("");
+          setCurrentUploadFileName("");
+        }, 5000);
       }
     };
-
+  
     reader.onerror = () => {
       console.error("A problem occurred while reading the file.");
+      setUploadStatus("❌ Error: Failed to read file");
+      setTimeout(() => {
+        setIsUploading(false);
+        setUploadStatus("");
+        setCurrentUploadFileName("");
+      }, 3000);
     };
-
+  
     if (file) {
       reader.readAsArrayBuffer(file);
     }
@@ -265,6 +288,14 @@ const Controller = () => {
   };
 
   useEffect(() => {
+    if (needsRefresh && !disableTransmitAction) {
+      console.log("Executing refresh");
+      write("screenframeshort", false);
+      setNeedsRefresh(false);
+    }
+  }, [needsRefresh]);
+
+  useEffect(() => {
     // We dont add this to the console as its not needed. This may change in the future
     if (consoleMessage.startsWith("screenframe")) {
       if (!UIConfig.screenHide) renderFrame(consoleMessage);
@@ -320,6 +351,7 @@ const Controller = () => {
                     disableTransmitAction={disableTransmitAction}
                     autoUpdateFrame={autoUpdateFrame}
                     write={write}
+                    screenDimensions={screenDimensions}
                   />
 
                   <div className="flex flex-col items-center justify-center rounded-md bg-opacity-20 bg-slate-600 p-3 backdrop-blur-sm">
@@ -466,6 +498,32 @@ const Controller = () => {
         handleUpdateUiHide={handleUpdateUiHide}
         toggleLiveScreen={toggleLiveScreen}
       />
+      {/* Upload Progress Modal for File Manager */}
+      <Modal
+        title={`Uploading: ${currentUploadFileName}`}
+        isModalOpen={isUploading}
+        closeModal={() => {
+          // Allow closing when upload is complete
+          if (!uploadStatus.includes("Complete!")) return;
+          setIsUploading(false);
+          setUploadStatus("");
+        }}
+        className="w-96"
+      >
+        <div className="space-y-2">
+          {uploadStatus.includes("Progress") && (
+            <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
+              <div 
+                className="bg-blue-400 h-2.5 rounded-full transition-all duration-300" 
+                style={{ 
+                  width: `${uploadStatus.split('Progress: ')[1]?.split('%')[0] || 0}%` 
+                }}
+              />
+            </div>
+          )}
+          <p className="whitespace-pre-wrap text-sm">{uploadStatus}</p>
+        </div>
+      </Modal>
     </>
   );
 };
