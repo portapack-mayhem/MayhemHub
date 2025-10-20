@@ -3,6 +3,7 @@ interface IScreen {
   disableTransmitAction: boolean;
   autoUpdateFrame: boolean;
   write: any;
+  screenDimensions: { width: number; height: number };
 }
 
 export const Screen: React.FC<IScreen> = ({
@@ -10,12 +11,13 @@ export const Screen: React.FC<IScreen> = ({
   disableTransmitAction,
   autoUpdateFrame,
   write,
+  screenDimensions,
 }) => {
   return (
     <canvas
       ref={canvasRef}
-      width={241}
-      height={321}
+      width={screenDimensions.width}
+      height={screenDimensions.height}
       className={`${
         !disableTransmitAction && "cursor-pointer"
       } shadow-glow shadow-neutral-500 outline-none focus:ring-0`}
