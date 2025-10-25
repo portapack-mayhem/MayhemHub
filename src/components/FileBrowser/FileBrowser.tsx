@@ -5,7 +5,7 @@ import {
   faFile,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Dispatch, RefObject, SetStateAction, useState } from "react";
+import { Dispatch, RefObject, SetStateAction, useState, useRef } from "react";
 import Modal from "@/components/Modal/Modal";
 import { parseDirectories, hexToBytes } from "@/utils/fileUtils";
 import { useWriteCommand } from "@/utils/serialUtils";
@@ -39,6 +39,7 @@ export const FileBrowser = ({
   const [downloadStatus, setDownloadStatus] = useState<string>("");
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
   const [currentFileName, setCurrentFileName] = useState<string>("");
+  const cancelDownload = useRef(false);
 
   const formatTime = (seconds: number): string => {
     const mins = Math.floor(seconds / 60);
@@ -51,6 +52,7 @@ export const FileBrowser = ({
     setCurrentFileName(fileName);
     setIsDownloading(true);
     setDownloadStatus(`📊 Preparing to download ${fileName}...`);
+    cancelDownload.current = false;
 
     await write("fclose", false);
     let sizeResponse = await write(`filesize ${filePath}`, false, true);
@@ -78,7 +80,7 @@ export const FileBrowser = ({
     let successfulChunks = 0;
     let bytesDownloaded = 0;
 
-    while (rem > 0) {
+    while (rem > 0 && !cancelDownload.current) {
       if (rem < chunk) {
         chunk = rem;
       }
@@ -121,6 +123,17 @@ export const FileBrowser = ({
 
       // Reset start time for next iteration
       startTime = Date.now();
+    }
+
+    // Check if download was cancelled
+    if (cancelDownload.current) {
+      await write("fclose", false);
+      setDownloadStatus("❌ Download cancelled");
+      setTimeout(() => {
+        setIsDownloading(false);
+        setDownloadStatus("");
+      }, 2000);
+      return;
     }
 
     // Download complete - save the file
@@ -234,9 +247,8 @@ export const FileBrowser = ({
             icon={faUpload}
             className="mr-2 cursor-pointer text-white"
             onClick={(e) => {
-              // ToDo: Complete this so the button does not get clicked
-              // e.stopPropagation();
-              // e.preventDefault();
+              e.stopPropagation();
+              e.preventDefault();
               setSelectedUploadFolder(folder.path + folder.name + "/");
               fileInputRef.current?.click();
             }}
@@ -300,10 +312,14 @@ export const FileBrowser = ({
         title={`Downloading: ${currentFileName}`}
         isModalOpen={isDownloading}
         closeModal={() => {
-          // Don't allow closing while downloading
-          if (!downloadStatus.includes("Complete")) return;
-          setIsDownloading(false);
-          setDownloadStatus("");
+          if (!downloadStatus.includes("Complete")) {
+            // Cancel the download
+            cancelDownload.current = true;
+          } else {
+            // Download is complete, just close
+            setIsDownloading(false);
+            setDownloadStatus("");
+          }
         }}
         className="w-96"
       >
@@ -324,4 +340,3 @@ export const FileBrowser = ({
     </>
   );
 };
-
