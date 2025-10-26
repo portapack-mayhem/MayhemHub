@@ -15,7 +15,7 @@ export const parseDirectories = (
   dirList: string[],
   parentPath: string = "/"
 ): FileStructure[] => {
-  return dirList.map((path) => {
+  const structures = dirList.map((path) => {
     const isFolder = path.endsWith("/");
     const name = isFolder ? path.slice(0, -1) : path;
 
@@ -25,6 +25,16 @@ export const parseDirectories = (
       type: isFolder ? "folder" : "file",
       children: isFolder ? [] : undefined,
       isOpen: false,
-    };
+    } as FileStructure;
+  });
+
+  // Sort: folders first (alphabetically), then files (alphabetically)
+  return structures.sort((a, b) => {
+    // If both are folders or both are files, sort alphabetically
+    if (a.type === b.type) {
+      return a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+    }
+    // Folders come before files
+    return a.type === "folder" ? -1 : 1;
   });
 };
