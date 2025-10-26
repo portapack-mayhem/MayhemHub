@@ -70,7 +70,7 @@ const Controller = () => {
     setDirStructure,
     setLatestVersion,
   });
-  const { canvasRef, renderFrame } = useScreenFrame();
+  const { canvasRef, renderFrame, screenDimensions, needsRefresh, setNeedsRefresh } = useScreenFrame();
   const { UIConfig, setUiConfig, handleUpdateUiHide } = useUIConfig();
 
   const sendCommand = async () => {
@@ -288,6 +288,14 @@ const Controller = () => {
   };
 
   useEffect(() => {
+    if (needsRefresh && !disableTransmitAction) {
+      console.log("Executing refresh");
+      write("screenframeshort", false);
+      setNeedsRefresh(false);
+    }
+  }, [needsRefresh]);
+
+  useEffect(() => {
     // We dont add this to the console as its not needed. This may change in the future
     if (consoleMessage.startsWith("screenframe")) {
       if (!UIConfig.screenHide) renderFrame(consoleMessage);
@@ -343,6 +351,7 @@ const Controller = () => {
                     disableTransmitAction={disableTransmitAction}
                     autoUpdateFrame={autoUpdateFrame}
                     write={write}
+                    screenDimensions={screenDimensions}
                   />
 
                   <div className="flex flex-col items-center justify-center rounded-md bg-opacity-20 bg-slate-600 p-3 backdrop-blur-sm">
