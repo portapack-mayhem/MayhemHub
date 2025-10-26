@@ -1,5 +1,13 @@
 import "./NavBar.css";
 
+const NAV_LINKS = [
+  { href: "https://discord.hackrf.app", label: "Discord" },
+  { href: "https://wiki.hackrf.app", label: "Wiki" },
+  { href: "https://release.hackrf.app", label: "Firmware Releases" },
+  { href: "https://github.com/portapack-mayhem/MayhemHub", label: "Hub Repo" },
+  { href: "https://repo.hackrf.app", label: "FW Repo" },
+];
+
 export const NavBar = () => {
   return (
     <div className="nav bg-neutral">
@@ -11,32 +19,24 @@ export const NavBar = () => {
       </div>
       <div className="nav-btn">
         <label htmlFor="nav-check">
-          <span></span>
-          <span></span>
-          <span></span>
+          <span />
+          <span />
+          <span />
         </label>
       </div>
 
       <div className="nav-links float-end flex bg-neutral text-lg text-neutral-content">
-        <a href="https://discord.hackrf.app" target="_blank" className="p-4">
-          Discord
-        </a>
-        <a href="https://wiki.hackrf.app" target="_blank" className="p-4">
-          Wiki
-        </a>
-        <a href="https://release.hackrf.app" target="_blank" className="p-4">
-          Firmware Releases
-        </a>
-        <a
-          href="https://github.com/portapack-mayhem/MayhemHub"
-          target="_blank"
-          className="p-4"
-        >
-          Hub Repo
-        </a>
-        <a href="https://repo.hackrf.app" target="_blank" className="p-4">
-          FW Repo
-        </a>
+        {NAV_LINKS.map((link) => (
+          <a
+            key={link.href}
+            href={link.href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-4"
+          >
+            {link.label}
+          </a>
+        ))}
       </div>
     </div>
   );

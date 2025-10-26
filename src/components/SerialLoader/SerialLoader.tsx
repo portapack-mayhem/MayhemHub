@@ -7,9 +7,7 @@ import {
   useState,
 } from "react";
 import Modal from "@/components/Modal/Modal";
-import useWebSerial, {
-  ISerialProvider,
-} from "@/components/SerialProvider/SerialProvider";
+import useWebSerial, { ISerialProvider } from "@/services/serialProvider";
 import { ISerialContextValue } from "@/types";
 
 interface ISerialLoader {}

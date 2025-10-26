@@ -1,14 +1,11 @@
-"use client";
-
 import {
   faPaperPlane,
   faCircleXmark,
   faCode,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import React from "react";
 
-interface IConsole {
+interface IConsoleProps {
   consoleMessageList: string;
   command: string;
   setCommand: (value: string) => void;
@@ -19,7 +16,7 @@ interface IConsole {
   scriptFileInputRef: React.RefObject<HTMLInputElement>;
 }
 
-export const Console: React.FC<IConsole> = ({
+const Console = ({
   consoleMessageList,
   command,
   setCommand,
@@ -28,7 +25,14 @@ export const Console: React.FC<IConsole> = ({
   scriptStatus,
   scriptRunning,
   scriptFileInputRef,
-}) => {
+}: IConsoleProps) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      sendCommand();
+    }
+  };
+
   return (
     <div className="flex h-full w-full flex-col items-center justify-center gap-1">
       <textarea
@@ -49,39 +53,28 @@ export const Console: React.FC<IConsole> = ({
           type="text"
           value={command}
           onChange={(e) => setCommand(e.target.value)}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              e.preventDefault();
-              sendCommand();
-            }
-          }}
+          onKeyDown={handleKeyDown}
           placeholder="Enter command"
           className="w-full rounded-md bg-component p-2 font-mono text-white shadow-[0_0_10px_rgba(255,255,255,0.3)] focus:shadow-[0_0_15px_rgba(255,255,255,0.5)] outline-none transition-shadow duration-300"
         />
         <button
-          type="submit"
+          type="button"
           className="btn btn-success btn-sm size-10 text-white"
-          onClick={() => {
-            sendCommand();
-          }}
+          onClick={sendCommand}
         >
           <FontAwesomeIcon icon={faPaperPlane} />
         </button>
         <button
-          type="submit"
+          type="button"
           className="btn btn-error btn-sm size-10 text-white"
-          onClick={() => {
-            setConsoleMessageList("");
-          }}
+          onClick={() => setConsoleMessageList("")}
         >
           <FontAwesomeIcon icon={faCircleXmark} />
         </button>
         <button
           type="button"
           className="btn btn-info btn-sm size-10 text-white"
-          onClick={() => {
-            scriptFileInputRef.current?.click();
-          }}
+          onClick={() => scriptFileInputRef.current?.click()}
         >
           <FontAwesomeIcon icon={faCode} />
         </button>
