@@ -1,18 +1,16 @@
-type IToggleSwitch = {
+interface IToggleSwitchProps {
   isToggle: boolean;
   toggleLabel?: string;
   toggleSwitch: () => void;
-};
+}
 
-const ToggleSwitch: React.FC<IToggleSwitch> = ({
+const ToggleSwitch = ({
   isToggle,
   toggleLabel,
   toggleSwitch,
-}) => {
+}: IToggleSwitchProps) => {
   return (
-    <label
-      className={`flex w-full cursor-pointer flex-row justify-between gap-4`}
-    >
+    <label className="flex w-full cursor-pointer flex-row justify-between gap-4">
       {toggleLabel && (
         <div className="font-medium text-white">{toggleLabel}</div>
       )}
@@ -21,20 +19,18 @@ const ToggleSwitch: React.FC<IToggleSwitch> = ({
           type="checkbox"
           className="hidden"
           checked={isToggle}
-          onChange={() => {
-            toggleSwitch();
-          }}
+          onChange={toggleSwitch}
         />
         <div
-          className={`h-6 w-10 rounded-full bg-gray-400 shadow-inner ${
+          className={`h-6 w-10 rounded-full shadow-inner transition-colors ${
             isToggle ? "bg-green-400" : "bg-gray-400"
           }`}
-        ></div>
+        />
         <div
-          className={`absolute inset-y-0 left-0 h-6 w-6 rounded-full bg-white shadow ${
+          className={`absolute inset-y-0 left-0 h-6 w-6 rounded-full bg-white shadow transition-transform ${
             isToggle ? "translate-x-full" : ""
           }`}
-        ></div>
+        />
       </div>
       {!toggleLabel && (
         <div className="font-medium text-white">{isToggle ? "On" : "Off"}</div>

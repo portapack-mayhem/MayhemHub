@@ -1,27 +1,15 @@
 import { ReactNode } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 
-interface IHotkeyButton {
-  /**
-   * Function to execute when hotkey is used.
-   */
+interface IHotkeyButtonProps {
   onClickFunction: () => void;
-  /**
-   * Text to display on button
-   */
   label?: string | ReactNode;
-  /**
-   * Comma-separated string of shortcutkeys
-   */
   shortcutKeys: string;
   disabled?: boolean;
   hidden?: boolean;
   className?: string;
 }
 
-/**
- * Button that displays a shortcut key combination and executes a function when the shortcut is used.
- */
 const HotkeyButton = ({
   onClickFunction,
   label = "",
@@ -29,28 +17,29 @@ const HotkeyButton = ({
   disabled = false,
   hidden = false,
   className = "",
-}: IHotkeyButton) => {
+}: IHotkeyButtonProps) => {
   useHotkeys(
     shortcutKeys,
     () => {
-      if (disabled) return;
-      onClickFunction();
+      if (!disabled) {
+        onClickFunction();
+      }
     },
-    { preventDefault: true }
+    { preventDefault: true },
+    [disabled, onClickFunction]
   );
 
+  if (hidden) return null;
+
   return (
-    <>
-      {!hidden && (
-        <button
-          disabled={disabled}
-          onClick={() => onClickFunction()}
-          className={`${className} disabled:bg-slate-500`}
-        >
-          {label}
-        </button>
-      )}
-    </>
+    <button
+      disabled={disabled}
+      onClick={onClickFunction}
+      className={`${className} disabled:bg-slate-500`}
+    >
+      {label}
+    </button>
   );
 };
+
 export default HotkeyButton;
