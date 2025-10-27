@@ -3,6 +3,8 @@ import {
   faFolder,
   faUpload,
   faFile,
+  faTrash,
+  faRotate,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Dispatch, RefObject, SetStateAction, useState, useRef } from "react";
@@ -45,6 +47,55 @@ export const FileBrowser = ({
     const mins = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${mins}m ${secs}s`;
+  };
+
+  const refreshDirectory = async (folder: FileStructure) => {
+    const childDirs = await write(
+      `ls ${folder.path + folder.name}`,
+      false,
+      true
+    );
+
+    if (childDirs.response) {
+      const childItems = childDirs.response.split("\r\n").slice(1, -1);
+      const fileStructures = parseDirectories(
+        childItems,
+        `${folder.path}${folder.name}/`
+      );
+      
+      setDirStructure(
+        (prevState) =>
+          prevState &&
+          updateDirectoryStructure(prevState, folder, fileStructures, true)
+      );
+    }
+  };
+
+  const deleteFile = async (filePath: string) => {
+    const fileName = filePath.substring(filePath.lastIndexOf("/") + 1);
+    if (confirm(`Delete ${fileName}?`)) {
+      // Use unlink instead of rm to avoid confirmation prompt
+      await write(`unlink ${filePath}`, false, true);
+      
+      // Find parent folder in structure to refresh it
+      if (dirStructure) {
+        const parentPath = filePath.substring(0, filePath.lastIndexOf("/"));
+        // Recursively search for the parent folder
+        const findAndRefreshParent = (items: FileStructure[]): boolean => {
+          for (const item of items) {
+            if (item.type === "folder" && item.path + item.name === parentPath) {
+              refreshDirectory(item);
+              return true;
+            }
+            if (item.children && findAndRefreshParent(item.children)) {
+              return true;
+            }
+          }
+          return false;
+        };
+        findAndRefreshParent(dirStructure);
+      }
+    }
   };
 
   const downloadFile = async (filePath: string) => {
@@ -175,11 +226,16 @@ export const FileBrowser = ({
   const updateDirectoryStructure = (
     structure: FileStructure[],
     targetFolder: FileStructure,
-    newChildren: FileStructure[]
+    newChildren: FileStructure[],
+    keepOpen?: boolean
   ): FileStructure[] => {
     return structure.map((folder) => {
-      if (folder.name === targetFolder.name) {
-        return { ...folder, children: newChildren, isOpen: !folder.isOpen };
+      if (folder.name === targetFolder.name && folder.path === targetFolder.path) {
+        return { 
+          ...folder, 
+          children: newChildren, 
+          isOpen: keepOpen !== undefined ? keepOpen : !folder.isOpen 
+        };
       }
 
       if (folder.children) {
@@ -188,7 +244,8 @@ export const FileBrowser = ({
           children: updateDirectoryStructure(
             folder.children,
             targetFolder,
-            newChildren
+            newChildren,
+            keepOpen
           ),
         };
       }
@@ -243,16 +300,28 @@ export const FileBrowser = ({
             <h3>{folder.name}</h3>
           </div>
 
-          <FontAwesomeIcon
-            icon={faUpload}
-            className="mr-2 cursor-pointer text-white"
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-              setSelectedUploadFolder(folder.path + folder.name + "/");
-              fileInputRef.current?.click();
-            }}
-          />
+          <div className="flex gap-2">
+            <FontAwesomeIcon
+              icon={faRotate}
+              className="cursor-pointer text-white"
+              onClick={(e) => {
+                e.stopPropagation();
+                refreshDirectory(folder);
+              }}
+              title="Refresh folder"
+            />
+            <FontAwesomeIcon
+              icon={faUpload}
+              className="cursor-pointer text-white"
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                setSelectedUploadFolder(folder.path + folder.name + "/");
+                fileInputRef.current?.click();
+              }}
+              title="Upload to folder"
+            />
+          </div>
         </div>
 
         {folder.isOpen &&
@@ -266,16 +335,27 @@ export const FileBrowser = ({
 
   // File Component
   const File = ({ file }: { file: FileStructure }) => (
-    <div
-      className={`flex cursor-pointer items-center ${isDownloading ? 'opacity-50 cursor-not-allowed' : ''}`}
-      onClick={() => {
-        if (!isDownloading) {
-          downloadFile(file.path + file.name);
-        }
-      }}
-    >
-      <FontAwesomeIcon icon={faFile} className="mr-2" />
-      <p>{file.name}</p>
+    <div className="flex items-center justify-between group">
+      <div
+        className={`flex cursor-pointer items-center flex-1 ${isDownloading ? 'opacity-50 cursor-not-allowed' : ''}`}
+        onClick={() => {
+          if (!isDownloading) {
+            downloadFile(file.path + file.name);
+          }
+        }}
+      >
+        <FontAwesomeIcon icon={faFile} className="mr-2" />
+        <p>{file.name}</p>
+      </div>
+      <FontAwesomeIcon 
+        icon={faTrash}
+        className="cursor-pointer text-red-500 opacity-0 group-hover:opacity-100 transition-opacity mr-2"
+        onClick={(e) => {
+          e.stopPropagation();
+          deleteFile(file.path + file.name);
+        }}
+        title="Delete file"
+      />
     </div>
   );
 
