@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { createDeviceService } from "@/features/device/services/deviceService";
 import { getCurrentDeviceTimeCommand } from "@/services/dateTimeService";
+import { ISerialProvider } from "@/services/serialProvider";
 import { IFileStructure, ILatestVersions } from "@/types";
 import { getLatestVersions } from "@/utils/versionUtils";
-import { ISerialProvider } from "@/services/serialProvider";
 
 interface IUseDeviceSetupProps {
   serial: ISerialProvider;
@@ -42,10 +42,10 @@ export const useDeviceSetup = ({
 
     hasStarted.current = true;
 
+    serial.startReading();
+
     const initializeDevice = async () => {
       try {
-        await serial.startReading();
-
         // Sync device time
         await sendCommand(getCurrentDeviceTimeCommand(), false, false);
 
@@ -78,11 +78,12 @@ export const useDeviceSetup = ({
       } catch (error) {
         console.error("Device setup failed:", error);
         hasStarted.current = false;
+        setSetupComplete(false);
       }
     };
 
     initializeDevice();
-  }, [serial, sendCommand]);
+  }, [serial.isOpen]);
 
   return {
     setupComplete,

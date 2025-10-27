@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useCallback } from "react";
 
 interface IUseConsoleProps {
   onSendCommand: (command: string) => Promise<void>;
@@ -18,30 +18,21 @@ export const useConsole = ({
 }: IUseConsoleProps): IUseConsoleReturn => {
   const [consoleMessages, setConsoleMessages] = useState("");
   const [command, setCommand] = useState("");
-  const consoleRef = useRef<HTMLElement | null>(null);
 
-  const appendMessage = (message: string) => {
+  const appendMessage = useCallback((message: string) => {
     setConsoleMessages((prev) => prev + message);
-  };
+  }, []);
 
-  const clearConsole = () => {
+  const clearConsole = useCallback(() => {
     setConsoleMessages("");
-  };
+  }, []);
 
-  const sendCommand = async () => {
+  const sendCommand = useCallback(async () => {
     if (!command.trim()) return;
 
     await onSendCommand(command);
     setCommand("");
-  };
-
-  useEffect(() => {
-    const element = document.getElementById("serial_console");
-    if (element) {
-      consoleRef.current = element;
-      element.scrollTop = element.scrollHeight;
-    }
-  }, [consoleMessages]);
+  }, [command, onSendCommand]);
 
   return {
     consoleMessages,

@@ -183,10 +183,16 @@ const Controller = () => {
         renderFrame(consoleMessage);
       }
       setLoadingFrame(false);
-    } else {
+    } else if (consoleMessage) {
       appendMessage(consoleMessage);
     }
-  }, [consoleMessage, UIConfig.screenHide, renderFrame, appendMessage]);
+  }, [
+    consoleMessage,
+    UIConfig.screenHide,
+    renderFrame,
+    appendMessage,
+    setLoadingFrame,
+  ]);
 
   if (!setupComplete) {
     return <Loader />;
