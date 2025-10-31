@@ -2,7 +2,7 @@ services:
 
   mayhemhub:
     container_name: mayhemhub
-    image: node:18.17.0-alpine
+    image: mayhemhub:local
     ports:
       - "3000:3000"
     environment:

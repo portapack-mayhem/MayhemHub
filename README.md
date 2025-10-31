@@ -74,7 +74,7 @@ Follow these steps to get a local copy up and running.
 git clone https://github.com/portapack-mayhem/MayhemHub.git
 cd MayhemHub
 
-docker build -t mayhemhub .
+docker build -t mayhemhub:local .
 
 docker compose up -d
 ```
