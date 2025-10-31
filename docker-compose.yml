@@ -1,0 +1,9 @@
+services:
+
+  mayhemhub:
+    container_name: mayhemhub
+    image: node:18.17.0-alpine
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development

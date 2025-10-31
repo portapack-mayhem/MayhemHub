@@ -68,6 +68,21 @@ Follow these steps to get a local copy up and running.
 
 ### Installation & Running
 
+#### Option 1: Docker
+
+```
+git clone https://github.com/portapack-mayhem/MayhemHub.git
+cd MayhemHub
+
+docker build -t mayhemhub .
+
+docker compose up -d
+```
+Note: https is required for Web Serial API to work, so combine with a reverseproxy to use.
+
+
+#### Option 2: conventional
+
 1.  **Clone the repository:**
 
 ```bash
