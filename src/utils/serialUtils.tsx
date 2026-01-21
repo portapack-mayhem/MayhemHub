@@ -99,7 +99,9 @@ export const useWriteCommand = () => {
     let blob = new Blob([bytes]);
     const arrayBuffer = await blob.arrayBuffer();
   
-    const chunkSize = 100000;
+    // macOS needs smaller chunks to prevent serial buffer overflow
+    const isMac = typeof navigator !== 'undefined' && /Macintosh/.test(navigator.userAgent);
+    const chunkSize = isMac ? 4096 : 100000;
     let successfulChunks = 0;
     let failedChunks = 0;
   

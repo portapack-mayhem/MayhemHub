@@ -124,7 +124,9 @@ const useWebSerial = ({
   const [isReading, setIsReading] = useState<boolean>(false);
   const isIncomingMessage = useRef<boolean>(false);
   const [baudRate, setBaudRate] = useState<BaudRatesType>(115200);
-  const [bufferSize, setBufferSize] = useState(30);
+  // Use larger buffer for macOS to prevent serial issues
+  const isMac = typeof navigator !== 'undefined' && /Macintosh/.test(navigator.userAgent);
+  const [bufferSize, setBufferSize] = useState(isMac ? 4096 : 30);
   const [dataBits, setDataBits] = useState<DataBitsType>(8);
   const [stopBits, setStopBits] = useState<StopBitsType>(1);
   const [flowControl, setFlowControl] = useState<FlowControlType>("none");
@@ -313,7 +315,7 @@ const useWebSerial = ({
           if (
             done ||
             completeString.endsWith("ch> ") ||
-            completeString.endsWith(" bytes\r\n") // This is to handle fwb as it ends with "send x bytes"
+            completeString.endsWith(" bytes\r\n")
           ) {
             onData(completeString);
 
@@ -370,7 +372,7 @@ const useWebSerial = ({
    * @param {string} message
    */
   const write = useCallback(async () => {
-    if (messageQueue.length === 0 || isIncomingMessage.current) {
+    if (messageQueue.length === 0 || (!isMac && isIncomingMessage.current)) {
       return;
     }
 
@@ -380,22 +382,23 @@ const useWebSerial = ({
     const writer = port?.writable?.getWriter();
     if (writer) {
       try {
-        // Once speed is fixed, this can be swapped in for the loop below
-        await writer.write(data);
-
-        // let blob = new Blob([data]);
-        // const arrayBuffer = await blob.arrayBuffer();
-        // const chunkSize = 350;
-
-        // for (let i = 0; i < arrayBuffer.byteLength; i += chunkSize) {
-        //   const chunk = arrayBuffer.slice(i, i + chunkSize);
-        //   await delay(5);
-        //   await writer.write(new Uint8Array(chunk));
-        // }
+        if (isMac) {
+          // macOS fix: Write in small chunks with delays to prevent serial buffer overflow
+          const chunkSize = 64;
+          for (let i = 0; i < data.byteLength; i += chunkSize) {
+            const chunk = data.slice(i, i + chunkSize);
+            await delay(2);
+            await writer.write(chunk);
+          }
+        } else {
+          // other platforms: direct write
+          await writer.write(data);
+        }
         writer.releaseLock();
 
         setMessageQueue((prevQueue) => prevQueue.slice(1)); // Remove the message we just wrote from the queue
-      } finally {
+      } catch (e) {
+        console.error('Serial write error:', e);
         writer.releaseLock();
       }
     }
@@ -482,12 +485,18 @@ const useWebSerial = ({
     setMessageQueue((prevQueue) => [...prevQueue, message]); // Add the new message to the end of the queue
 
     let commandResponse;
+    let waitCount = 0;
     while (
       !(commandResponse = commandResponseMap.current.find(
         (item) => item.id === id && item.response !== null
       ))
     ) {
       await new Promise((r) => setTimeout(r, 50));
+      waitCount++;
+      // Timeout after 30 seconds to prevent infinite hangs
+      if (waitCount > 600) {
+        throw new Error('Binary response timeout');
+      }
     }
 
     return commandResponse;
