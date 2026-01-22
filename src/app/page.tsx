@@ -7,6 +7,7 @@ import Controller from "@/components/Controller/Controller";
 import { Footer } from "@/components/Footer/Footer";
 import { Loader } from "@/components/Loader/Loader";
 import { NavBar } from "@/components/NavBar/NavBar";
+import { isMac } from "@/utils/serialUtils";
 
 const Home = () => {
   const SerialLoader = dynamic(
@@ -16,17 +17,6 @@ const Home = () => {
       ssr: false,
     }
   );
-
-  const isMac = () => {
-    if (typeof window !== "undefined") {
-      const userAgent = window.navigator.userAgent;
-
-      if (userAgent.includes("Mac")) {
-        return true;
-      }
-    }
-    return false;
-  };
 
   return (
     <>
