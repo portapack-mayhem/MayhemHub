@@ -393,6 +393,7 @@ const useWebSerial = ({
         } else {
           // other platforms: direct write
           await writer.write(data);
+          writer.releaseLock();
         }
         setMessageQueue((prevQueue) => prevQueue.slice(1)); // Remove the message we just wrote from the queue
       } catch (e) {
@@ -613,3 +614,4 @@ export default useWebSerial;
 const getString: () => string = () => {
   return "Hello, world!";
 };
+
