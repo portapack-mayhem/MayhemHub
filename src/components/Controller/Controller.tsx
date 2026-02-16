@@ -7,6 +7,7 @@
 import {
   faRotate,
   faCheckCircle,
+  faClipboard,
   faGear,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -219,7 +220,7 @@ const Controller = () => {
   };
 
   const onScriptFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const fileList = event.target.files;
+  const fileList = event.target.files;
     if (!fileList) return;
 
     let file = fileList[0];
@@ -279,6 +280,41 @@ const Controller = () => {
 
     if (file) {
       reader.readAsText(file);
+    }
+  };
+  
+  const copyScreenToClipboard = async () => {
+    const screenGroup = document.getElementById("screenGroup");
+    const screenCanvas = screenGroup?.querySelector("canvas");
+
+    if (!screenCanvas) {
+      alert("No screen is available to copy.");
+      return;
+    }
+
+    try {
+      if (!navigator.clipboard || typeof ClipboardItem === "undefined") {
+        throw new Error("Clipboard image copy not supported");
+      }
+
+      const screenBlob = await new Promise<Blob | null>((resolve) => {
+        screenCanvas.toBlob(resolve, "image/png");
+      });
+
+      if (!screenBlob) {
+        throw new Error("Failed to create screen image");
+      }
+
+      await navigator.clipboard.write([
+        new ClipboardItem({
+          [screenBlob.type]: screenBlob,
+        }),
+      ]);
+
+      alert("Screen copied to clipboard");
+    } catch (error) {
+      console.error("Failed to copy screen to clipboard", error);
+      alert("Failed to copy screen to clipboard");
     }
   };
 
@@ -378,6 +414,15 @@ const Controller = () => {
                           "size-6 min-w-6 rounded-sm bg-slate-700 hover:bg-slate-600 text-white p-1 transition-colors duration-150 hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.4)] flex items-center justify-center"
                         }
                         shortcutKeys={"mod+R"}
+                      />
+                      <HotkeyButton
+                        label={<FontAwesomeIcon icon={faClipboard} />}
+                        disabled={disableTransmitAction}
+                        onClickFunction={copyScreenToClipboard}
+                        className={
+                          "size-6 min-w-6 rounded-sm bg-slate-700 hover:bg-slate-600 text-white p-1 transition-colors duration-150 hover:drop-shadow-[0_0_4px_rgba(255,255,255,0.4)] flex items-center justify-center"
+                        }
+                        shortcutKeys={""}
                       />
                     </div>
                   </div>
