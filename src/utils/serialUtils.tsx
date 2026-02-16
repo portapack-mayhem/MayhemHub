@@ -8,6 +8,16 @@ interface IDownloadedFile {
   filename: string;
 }
 
+export const isMac = (): boolean => {
+  if (typeof window !== "undefined") {
+    return /Mac/.test(window.navigator.userAgent);
+  }
+  if (typeof navigator !== "undefined") {
+    return /Mac/.test(navigator.userAgent);
+  }
+  return false;
+};
+
 export const useWriteCommand = () => {
   const { serial } = useSerial();
   const [loadingFrame, setLoadingFrame] = useState<boolean>(true);
@@ -99,7 +109,8 @@ export const useWriteCommand = () => {
     let blob = new Blob([bytes]);
     const arrayBuffer = await blob.arrayBuffer();
   
-    const chunkSize = 100000;
+    // macOS needs smaller chunks to prevent serial buffer overflow
+    const chunkSize = isMac() ? 4096 : 100000;
     let successfulChunks = 0;
     let failedChunks = 0;
   
