@@ -64,7 +64,7 @@ const Controller = () => {
   const { serial, consoleMessage } = useSerial();
   const { write, uploadFile, disableTransmitAction, setLoadingFrame } =
     useWriteCommand();
-  const { setupComplete, deviceVersion } = useDeviceSetup({
+  const { setupComplete, deviceVersion, deviceType } = useDeviceSetup({
     serial,
     write,
     setConsoleMessageList,
@@ -168,7 +168,7 @@ const Controller = () => {
 
   const flashLatestNightlyFirmware = async () => {
     const fileBlob = await downloadFileFromUrl(
-      "https://hackrf.app/api/fetch_nightly_firmware"
+      `https://hackrf.app/api/fetch_nightly_firmware?device=${deviceType}`
     );
 
     console.log("Downloading firmware update...", fileBlob.filename);
@@ -188,7 +188,7 @@ const Controller = () => {
   };
   const flashLatestStableFirmware = async () => {
     const fileBlob = await downloadFileFromUrl(
-      "https://hackrf.app/api/fetch_stable_firmware"
+      `https://hackrf.app/api/fetch_stable_firmware?device=${deviceType}`
     );
 
     console.log("Downloading firmware update...", fileBlob.filename);
