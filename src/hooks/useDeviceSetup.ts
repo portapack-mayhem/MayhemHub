@@ -21,6 +21,7 @@ interface IDeviceSetupReturn {
   setupComplete: boolean;
   deviceVersion: string;
   deviceType: string;
+  deviceName: string;
 }
 
 // Maps the Device: field from the info command to the API query param value.
@@ -44,6 +45,7 @@ export const useDeviceSetup = ({
   const [setupComplete, setSetupComplete] = useState(false);
   const [deviceVersion, setDeviceVersion] = useState("");
   const [deviceType, setDeviceType] = useState("hackrf");
+  const [deviceName, setDeviceName] = useState("");
 
   const started = useRef<boolean>(false);
 
@@ -90,7 +92,9 @@ export const useDeviceSetup = ({
         // Falls back to the default 'hackrf' if not found.
         const deviceMatch = infoCmd?.match(/^Device:\s*(.+)$/im);
         if (deviceMatch && deviceMatch.length > 1) {
-          setDeviceType(mapDeviceNameToApiParam(deviceMatch[1]));
+          const rawName = deviceMatch[1].trim();
+          setDeviceName(rawName);
+          setDeviceType(mapDeviceNameToApiParam(rawName));
         }
 
         await fetchFolderStructure();
@@ -120,5 +124,5 @@ export const useDeviceSetup = ({
   }, [serial]);
   //   }, [serial, write, setConsoleMessageList, setDirStructure, setLatestVersion]);
 
-  return { setupComplete, deviceVersion, deviceType };
+  return { setupComplete, deviceVersion, deviceType, deviceName };
 };

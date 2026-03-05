@@ -3,6 +3,7 @@ import { getVersionLink, getVersionType } from "@/utils/versionUtils";
 
 interface IFirmwareManager {
   deviceVersion: string;
+  deviceName?: string;
   latestVersion: ILatestVersions | undefined;
   disableTransmitAction: boolean;
   firmwareFileInputRef: React.RefObject<HTMLInputElement>;
@@ -14,6 +15,7 @@ interface IFirmwareManager {
 
 export const FirmwareManager: React.FC<IFirmwareManager> = ({
   deviceVersion,
+  deviceName,
   latestVersion,
   disableTransmitAction,
   firmwareFileInputRef,
@@ -23,6 +25,11 @@ export const FirmwareManager: React.FC<IFirmwareManager> = ({
   flashLatestNightlyFirmware,
 }) => (
   <div className="flex flex-col gap-3">
+    {deviceName && (
+      <p>
+        Device: <span>{deviceName}</span>
+      </p>
+    )}
     <p>
       Currently installed version:{" "}
       <a
@@ -84,10 +91,10 @@ export const FirmwareManager: React.FC<IFirmwareManager> = ({
     <div className="space-y-2">
       {updateStatus.includes("Progress") && (
         <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-          <div 
-            className="bg-blue-400 h-2.5 rounded-full transition-all duration-300" 
-            style={{ 
-              width: `${updateStatus.split('Progress: ')[1]?.split('%')[0] || 0}%` 
+          <div
+            className="bg-blue-400 h-2.5 rounded-full transition-all duration-300"
+            style={{
+              width: `${updateStatus.split("Progress: ")[1]?.split("%")[0] || 0}%`,
             }}
           ></div>
         </div>

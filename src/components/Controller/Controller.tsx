@@ -41,18 +41,19 @@ const Controller = () => {
   const [command, setCommand] = useState<string>("");
   const [selectedUploadFolder, setSelectedUploadFolder] = useState<string>("/");
   const [scriptStatus, setScriptStatus] = useState<string>(
-    "Type single command above or pick a script"
+    "Type single command above or pick a script",
   );
   const [autoUpdateFrame, setAutoUpdateFrame] = useState<boolean>(true);
   const [firmwarModalOpen, setFirmwarModalOpen] = useState<boolean>(false);
   const [scriptRunning, setScriptRunning] = useState<boolean>(false);
   const [dirStructure, setDirStructure] = useState<FileStructure[]>();
   const [latestVersion, setLatestVersion] = useState<ILatestVersions>();
-  
+
   // Upload progress state for file manager
   const [uploadStatus, setUploadStatus] = useState<string>("");
   const [isUploading, setIsUploading] = useState<boolean>(false);
-  const [currentUploadFileName, setCurrentUploadFileName] = useState<string>("");
+  const [currentUploadFileName, setCurrentUploadFileName] =
+    useState<string>("");
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const firmwareFileInputRef = useRef<HTMLInputElement>(null);
@@ -64,14 +65,21 @@ const Controller = () => {
   const { serial, consoleMessage } = useSerial();
   const { write, uploadFile, disableTransmitAction, setLoadingFrame } =
     useWriteCommand();
-  const { setupComplete, deviceVersion, deviceType } = useDeviceSetup({
-    serial,
-    write,
-    setConsoleMessageList,
-    setDirStructure,
-    setLatestVersion,
-  });
-  const { canvasRef, renderFrame, screenDimensions, needsRefresh, setNeedsRefresh } = useScreenFrame();
+  const { setupComplete, deviceVersion, deviceType, deviceName } =
+    useDeviceSetup({
+      serial,
+      write,
+      setConsoleMessageList,
+      setDirStructure,
+      setLatestVersion,
+    });
+  const {
+    canvasRef,
+    renderFrame,
+    screenDimensions,
+    needsRefresh,
+    setNeedsRefresh,
+  } = useScreenFrame();
   const { UIConfig, setUiConfig, handleUpdateUiHide } = useUIConfig();
 
   const sendCommand = async () => {
@@ -94,22 +102,22 @@ const Controller = () => {
   const onFileChange = (event: ChangeEvent<HTMLInputElement>, path: string) => {
     const fileList = event.target.files;
     if (!fileList) return;
-  
+
     let file = fileList[0];
     setCurrentUploadFileName(file.name);
     setIsUploading(true);
     // Don't set initial status - let uploadFile handle all status updates
-    
+
     let reader = new FileReader();
-  
+
     reader.onloadend = async () => {
       const arrayBuffer = reader.result;
       if (arrayBuffer instanceof ArrayBuffer) {
         let bytes = new Uint8Array(arrayBuffer);
-        
+
         // uploadFile will handle all status updates through setUploadStatus
         await uploadFile(path + file.name, bytes, setUploadStatus);
-        
+
         // Wait a bit after upload completes before closing modal
         setTimeout(() => {
           setIsUploading(false);
@@ -118,7 +126,7 @@ const Controller = () => {
         }, 5000);
       }
     };
-  
+
     reader.onerror = () => {
       console.error("A problem occurred while reading the file.");
       setUploadStatus("❌ Error: Failed to read file");
@@ -128,7 +136,7 @@ const Controller = () => {
         setCurrentUploadFileName("");
       }, 3000);
     };
-  
+
     if (file) {
       reader.readAsArrayBuffer(file);
     }
@@ -136,7 +144,7 @@ const Controller = () => {
 
   const onFirmwareFileChange = (
     event: ChangeEvent<HTMLInputElement>,
-    path: string
+    path: string,
   ) => {
     const fileList = event.target.files;
     if (!fileList) return;
@@ -152,7 +160,7 @@ const Controller = () => {
         await write(`flash ${path + file.name}`, false, true);
         console.log("DONE! firmware complete. Rebooting...");
         alert(
-          "Firmware update complete! Please wait for your device to reboot."
+          "Firmware update complete! Please wait for your device to reboot.",
         );
       }
     };
@@ -168,7 +176,7 @@ const Controller = () => {
 
   const flashLatestNightlyFirmware = async () => {
     const fileBlob = await downloadFileFromUrl(
-      `https://hackrf.app/api/fetch_nightly_firmware?device=${deviceType}`
+      `https://hackrf.app/api/fetch_nightly_firmware?device=${deviceType}`,
     );
 
     console.log("Downloading firmware update...", fileBlob.filename);
@@ -177,7 +185,7 @@ const Controller = () => {
     await uploadFile(
       `/FIRMWARE/${fileBlob.filename}`,
       new Uint8Array(await fileBlob.blob.arrayBuffer()),
-      setUpdateStatus
+      setUpdateStatus,
     );
 
     // not necessary after #2155 in main repo. (but not harmful)
@@ -188,7 +196,7 @@ const Controller = () => {
   };
   const flashLatestStableFirmware = async () => {
     const fileBlob = await downloadFileFromUrl(
-      `https://hackrf.app/api/fetch_stable_firmware?device=${deviceType}`
+      `https://hackrf.app/api/fetch_stable_firmware?device=${deviceType}`,
     );
 
     console.log("Downloading firmware update...", fileBlob.filename);
@@ -197,7 +205,7 @@ const Controller = () => {
     await uploadFile(
       `/FIRMWARE/${fileBlob.filename}`,
       new Uint8Array(await fileBlob.blob.arrayBuffer()),
-      setUpdateStatus
+      setUpdateStatus,
     );
 
     await write(`flash /FIRMWARE/${fileBlob.filename}`, false, true);
@@ -220,7 +228,7 @@ const Controller = () => {
   };
 
   const onScriptFileChange = (event: ChangeEvent<HTMLInputElement>) => {
-  const fileList = event.target.files;
+    const fileList = event.target.files;
     if (!fileList) return;
 
     let file = fileList[0];
@@ -282,7 +290,7 @@ const Controller = () => {
       reader.readAsText(file);
     }
   };
-  
+
   const copyScreenToClipboard = async () => {
     const screenGroup = document.getElementById("screenGroup");
     const screenCanvas = screenGroup?.querySelector("canvas");
@@ -338,7 +346,7 @@ const Controller = () => {
       setLoadingFrame(false);
     } else {
       setConsoleMessageList(
-        (prevConsoleMessageList) => prevConsoleMessageList + consoleMessage
+        (prevConsoleMessageList) => prevConsoleMessageList + consoleMessage,
       );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -346,7 +354,7 @@ const Controller = () => {
 
   useEffect(() => {
     let serial_console = document.getElementById(
-      "serial_console"
+      "serial_console",
     ) as HTMLElement;
 
     if (!!serial_console) {
@@ -480,6 +488,9 @@ const Controller = () => {
               )}
               {!UIConfig.firmwareManagerHide && (
                 <div className="m-5 flex w-[20%] flex-col items-center justify-center rounded-md bg-component p-5">
+                  {deviceName && (
+                    <p className="text-center text-sm">Device: {deviceName}</p>
+                  )}
                   <p className="pb-5 text-center text-sm">
                     Firmware Version: {deviceVersion}
                   </p>
@@ -525,6 +536,7 @@ const Controller = () => {
         ) : (
           <FirmwareManager
             deviceVersion={deviceVersion}
+            deviceName={deviceName}
             latestVersion={latestVersion}
             disableTransmitAction={disableTransmitAction}
             firmwareFileInputRef={firmwareFileInputRef}
@@ -558,10 +570,10 @@ const Controller = () => {
         <div className="space-y-2">
           {uploadStatus.includes("Progress") && (
             <div className="w-full bg-gray-200 rounded-full h-2.5 dark:bg-gray-700">
-              <div 
-                className="bg-blue-400 h-2.5 rounded-full transition-all duration-300" 
-                style={{ 
-                  width: `${uploadStatus.split('Progress: ')[1]?.split('%')[0] || 0}%` 
+              <div
+                className="bg-blue-400 h-2.5 rounded-full transition-all duration-300"
+                style={{
+                  width: `${uploadStatus.split("Progress: ")[1]?.split("%")[0] || 0}%`,
                 }}
               />
             </div>
@@ -574,4 +586,3 @@ const Controller = () => {
 };
 
 export default Controller;
-
