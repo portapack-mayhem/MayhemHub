@@ -27,6 +27,9 @@ export const NavBar = () => {
         <a href="https://release.hackrf.app" target="_blank" className="p-4">
           Firmware Releases
         </a>
+        <a href="https://browsdr.jlynx.net/" target="_blank" className="p-4">
+          BrowSDR
+        </a>
         <a
           href="https://github.com/portapack-mayhem/MayhemHub"
           target="_blank"
