@@ -10,7 +10,7 @@ interface IDeviceSetup {
   write: (
     command: string,
     updateFrame: boolean,
-    awaitResponse?: boolean
+    awaitResponse?: boolean,
   ) => Promise<any>;
   setConsoleMessageList: (value: string) => void;
   setDirStructure: (value: FileStructure[]) => void;
@@ -20,7 +20,20 @@ interface IDeviceSetup {
 interface IDeviceSetupReturn {
   setupComplete: boolean;
   deviceVersion: string;
+  deviceType: string;
+  deviceName: string;
 }
+
+// Maps the Device: field from the info command to the API query param value.
+// Defaults to 'hackrf' for backwards compatibility with older firmware that
+// does not return a Device line.
+const mapDeviceNameToApiParam = (deviceName: string): string => {
+  const name = deviceName.trim().toLowerCase();
+  if (name.includes("hackrf pro")) return "hpro";
+  if (name.includes("portarf")) return "portarf";
+  // 'HackRF One' and any unrecognised value fall back to the default
+  return "hackrf";
+};
 
 export const useDeviceSetup = ({
   serial,
@@ -31,6 +44,8 @@ export const useDeviceSetup = ({
 }: IDeviceSetup): IDeviceSetupReturn => {
   const [setupComplete, setSetupComplete] = useState(false);
   const [deviceVersion, setDeviceVersion] = useState("");
+  const [deviceType, setDeviceType] = useState("hackrf");
+  const [deviceName, setDeviceName] = useState("");
 
   const started = useRef<boolean>(false);
 
@@ -73,6 +88,15 @@ export const useDeviceSetup = ({
           console.log("Mayhem version not found!");
         }
 
+        // Parse the Device field – present in newer firmware only.
+        // Falls back to the default 'hackrf' if not found.
+        const deviceMatch = infoCmd?.match(/^Device:\s*(.+)$/im);
+        if (deviceMatch && deviceMatch.length > 1) {
+          const rawName = deviceMatch[1].trim();
+          setDeviceName(rawName);
+          setDeviceType(mapDeviceNameToApiParam(rawName));
+        }
+
         await fetchFolderStructure();
 
         write("screenframeshort", false);
@@ -100,5 +124,5 @@ export const useDeviceSetup = ({
   }, [serial]);
   //   }, [serial, write, setConsoleMessageList, setDirStructure, setLatestVersion]);
 
-  return { setupComplete, deviceVersion };
+  return { setupComplete, deviceVersion, deviceType, deviceName };
 };
