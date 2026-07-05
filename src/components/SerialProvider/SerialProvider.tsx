@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { IDataPacket } from "@/types";
-import { isMac } from "@/utils/serialUtils";
 
 // Needing to do this as the typescript definitions for the Web Serial API are not yet complete
 interface IWebSerialPort extends SerialPort {
@@ -125,8 +124,7 @@ const useWebSerial = ({
   const [isReading, setIsReading] = useState<boolean>(false);
   const isIncomingMessage = useRef<boolean>(false);
   const [baudRate, setBaudRate] = useState<BaudRatesType>(115200);
-  // Use larger buffer for macOS to prevent serial issues
-  const [bufferSize, setBufferSize] = useState(isMac() ? 4096 : 30);
+  const [bufferSize, setBufferSize] = useState(4096);
   const [dataBits, setDataBits] = useState<DataBitsType>(8);
   const [stopBits, setStopBits] = useState<StopBitsType>(1);
   const [flowControl, setFlowControl] = useState<FlowControlType>("none");
@@ -363,16 +361,12 @@ const useWebSerial = ({
     port.cancelRequested = true;
   };
 
-  const delay = (ms: number) => {
-    return new Promise((resolve) => setTimeout(resolve, ms));
-  };
-
   /**
    *
    * @param {string} message
    */
   const write = useCallback(async () => {
-    if (messageQueue.length === 0 || (!isMac() && isIncomingMessage.current)) {
+    if (messageQueue.length === 0 || isIncomingMessage.current) {
       return;
     }
 
@@ -382,22 +376,10 @@ const useWebSerial = ({
     const writer = port?.writable?.getWriter();
     if (writer) {
       try {
-        if (isMac()) {
-          // macOS fix: Write in small chunks with delays to prevent serial buffer overflow
-          const chunkSize = 64;
-          for (let i = 0; i < data.byteLength; i += chunkSize) {
-            const chunk = data.slice(i, i + chunkSize);
-            await delay(2);
-            await writer.write(chunk);
-          }
-        } else {
-          // other platforms: direct write
-          await writer.write(data);
-          writer.releaseLock();
-        }
+        await writer.write(data);
         setMessageQueue((prevQueue) => prevQueue.slice(1)); // Remove the message we just wrote from the queue
       } catch (e) {
-        console.error('Serial write error:', e);
+        console.error("Serial write error:", e);
         // Optionally still remove from queue or handle retry logic
       } finally {
         writer.releaseLock();
